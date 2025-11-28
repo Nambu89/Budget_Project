@@ -49,6 +49,11 @@ def init_session_state() -> None:
 
 def main() -> None:
     """Función principal de la aplicación."""
+    # Verificar autenticación
+    if not st.session_state.get("authenticated"):
+        render_login()
+        return
+    
     # Inicializar estado
     init_session_state()
     
@@ -362,6 +367,18 @@ def _finalizar_presupuesto() -> None:
             # Generar PDF
             pdf_bytes = crew.document_agent.generar_pdf(presupuesto)
             st.session_state.pdf_bytes = pdf_bytes
+            
+            # Guardar en BD si el usuario está autenticado
+            if st.session_state.get("authenticated"):
+                user_id = st.session_state.user["id"]
+                resultado = crew.document_agent.budget_service.guardar_presupuesto(
+                    user_id=user_id,
+                    presupuesto=presupuesto
+                )
+                if resultado.get("guardado"):
+                    logger.info(f"✓ Presupuesto guardado para usuario {user_id}")
+                else:
+                    logger.warning(f"No se pudo guardar presupuesto: {resultado.get('error')}")
             
             # Actualizar desglose
             st.session_state.desglose = crew.calculator.obtener_desglose_completo(presupuesto)

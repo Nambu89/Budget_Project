@@ -10,7 +10,7 @@ from crewai import Agent, LLM
 from loguru import logger
 
 from ...config.settings import settings
-from ...domain.enums import PropertyType, QualityLevel, WorkCategory
+from src.domain.enums import PropertyType, QualityLevel, WorkCategory
 
 
 def get_azure_llm() -> LLM:

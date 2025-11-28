@@ -60,6 +60,36 @@ class PricingService:
             f"redondeo={self.redondeo_alza}%, IVA={self.iva_general}/{self.iva_reducido}%"
         )
     
+
+    def ajustar_precio_por_ipc(
+        self,
+        precio_base: float,
+        ano_base: int = None,
+        ano_actual: int = None,
+        ipc_anual: float = None
+    ) -> float:
+        """Ajusta un precio según el IPC acumulado."""
+        from datetime import datetime
+        
+        ano_base = ano_base or settings.ano_base_precios
+        ano_actual = ano_actual or datetime.now().year
+        ipc_anual = ipc_anual or settings.ipc_anual
+        
+        anos_transcurridos = ano_actual - ano_base
+        if anos_transcurridos <= 0:
+            return precio_base
+        
+        factor_ipc = (1 + ipc_anual / 100) ** anos_transcurridos
+        precio_ajustado = round(precio_base * factor_ipc, 2)
+        
+        logger.debug(
+            f"IPC aplicado: {precio_base:.2f}€ ({ano_base}) → "
+            f"{precio_ajustado:.2f}€ ({ano_actual}) | "
+            f"Factor: {factor_ipc:.4f} ({anos_transcurridos} años @ {ipc_anual}%)"
+        )
+        
+        return precio_ajustado
+    
     # ==========================================
     # Obtención de precios base
     # ==========================================
@@ -81,7 +111,8 @@ class PricingService:
         Returns:
             float: Precio base sin markup
         """
-        return get_precio_partida(categoria, partida, calidad.value)
+        precio_base = get_precio_partida(categoria, partida, calidad.value)
+        return self.ajustar_precio_por_ipc(precio_base)
     
     def obtener_precio_paquete(
         self,
@@ -100,7 +131,8 @@ class PricingService:
         Returns:
             float: Precio del paquete
         """
-        return get_precio_paquete(paquete, calidad.value, metros)
+        precio_base = get_precio_paquete(paquete, calidad.value, metros)
+        return self.ajustar_precio_por_ipc(precio_base)
     
     def obtener_info_partida(
         self,

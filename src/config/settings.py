@@ -27,6 +27,12 @@ class Settings(BaseSettings):
     )
     
     # ==========================================
+    # Database
+    # ==========================================
+    database_url: str = "sqlite:///./data/budget.db"
+    
+    
+    # ==========================================
     # Proveedor LLM
     # ==========================================
     llm_provider: Literal["azure", "openai"] = Field(
@@ -133,6 +139,19 @@ class Settings(BaseSettings):
     empresa_web: str = Field(
         default="www.easyobras.es",
         description="Web de la empresa"
+    )
+    
+    # ==========================================
+    # Precios e IPC
+    # ==========================================
+    ano_base_precios: int = Field(
+        default=2024,
+        description="Año base para los precios del catálogo"
+    )
+    
+    ipc_anual: float = Field(
+        default=3.5,
+        description="IPC anual estimado para ajuste de precios (%)"
     )
     
     # ==========================================

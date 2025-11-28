@@ -494,6 +494,201 @@ class BudgetService:
             Budget: Copia del presupuesto
         """
         nuevo = presupuesto.model_copy(deep=True)
+        cliente = Customer(
+            nombre=nombre,
+            email=email,
+            telefono=telefono,
+            direccion_obra=direccion_obra,
+            es_vivienda_habitual=presupuesto.proyecto.es_vivienda_habitual,
+            logo_path=logo_path,
+            notas=notas,
+        )
+        
+        presupuesto.cliente = cliente
+        logger.info(f"Cliente asignado: {cliente.nombre}")
+        
+        return cliente
+    
+    # ==========================================
+    # Cálculos y totales
+    # ==========================================
+    
+    def calcular_totales(self, presupuesto: Budget) -> dict:
+        """
+        Calcula todos los totales del presupuesto.
+        
+        Aplica redondeo al alza y calcula IVA.
+        
+        Args:
+            presupuesto: Presupuesto
+            
+        Returns:
+            dict: Desglose completo de totales
+        """
+        return self.pricing.calcular_total_con_iva(
+            base_imponible=presupuesto.subtotal,
+            es_vivienda_habitual=presupuesto.proyecto.puede_iva_reducido,
+        )
+    
+    def obtener_total_con_redondeo(self, presupuesto: Budget) -> float:
+        """
+        Obtiene el total final con redondeo al alza aplicado.
+        
+        Args:
+            presupuesto: Presupuesto
+            
+        Returns:
+            float: Total final
+        """
+        totales = self.calcular_totales(presupuesto)
+        return totales["total"]
+    
+    def aplicar_descuento(
+        self,
+        presupuesto: Budget,
+        porcentaje: float,
+    ) -> None:
+        """
+        Aplica un descuento al presupuesto.
+        
+        Args:
+            presupuesto: Presupuesto
+            porcentaje: Porcentaje de descuento (0-100)
+        """
+        presupuesto.descuento_porcentaje = min(max(porcentaje, 0), 100)
+        logger.info(f"Descuento aplicado: {presupuesto.descuento_porcentaje}%")
+    
+    # ==========================================
+    # Comparativas
+    # ==========================================
+    
+    def comparar_con_paquete(
+        self,
+        presupuesto: Budget,
+        paquete: str,
+    ) -> dict:
+        """
+        Compara el precio actual del presupuesto con un paquete equivalente.
+        
+        Args:
+            presupuesto: Presupuesto actual
+            paquete: Paquete a comparar
+            
+        Returns:
+            dict: Comparativa con ahorro potencial
+        """
+        precio_actual = presupuesto.subtotal
+        precio_paquete = self.pricing.obtener_precio_paquete(
+            paquete=paquete,
+            calidad=presupuesto.proyecto.calidad_general,
+            metros=presupuesto.proyecto.metros_cuadrados,
+        )
+        
+        ahorro = precio_actual - precio_paquete
+        
+        return {
+            "precio_actual": precio_actual,
+            "precio_paquete": precio_paquete,
+            "ahorro": ahorro,
+            "ahorro_porcentaje": round(ahorro / precio_actual * 100, 1) if precio_actual > 0 else 0,
+            "recomendacion": "paquete" if ahorro > 0 else "mantener_actual",
+        }
+    
+    # ==========================================
+    # Generación de documentos
+    # ==========================================
+    
+    def generar_pdf(
+        self,
+        presupuesto: Budget,
+        output_path: Optional[str] = None,
+    ) -> bytes:
+        """
+        Genera el PDF del presupuesto.
+        
+        Args:
+            presupuesto: Presupuesto
+            output_path: Ruta de salida (opcional)
+            
+        Returns:
+            bytes: Contenido del PDF
+        """
+        logo_path = None
+        if presupuesto.cliente and presupuesto.cliente.logo_path:
+            logo_path = presupuesto.cliente.logo_path
+        
+        pdf_bytes = generar_pdf_presupuesto(
+            budget=presupuesto,
+            logo_path=logo_path,
+            output_path=output_path,
+        )
+        
+        logger.info(f"PDF generado: {len(pdf_bytes)} bytes")
+        return pdf_bytes
+    
+    def generar_resumen_texto(self, presupuesto: Budget) -> str:
+        """
+        Genera un resumen en texto del presupuesto.
+        
+        Args:
+            presupuesto: Presupuesto
+            
+        Returns:
+            str: Resumen legible
+        """
+        return presupuesto.resumen_texto()
+    
+    # ==========================================
+    # Utilidades
+    # ==========================================
+    
+    def validar_presupuesto(self, presupuesto: Budget) -> dict:
+        """
+        Valida que el presupuesto esté completo.
+        
+        Args:
+            presupuesto: Presupuesto a validar
+            
+        Returns:
+            dict: Resultado de validación con errores/warnings
+        """
+        errores = []
+        warnings = []
+        
+        # Validar proyecto
+        if presupuesto.proyecto.metros_cuadrados <= 0:
+            errores.append("Los metros cuadrados deben ser mayores a 0")
+        
+        # Validar partidas
+        if not presupuesto.partidas:
+            warnings.append("El presupuesto no tiene partidas")
+        
+        # Validar cliente (warning, no error)
+        if not presupuesto.tiene_cliente:
+            warnings.append("No se han asignado datos del cliente")
+        
+        # Validar totales
+        if presupuesto.subtotal <= 0:
+            warnings.append("El subtotal es 0")
+        
+        return {
+            "valido": len(errores) == 0,
+            "errores": errores,
+            "warnings": warnings,
+            "completo": len(errores) == 0 and len(warnings) == 0,
+        }
+    
+    def duplicar_presupuesto(self, presupuesto: Budget) -> Budget:
+        """
+        Crea una copia del presupuesto con nuevo ID y fecha.
+        
+        Args:
+            presupuesto: Presupuesto original
+            
+        Returns:
+            Budget: Copia del presupuesto
+        """
+        nuevo = presupuesto.model_copy(deep=True)
         nuevo.id = None  # Se generará nuevo
         nuevo.numero_presupuesto = None  # Se generará nuevo
         nuevo.fecha_emision = datetime.now()
@@ -503,6 +698,88 @@ class BudgetService:
         
         logger.info(f"Presupuesto duplicado: {nuevo.numero_presupuesto}")
         return nuevo
+    
+    # ==========================================
+    # Guardado en Base de Datos
+    # ==========================================
+    
+    def guardar_presupuesto(self, user_id: str, presupuesto: Budget) -> dict:
+        """
+        Guarda el presupuesto en la base de datos asociado al usuario.
+        
+        Args:
+            user_id: ID del usuario
+            presupuesto: Presupuesto a guardar
+            
+        Returns:
+            dict: Información del presupuesto guardado
+        """
+        import json
+        from ...infrastructure.database import get_db_session
+        from ...infrastructure.database.models import Budget as BudgetModel, User
+        
+        try:
+            with get_db_session() as session:
+                # Preparar datos para guardar
+                budget_db = BudgetModel(
+                    user_id=user_id,
+                    numero_presupuesto=presupuesto.numero_presupuesto,
+                    datos_proyecto=json.dumps({
+                        "tipo_inmueble": presupuesto.proyecto.tipo_inmueble.value,
+                        "metros_cuadrados": presupuesto.proyecto.metros_cuadrados,
+                        "calidad": presupuesto.proyecto.calidad_general.value,
+                        "es_vivienda_habitual": presupuesto.proyecto.es_vivienda_habitual,
+                        "estado_actual": presupuesto.proyecto.estado_actual,
+                    }),
+                    partidas=json.dumps([
+                        {
+                            "codigo": p.codigo,
+                            "descripcion": p.descripcion,
+                            "cantidad": p.cantidad,
+                            "unidad": p.unidad,
+                            "precio_unitario": p.precio_unitario,
+                            "subtotal": p.subtotal,
+                            "es_paquete": p.es_paquete,
+                        }
+                        for p in presupuesto.partidas
+                    ]),
+                    paquetes=json.dumps([
+                        {
+                            "codigo": p.codigo,
+                            "nombre": p.nombre if hasattr(p, 'nombre') else p.descripcion,
+                        }
+                        for p in presupuesto.partidas if p.es_paquete
+                    ]),
+                    total_sin_iva=presupuesto.subtotal,
+                    total_con_iva=presupuesto.total,
+                    iva_aplicado=presupuesto.iva_porcentaje,
+                    fecha_validez=presupuesto.fecha_validez,
+                )
+                
+                session.add(budget_db)
+                
+                # Actualizar contador del usuario
+                user = session.query(User).filter_by(id=user_id).first()
+                if user:
+                    user.num_presupuestos += 1
+                
+                session.commit()
+                
+                logger.info(f"✓ Presupuesto guardado en BD: {presupuesto.numero_presupuesto} (user: {user_id})")
+                
+                return {
+                    "id": budget_db.id,
+                    "numero_presupuesto": budget_db.numero_presupuesto,
+                    "total": budget_db.total_con_iva,
+                    "guardado": True,
+                }
+                
+        except Exception as e:
+            logger.error(f"Error guardando presupuesto en BD: {e}")
+            return {
+                "guardado": False,
+                "error": str(e),
+            }
 
 
 # Instancia singleton

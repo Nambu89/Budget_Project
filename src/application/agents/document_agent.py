@@ -262,7 +262,7 @@ class DocumentAgent:
             "  • Este presupuesto es una estimación orientativa",
             "  • Precios sujetos a visita técnica",
             f"  • Válido {presupuesto.dias_validez} días desde emisión",
-            "  • IVA no incluido en precios unitarios",
+            "  • IVA incluido en precios unitarios",
             "",
             "=" * 60,
         ])

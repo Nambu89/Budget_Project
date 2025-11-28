@@ -131,7 +131,7 @@ def render_sidebar_info() -> None:
         st.markdown("### ℹ️ Información")
         st.markdown("""
         - Presupuesto orientativo
-        - IVA no incluido en precios
+        - IVA incluido en precios
         - Válido 30 días
         - Requiere visita técnica
         """)

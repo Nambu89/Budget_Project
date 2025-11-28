@@ -10,7 +10,7 @@ from crewai import Crew, Process
 from loguru import logger
 
 from ...config.settings import settings
-from ...domain.models import Budget
+from src.domain.models import Budget
 from ..agents.data_collector_agent import DataCollectorAgent
 from ..agents.calculator_agent import CalculatorAgent
 from ..agents.document_agent import DocumentAgent

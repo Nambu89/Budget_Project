@@ -9,7 +9,7 @@ import streamlit as st
 from typing import Optional
 import base64
 
-from ...domain.models import Budget
+from src.domain.models import Budget
 
 
 def render_results(

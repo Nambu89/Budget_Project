@@ -395,10 +395,10 @@ Este presupuesto es una ESTIMACIÓN ORIENTATIVA basada en la información
 proporcionada por el cliente sin visita presencial a la obra.
 
 El presupuesto definitivo se emitirá tras:
-• Visita técnica in situ
-• Evaluación del estado real de las instalaciones
-• Confirmación de mediciones exactas
-• Verificación de cumplimiento normativo
+- Visita técnica in situ
+- Evaluación del estado real de las instalaciones
+- Confirmación de mediciones exactas
+- Verificación de cumplimiento normativo
 """,
 
     "validez": """
@@ -410,47 +410,47 @@ variaciones.
 
     "iva": """
 💰 IMPUESTOS
-• IVA del {iva_porcentaje}% NO incluido en los precios mostrados
-• El IVA se añadirá al total del presupuesto
-• Vivienda habitual: IVA reducido del 10% (bajo condiciones)
-• Resto de inmuebles: IVA general del 21%
+- IVA del {iva_porcentaje}% NO incluido en los precios mostrados
+- El IVA se añadirá al total del presupuesto
+- Vivienda habitual: IVA reducido del 10% (bajo condiciones)
+- Resto de inmuebles: IVA general del 21%
 """,
 
     "forma_pago": """
 💳 FORMA DE PAGO
 Forma de pago habitual (negociable según contrato):
-• 40% al inicio de los trabajos
-• 40% a mitad de obra
-• 20% a la finalización y conformidad
+- 40% al inicio de los trabajos
+- 40% a mitad de obra
+- 20% a la finalización y conformidad
 """,
 
     "variaciones": """
 ⚡ POSIBLES VARIACIONES
 Los precios pueden variar en función de:
-• Estado oculto de instalaciones (tuberías, cableado, estructura)
-• Necesidades no detectables sin catas previas
-• Cambios normativos o de permisos municipales
-• Variaciones significativas en costes de materiales
-• Modificaciones solicitadas por el cliente durante la obra
+- Estado oculto de instalaciones (tuberías, cableado, estructura)
+- Necesidades no detectables sin catas previas
+- Cambios normativos o de permisos municipales
+- Variaciones significativas en costes de materiales
+- Modificaciones solicitadas por el cliente durante la obra
 """,
 
     "no_incluido": """
 ❌ NO INCLUIDO (salvo indicación expresa)
-• Licencias y tasas municipales
-• Permisos de obra
-• Contenedores de escombros
-• Mudanzas o vaciado previo
-• Mobiliario decorativo
-• Electrodomésticos no especificados
+- Licencias y tasas municipales
+- Permisos de obra
+- Contenedores de escombros
+- Mudanzas o vaciado previo
+- Mobiliario decorativo
+- Electrodomésticos no especificados
 """,
 
     "garantias": """
 🛡️ GARANTÍAS
 Los trabajos ejecutados contarán con las garantías establecidas por la 
 legislación vigente:
-• Ley 38/1999 de Ordenación de la Edificación
-• Normativa de protección al consumidor aplicable
-• Garantía de materiales según fabricante
+- Ley 38/1999 de Ordenación de la Edificación
+- Normativa de protección al consumidor aplicable
+- Garantía de materiales según fabricante
 """,
 
     "proteccion_datos": """

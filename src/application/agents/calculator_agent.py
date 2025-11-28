@@ -10,8 +10,8 @@ from crewai import Agent, LLM, Task
 from loguru import logger
 
 from ...config.settings import settings
-from ...domain.enums import PropertyType, QualityLevel, WorkCategory
-from ...domain.models import Budget, Project
+from src.domain.enums import PropertyType, QualityLevel, WorkCategory
+from src.domain.models import Budget, Project
 from ..services import BudgetService, get_budget_service
 
 
