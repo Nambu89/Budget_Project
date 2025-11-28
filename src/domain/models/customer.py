@@ -1,30 +1,18 @@
 """
-Modelo Customer para datos del cliente.
-
-Representa la información del cliente que solicita
-el presupuesto de reforma.
+Modelo Customer para datos del cliente con sanitización de seguridad.
 """
 
 from typing import Optional
 from pydantic import BaseModel, Field, EmailStr, field_validator
 import re
+import html
 
 
 class Customer(BaseModel):
     """
-    Modelo de datos del cliente.
+    Modelo de datos del cliente con sanitización automática.
     
-    Almacena la información personal y de contacto
-    del cliente que solicita el presupuesto.
-    
-    Attributes:
-        nombre: Nombre completo del cliente
-        email: Correo electrónico de contacto
-        telefono: Teléfono de contacto
-        direccion_obra: Dirección donde se realizará la obra
-        es_vivienda_habitual: Si la obra es en su vivienda habitual (afecta IVA)
-        logo_path: Ruta al logo del cliente (opcional, monetización)
-        notas: Notas adicionales del cliente
+    Previene inyecciones XSS sanitizando todos los inputs de texto.
     """
     
     nombre: str = Field(
@@ -93,11 +81,33 @@ class Customer(BaseModel):
         
         return telefono_limpio
     
-    @field_validator("nombre")
+    @field_validator("nombre", "direccion_obra", "notas")
     @classmethod
-    def validar_nombre(cls, v: str) -> str:
-        """Normaliza el nombre (capitalización)."""
-        return " ".join(word.capitalize() for word in v.split())
+    def sanitize_text_inputs(cls, v: Optional[str]) -> Optional[str]:
+        """
+        SEGURIDAD: Sanitiza inputs de texto para prevenir XSS.
+        
+        Escapa caracteres HTML peligrosos: <, >, &, ", '
+        """
+        if v is None:
+            return None
+        
+        # Sanitizar HTML
+        sanitized = html.escape(v.strip())
+        
+        # Limitar caracteres especiales excesivos
+        if len(sanitized) != len(v.strip()):
+            # Se detectaron caracteres especiales, loguear por seguridad
+            from loguru import logger
+            logger.warning(f"Input sanitizado detectado: caracteres HTML escapados")
+        
+        return sanitized
+    
+    @field_validator("email")
+    @classmethod
+    def normalizar_email(cls, v: str) -> str:
+        """Normaliza el email a minúsculas."""
+        return v.lower().strip()
     
     @property
     def telefono_formateado(self) -> str:
@@ -118,7 +128,7 @@ class Customer(BaseModel):
         Retorna diccionario con datos formateados para el PDF.
         
         Returns:
-            dict: Datos listos para insertar en el PDF
+            dict: Datos listos para insertar en el PDF (ya sanitizados)
         """
         return {
             "nombre": self.nombre,

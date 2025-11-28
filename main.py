@@ -1,129 +1,138 @@
 """
-Budget Calculator - Entry Point.
-
-Punto de entrada principal para la aplicación de
-calculadora de presupuestos de reforma.
-
-Uso:
-    streamlit run main.py
+Entry point principal con health check mejorado.
 """
 
 import sys
-from pathlib import Path
-
-# Añadir el directorio raíz al path
-ROOT_DIR = Path(__file__).parent
-sys.path.insert(0, str(ROOT_DIR))
-
+import os
 from loguru import logger
+from datetime import datetime
 
-import streamlit as st
-
-from src.config.settings import settings
-from src.application.presentation.streamlit_app import main
-
-
-def configure_logging() -> None:
-    """Configura el sistema de logging."""
-    # Remover handler por defecto
-    logger.remove()
-    
-    # Formato del log
-    log_format = (
-        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-        "<level>{level: <8}</level> | "
-        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
-        "<level>{message}</level>"
-    )
-    
-    # Añadir handler de consola
-    logger.add(
-        sys.stderr,
-        format=log_format,
-        level="DEBUG" if settings.debug else "INFO",
-        colorize=True,
-    )
-    
-    # Añadir handler de archivo en producción
-    if settings.environment == "production":
-        logger.add(
-            "logs/budget_calculator.log",
-            format=log_format,
-            level="INFO",
-            rotation="10 MB",
-            retention="7 days",
-            compression="gz",
-        )
-    
-    logger.info(f"Logging configurado - Nivel: {'DEBUG' if settings.debug else 'INFO'}")
+# Configurar logging
+logger.remove()
+logger.add(
+	sys.stderr,
+	format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | <level>{message}</level>",
+	level="INFO" if os.getenv("ENVIRONMENT") == "production" else "DEBUG",
+)
 
 
-def check_configuration() -> bool:
-    """
-    Verifica que la configuración sea correcta.
-    
-    Returns:
-        bool: True si la configuración es válida
-    """
-    errores = []
-    
-    # Verificar proveedor LLM
-    if settings.llm_provider == "azure":
-        if not settings.is_azure_configured():
-            errores.append(
-                "Azure OpenAI seleccionado pero faltan variables: "
-                "AZURE_OPENAI_ENDPOINT y/o AZURE_OPENAI_API_KEY"
-            )
-    elif settings.llm_provider == "openai":
-        if not settings.is_openai_configured():
-            errores.append(
-                "OpenAI seleccionado pero falta: OPENAI_API_KEY"
-            )
-    
-    # Mostrar errores si existen
-    if errores:
-        logger.error("❌ Errores de configuración:")
-        for error in errores:
-            logger.error(f"  - {error}")
-        logger.error("Revisa tu archivo .env")
-        return False
-    
-    # Mostrar configuración activa
-    logger.info("✓ Configuración válida")
-    logger.info(f"  - Entorno: {settings.environment}")
-    logger.info(f"  - LLM Provider: {settings.llm_provider}")
-    logger.info(f"  - Debug: {settings.debug}")
-    logger.info(f"  - IVA General: {settings.iva_general}%")
-    logger.info(f"  - IVA Reducido: {settings.iva_reducido}%")
-    logger.info(f"  - Markup partidas: {settings.markup_partidas_individuales}%")
-    logger.info(f"  - Redondeo: {settings.redondeo_alza}%")
-    
-    return True
+def health_check() -> dict:
+	"""
+	Health check completo con métricas del sistema.
+	
+	Returns:
+		dict: Estado del sistema
+	"""
+	from src.config.settings import settings
+	from src.infrastructure.database import test_connection
+	
+	# Verificar BD
+	db_ok = test_connection()
+	
+	# Verificar LLM
+	llm_ok = False
+	try:
+		settings.get_active_llm_config()
+		llm_ok = True
+	except Exception as e:
+		logger.warning(f"LLM config issue: {e}")
+	
+	# Determinar estado general
+	status = "healthy"
+	if not db_ok:
+		status = "degraded"
+	if not db_ok and not llm_ok:
+		status = "unhealthy"
+	
+	result = {
+		"status": status,
+		"timestamp": datetime.now().isoformat(),
+		"environment": settings.environment,
+		"components": {
+			"database": {
+				"status": "up" if db_ok else "down",
+				"type": settings.db_type
+			},
+			"llm": {
+				"status": "up" if llm_ok else "down",
+				"provider": settings.llm_provider
+			}
+		},
+		"version": "1.0.0"  # Actualizar según tu versión
+	}
+	
+	return result
 
 
-def run() -> None:
-    """Ejecuta la aplicación."""
-    # Configurar logging solo una vez por sesión
-    if "logging_configured" not in st.session_state:
-        configure_logging()
-        st.session_state.logging_configured = True
-        
-        logger.info("=" * 50)
-        logger.info("🏗️ Budget Calculator - Iniciando...")
-        logger.info("=" * 50)
-        
-        # Verificar configuración
-        if not check_configuration():
-            logger.warning("⚠️ La aplicación se ejecutará pero algunas funciones pueden fallar")
-    
-    # Ejecutar aplicación Streamlit
-    try:
-        main()
-    except Exception as e:
-        logger.exception(f"Error fatal: {e}")
-        raise
+# Health check para Railway
+if len(sys.argv) > 1 and sys.argv[1] == "health":
+	result = health_check()
+	print(result)
+	sys.exit(0 if result["status"] in ["healthy", "degraded"] else 1)
+
+# Importar después de configurar logging
+from src.application.presentation.streamlit_app import main as app_main
+
+
+def run():
+	"""Ejecuta la aplicación principal con inicialización mejorada."""
+	logger.info("=" * 60)
+	logger.info("🚀 Iniciando Easy Obras - Calculadora de Presupuestos")
+	logger.info("=" * 60)
+	
+	try:
+		from src.config.settings import settings
+		
+		# Logging de configuración
+		logger.info(f"Entorno: {settings.environment}")
+		logger.info(f"Debug: {settings.debug}")
+		logger.info(f"LLM Provider: {settings.llm_provider}")
+		logger.info(f"Database Type: {settings.db_type}")
+		
+		# Ocultar credenciales
+		db_info = settings.get_database_info()
+		logger.info(f"Database URL: {db_info['url']}")
+		
+		# Validar configuración en producción
+		if settings.is_production():
+			is_valid, errors = settings.validate_production_config()
+			if not is_valid:
+				logger.warning("⚠️ Configuración de producción tiene advertencias:")
+				for error in errors:
+					logger.warning(f"  - {error}")
+		
+		# Inicializar BD
+		from src.infrastructure.database import init_db, test_connection
+		
+		logger.info("Verificando conexión a base de datos...")
+		if test_connection():
+			init_db()
+			logger.info("✓ Base de datos lista")
+		else:
+			logger.error("✗ No se pudo conectar a la base de datos")
+			if settings.is_production():
+				raise RuntimeError("BD no disponible en producción")
+		
+		# Log de inicio exitoso
+		from src.infrastructure.logging.metrics import metrics
+		metrics.log_event(
+			"APP_STARTED",
+			environment=settings.environment,
+			db_type=settings.db_type
+		)
+		
+		logger.info("=" * 60)
+		logger.info("✓ Inicialización completada - Iniciando interfaz Streamlit")
+		logger.info("=" * 60)
+		
+		# Ejecutar aplicación Streamlit
+		app_main()
+		
+	except Exception as e:
+		logger.exception(f"Error fatal durante inicialización: {e}")
+		raise
 
 
 # Entry point
 if __name__ == "__main__":
-    run()
+	run()
