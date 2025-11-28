@@ -29,10 +29,9 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from loguru import logger
 
-from ...config.settings import settings
-from ...config.pricing_data import DISCLAIMERS
-from ...domain.models.budget import Budget
-
+from src.config.settings import settings
+from src.config.pricing_data import DISCLAIMERS
+from src.domain.models.budget import Budget
 
 class PDFGenerator:
     """
