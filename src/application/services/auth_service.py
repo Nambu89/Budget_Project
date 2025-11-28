@@ -146,6 +146,21 @@ class AuthService:
         with get_db_session() as session:
             user = session.query(UserModel).filter_by(id=user_id).first()
             return user.to_dict() if user else None
+
+    def refresh_user_data(self, user_id: str) -> Optional[Dict]:
+        """
+        Refresca los datos del usuario desde la BD.
+        
+        Útil después de operaciones que modifican el usuario.
+        
+        Args:
+            user_id: ID del usuario
+            
+        Returns:
+            dict: Datos actualizados del usuario
+        """
+        logger.debug(f"Refrescando datos del usuario: {user_id}")
+        return self.get_user_by_id(user_id)
     
     def change_password(
         self,

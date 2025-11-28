@@ -750,6 +750,12 @@ class BudgetService:
                         }
                         for p in presupuesto.partidas if p.es_paquete
                     ]),
+                    # Datos del cliente
+                    cliente_nombre=presupuesto.cliente.nombre if presupuesto.cliente else None,
+                    cliente_email=presupuesto.cliente.email if presupuesto.cliente else None,
+                    cliente_telefono=presupuesto.cliente.telefono if presupuesto.cliente else None,
+                    cliente_direccion=presupuesto.cliente.direccion_obra if presupuesto.cliente else None,
+                    # Totales
                     total_sin_iva=presupuesto.subtotal,
                     total_con_iva=presupuesto.total,
                     iva_aplicado=presupuesto.iva_porcentaje,

@@ -24,6 +24,8 @@ from .components import (
     render_empty_results,
     render_customer_form,
     render_customer_summary,
+    render_login,
+    render_user_info,
 )
 
 
@@ -57,12 +59,24 @@ def main() -> None:
     # Inicializar estado
     init_session_state()
     
-    # Renderizar header (configura página también)
+    # Gestión de páginas
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = "calculator"
+    
+    # Renderizar header (configura página también) - SOLO UNA VEZ
     render_header()
     
-    # Sidebar con información
+    # Sidebar con información - SOLO UNA VEZ
     render_sidebar_info()
     
+    # Renderizar según página actual
+    if st.session_state.current_page == "mis_presupuestos":
+        from .pages.mis_presupuestos import render_mis_presupuestos
+        render_mis_presupuestos()
+        render_footer()
+        return
+    
+    # Si no, renderizar calculadora normal
     # Progreso
     render_progress_steps(st.session_state.current_step)
     
@@ -377,6 +391,12 @@ def _finalizar_presupuesto() -> None:
                 )
                 if resultado.get("guardado"):
                     logger.info(f"✓ Presupuesto guardado para usuario {user_id}")
+                    
+                    # Refrescar datos del usuario
+                    from ....application.services.auth_service import get_auth_service
+                    auth_service = get_auth_service()
+                    st.session_state.user = auth_service.refresh_user_data(user_id)
+                    
                 else:
                     logger.warning(f"No se pudo guardar presupuesto: {resultado.get('error')}")
             

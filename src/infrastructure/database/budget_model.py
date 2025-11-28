@@ -32,6 +32,12 @@ class Budget(Base):
     partidas = Column(Text, nullable=False)  # JSON: lista de partidas
     paquetes = Column(Text, nullable=False)  # JSON: lista de paquetes
     
+    # Datos del cliente
+    cliente_nombre = Column(String, nullable=True)
+    cliente_email = Column(String, nullable=True)
+    cliente_telefono = Column(String, nullable=True)
+    cliente_direccion = Column(Text, nullable=True)
+    
     # Totales
     total_sin_iva = Column(Float, nullable=False)
     total_con_iva = Column(Float, nullable=False)
@@ -59,6 +65,10 @@ class Budget(Base):
             "datos_proyecto": json.loads(self.datos_proyecto) if isinstance(self.datos_proyecto, str) else self.datos_proyecto,
             "partidas": json.loads(self.partidas) if isinstance(self.partidas, str) else self.partidas,
             "paquetes": json.loads(self.paquetes) if isinstance(self.paquetes, str) else self.paquetes,
+            "cliente_nombre": self.cliente_nombre,
+            "cliente_email": self.cliente_email,
+            "cliente_telefono": self.cliente_telefono,
+            "cliente_direccion": self.cliente_direccion,
             "total_sin_iva": self.total_sin_iva,
             "total_con_iva": self.total_con_iva,
             "iva_aplicado": self.iva_aplicado,

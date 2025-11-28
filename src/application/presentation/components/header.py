@@ -7,6 +7,7 @@ título y descripción.
 
 import streamlit as st
 from src.config.settings import settings
+from .login import render_user_info
 
 
 def render_header() -> None:
@@ -98,11 +99,18 @@ def render_sidebar_info() -> None:
     Renderiza información en el sidebar.
     
     Incluye:
+    - Info del usuario (si está autenticado)
     - Info de la empresa
     - Leyenda de calidades
     - Contacto
     """
     with st.sidebar:
+        render_user_info()  # Ya maneja internamente si está autenticado
+        
+        # Solo añadir divider si el usuario está autenticado
+        if st.session_state.get("authenticated"):
+            st.divider()
+        
         st.markdown("### 📞 Contacto")
         st.markdown(f"""
         **{settings.empresa_nombre}**
@@ -131,7 +139,7 @@ def render_sidebar_info() -> None:
         st.markdown("### ℹ️ Información")
         st.markdown("""
         - Presupuesto orientativo
-        - IVA incluido en precios
+        - Precios con IVA incluido
         - Válido 30 días
         - Requiere visita técnica
         """)
