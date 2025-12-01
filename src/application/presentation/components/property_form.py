@@ -54,7 +54,7 @@ def render_property_form() -> Optional[dict]:
     
     st.divider()
     
-    # Metros cuadrados
+    # Metros cuadrados - SIN SLIDER
     st.markdown("### 📐 ¿Cuántos metros cuadrados?")
     
     col1, col2 = st.columns([2, 1])
@@ -66,77 +66,79 @@ def render_property_form() -> Optional[dict]:
             max_value=10000.0,
             value=st.session_state.get("metros_cuadrados", 80.0),
             step=5.0,
-            help="Introduce la superficie total a reformar",
             key="metros_input",
         )
         st.session_state.metros_cuadrados = metros
     
     with col2:
-        st.metric("Superficie", f"{metros:.0f} m²")
-    
-    # Slider alternativo para selección rápida
-    metros_slider = st.slider(
-        "O selecciona con el slider",
-        min_value=10,
-        max_value=500,
-        value=int(metros),
-        step=10,
-        key="metros_slider",
-    )
-    
-    if metros_slider != int(metros):
-        st.session_state.metros_cuadrados = float(metros_slider)
+        st.metric(
+            label="Superficie",
+            value=f"{metros:.0f} m²",
+        )
     
     st.divider()
     
     # Nivel de calidad
-    st.markdown("### 💎 ¿Qué nivel de calidad prefieres?")
+    st.markdown("### ⭐ ¿Qué nivel de calidad buscas?")
     
-    calidad_options = {
-        "⚡ Básico - Económico": QualityLevel.BASICO,
-        "⭐ Estándar - Recomendado": QualityLevel.ESTANDAR,
-        "💎 Premium - Alta gama": QualityLevel.PREMIUM,
-    }
+    col1, col2, col3 = st.columns(3)
     
-    calidad_seleccionada = st.radio(
-        "Selecciona el nivel de calidad",
-        options=list(calidad_options.keys()),
-        index=1,  # Estándar por defecto
-        horizontal=True,
-        key="calidad_radio",
-    )
+    calidades = [
+        (QualityLevel.BASICO, "⚡", "Básico", "Materiales económicos", col1),
+        (QualityLevel.ESTANDAR, "⭐", "Estándar", "Calidad media-alta", col2),
+        (QualityLevel.PREMIUM, "💎", "Premium", "Alta gama", col3),
+    ]
     
-    calidad = calidad_options[calidad_seleccionada]
-    st.session_state.calidad = calidad
+    # Inicializar calidad si no existe
+    if "calidad" not in st.session_state:
+        st.session_state.calidad = QualityLevel.ESTANDAR
     
-    # Descripción de la calidad seleccionada
-    st.info(calidad.descripcion)
+    for calidad, icon, label, desc, col in calidades:
+        with col:
+            selected = st.session_state.calidad == calidad
+            button_type = "primary" if selected else "secondary"
+            
+            if st.button(
+                f"{icon}\n\n**{label}**\n\n{desc}",
+                key=f"btn_calidad_{calidad.value}",
+                use_container_width=True,
+                type=button_type,
+            ):
+                st.session_state.calidad = calidad
     
     st.divider()
     
-    # Estado del inmueble
+    # Estado actual - BOTONES EN LUGAR DE SLIDER
     st.markdown("### 🔧 ¿En qué estado está el inmueble?")
     
-    estado_options = {
-        "🆕 Nuevo / Buen estado": "nuevo",
-        "🏠 Normal / Uso habitual": "normal",
-        "🏚️ Antiguo / Necesita actualización": "antiguo",
-        "💥 Ruina / Reforma total necesaria": "ruina",
-    }
+    col1, col2, col3 = st.columns(3)
     
-    estado_seleccionado = st.select_slider(
-        "Estado actual",
-        options=list(estado_options.keys()),
-        value="🏠 Normal / Uso habitual",
-        key="estado_slider",
-    )
+    estados = [
+        ("nuevo", "🏗️", "Nuevo / Buen estado", col1),
+        ("normal", "🏠", "Normal / Uso habitual", col2),
+        ("reforma", "💥", "Ruina / Reforma total", col3),
+    ]
     
-    estado = estado_options[estado_seleccionado]
-    st.session_state.estado_actual = estado
+    # Inicializar estado si no existe
+    if "estado_actual" not in st.session_state:
+        st.session_state.estado_actual = "normal"
+    
+    for estado_val, icon, label, col in estados:
+        with col:
+            selected = st.session_state.estado_actual == estado_val
+            button_type = "primary" if selected else "secondary"
+            
+            if st.button(
+                f"{icon}\n\n**{label}**",
+                key=f"btn_estado_{estado_val}",
+                use_container_width=True,
+                type=button_type,
+            ):
+                st.session_state.estado_actual = estado_val
     
     st.divider()
     
-    # Vivienda habitual (solo si es piso/vivienda)
+    # Vivienda habitual (solo si es piso o vivienda)
     if st.session_state.tipo_inmueble in [PropertyType.PISO, PropertyType.VIVIENDA]:
         st.markdown("### 🏡 ¿Es tu vivienda habitual?")
         
