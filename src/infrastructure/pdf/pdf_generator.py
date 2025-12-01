@@ -42,13 +42,13 @@ class PDFGenerator:
     """
     
     # Colores corporativos
-    COLOR_PRIMARIO = colors.HexColor("#2563eb")      # Azul
-    COLOR_SECUNDARIO = colors.HexColor("#1e40af")    # Azul oscuro
-    COLOR_ACENTO = colors.HexColor("#f59e0b")        # Naranja
-    COLOR_TEXTO = colors.HexColor("#1f2937")         # Gris oscuro
-    COLOR_TEXTO_CLARO = colors.HexColor("#6b7280")   # Gris
-    COLOR_FONDO = colors.HexColor("#f3f4f6")         # Gris claro
-    COLOR_LINEA = colors.HexColor("#e5e7eb")         # Gris línea
+COLOR_PRIMARIO = colors.HexColor("#F39200")      # Naranja Easy Obras
+COLOR_SECUNDARIO = colors.HexColor("#999999")    # Gris
+COLOR_ACENTO = colors.HexColor("#F39200")        # Naranja
+COLOR_TEXTO = colors.HexColor("#000000")         # Negro
+COLOR_TEXTO_CLARO = colors.HexColor("#999999")   # Gris
+COLOR_FONDO = colors.HexColor("#FFFFFF")         # Blanco
+COLOR_LINEA = colors.HexColor("#999999")         # Gris
     
     def __init__(self):
         """Inicializa el generador de PDF."""

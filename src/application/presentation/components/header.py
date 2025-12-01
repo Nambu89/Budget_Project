@@ -6,8 +6,7 @@ título y descripción.
 """
 
 import streamlit as st
-from src.config.settings import settings
-from .login import render_user_info
+from ...config.settings import settings
 
 
 def render_header() -> None:
@@ -22,31 +21,39 @@ def render_header() -> None:
     """
     # Configurar página (debe ser lo primero)
     st.set_page_config(
-        page_title=f"Calculadora de Presupuestos | {settings.empresa_nombre}",
+        page_title="ISI Obras y Presupuestos | Calculadora de Presupuestos",
         page_icon="🏗️",
         layout="wide",
         initial_sidebar_state="expanded",
     )
     
-    # CSS personalizado
+    # CSS personalizado con colores corporativos Easy Obras
     st.markdown("""
         <style>
+        /* Colores corporativos Easy Obras */
+        :root {
+            --easy-obras-orange: #F39200;
+            --easy-obras-grey: #999999;
+            --easy-obras-black: #000000;
+            --easy-obras-white: #FFFFFF;
+        }
+        
         .main-header {
             text-align: center;
             padding: 1rem 0;
         }
         .main-title {
-            color: #2563eb;
+            color: #F39200;
             font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
         }
         .main-subtitle {
-            color: #6b7280;
+            color: #999999;
             font-size: 1.1rem;
         }
         .stProgress > div > div > div > div {
-            background-color: #2563eb;
+            background-color: #F39200;
         }
         .success-box {
             padding: 1rem;
@@ -58,21 +65,21 @@ def render_header() -> None:
             padding: 1rem;
             border-radius: 0.5rem;
             background-color: #fef3c7;
-            border: 1px solid #f59e0b;
+            border: 1px solid #F39200;
         }
         .info-box {
             padding: 1rem;
             border-radius: 0.5rem;
-            background-color: #dbeafe;
-            border: 1px solid #3b82f6;
+            background-color: #f5f5f5;
+            border: 1px solid #999999;
         }
         .total-display {
             font-size: 2rem;
             font-weight: bold;
-            color: #2563eb;
+            color: #F39200;
             text-align: center;
             padding: 1rem;
-            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #FFF5E6 0%, #FFE6C2 100%);
             border-radius: 0.5rem;
         }
         </style>
@@ -84,7 +91,7 @@ def render_header() -> None:
     with col2:
         st.markdown("""
             <div class="main-header">
-                <div class="main-title">🏗️ Calculadora de Presupuestos</div>
+                <div class="main-title">🏗️ Easy Obras - Calculadora de Presupuestos</div>
                 <div class="main-subtitle">
                     Calcula tu presupuesto de reforma en menos de 3 minutos
                 </div>
@@ -99,18 +106,11 @@ def render_sidebar_info() -> None:
     Renderiza información en el sidebar.
     
     Incluye:
-    - Info del usuario (si está autenticado)
     - Info de la empresa
     - Leyenda de calidades
     - Contacto
     """
     with st.sidebar:
-        render_user_info()  # Ya maneja internamente si está autenticado
-        
-        # Solo añadir divider si el usuario está autenticado
-        if st.session_state.get("authenticated"):
-            st.divider()
-        
         st.markdown("### 📞 Contacto")
         st.markdown(f"""
         **{settings.empresa_nombre}**
@@ -172,7 +172,7 @@ def render_progress_steps(current_step: int) -> None:
             else:
                 st.markdown(f"⬜ {label}")
     
-    # Barra de progreso
+    # Barra de progreso con color corporativo
     progress = (current_step - 1) / (len(steps) - 1)
     st.progress(progress)
 
@@ -185,8 +185,8 @@ def render_footer() -> None:
     
     with col2:
         st.markdown(f"""
-        <div style="text-align: center; color: #9ca3af; font-size: 0.85rem;">
-            © 2024 {settings.empresa_nombre} | 
+        <div style="text-align: center; color: #999999; font-size: 0.85rem;">
+            © 2025 ISI Obras y Presupuestos| 
             Presupuesto orientativo - Requiere visita técnica
         </div>
         """, unsafe_allow_html=True)
