@@ -91,7 +91,7 @@ def render_header() -> None:
     with col2:
         st.markdown("""
             <div class="main-header">
-                <div class="main-title">🏗️ Easy Obras - Calculadora de Presupuestos</div>
+                <div class="main-title">🏗️ ISI Obras y Presupuestos - Calculadora de Presupuestos</div>
                 <div class="main-subtitle">
                     Calcula tu presupuesto de reforma en menos de 3 minutos
                 </div>
@@ -106,11 +106,23 @@ def render_sidebar_info() -> None:
     Renderiza información en el sidebar.
     
     Incluye:
+    - Info del usuario (si está autenticado)
     - Info de la empresa
     - Leyenda de calidades
     - Contacto
     """
     with st.sidebar:
+        # Renderizar info del usuario al principio
+        try:
+            from .login import render_user_info
+            render_user_info()
+            
+            # Solo añadir divider si el usuario está autenticado
+            if st.session_state.get("authenticated"):
+                st.divider()
+        except ImportError:
+            pass
+        
         st.markdown("### 📞 Contacto")
         st.markdown(f"""
         **{settings.empresa_nombre}**
@@ -186,7 +198,7 @@ def render_footer() -> None:
     with col2:
         st.markdown(f"""
         <div style="text-align: center; color: #999999; font-size: 0.85rem;">
-            © 2025 ISI Obras y Presupuestos| 
+            © 2025 {settings.empresa_nombre} | 
             Presupuesto orientativo - Requiere visita técnica
         </div>
         """, unsafe_allow_html=True)
