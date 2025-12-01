@@ -6,7 +6,7 @@ título y descripción.
 """
 
 import streamlit as st
-from ...config.settings import settings
+from src.config.settings import settings
 
 
 def render_header() -> None:
