@@ -29,9 +29,10 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from loguru import logger
 
-from src.config.settings import settings
-from src.config.pricing_data import DISCLAIMERS
-from src.domain.models.budget import Budget
+from ...config.settings import settings
+from ...config.pricing_data import DISCLAIMERS
+from ...domain.models.budget import Budget
+
 
 class PDFGenerator:
     """
@@ -41,14 +42,14 @@ class PDFGenerator:
     corporativo y todos los datos del presupuesto.
     """
     
-    # Colores corporativos
-COLOR_PRIMARIO = colors.HexColor("#F39200")      # Naranja Easy Obras
-COLOR_SECUNDARIO = colors.HexColor("#999999")    # Gris
-COLOR_ACENTO = colors.HexColor("#F39200")        # Naranja
-COLOR_TEXTO = colors.HexColor("#000000")         # Negro
-COLOR_TEXTO_CLARO = colors.HexColor("#999999")   # Gris
-COLOR_FONDO = colors.HexColor("#FFFFFF")         # Blanco
-COLOR_LINEA = colors.HexColor("#999999")         # Gris
+    # Colores corporativos Easy Obras
+    COLOR_PRIMARIO = colors.HexColor("#F39200")      # Naranja Easy Obras
+    COLOR_SECUNDARIO = colors.HexColor("#999999")    # Gris
+    COLOR_ACENTO = colors.HexColor("#F39200")        # Naranja
+    COLOR_TEXTO = colors.HexColor("#000000")         # Negro
+    COLOR_TEXTO_CLARO = colors.HexColor("#999999")   # Gris
+    COLOR_FONDO = colors.HexColor("#FFFFFF")         # Blanco
+    COLOR_LINEA = colors.HexColor("#999999")         # Gris línea
     
     def __init__(self):
         """Inicializa el generador de PDF."""
