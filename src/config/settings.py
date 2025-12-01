@@ -154,7 +154,7 @@ class Settings(BaseSettings):
 		description="Ruta para logos de clientes"
 	)
 	empresa_nombre: str = Field(
-		default="Easy Obras",
+		default="ISI Obras",
 		description="Nombre de la empresa"
 	)
 	empresa_telefono: str = Field(
@@ -166,7 +166,7 @@ class Settings(BaseSettings):
 		description="Email de la empresa"
 	)
 	empresa_web: str = Field(
-		default="www.easyobras.es",
+		default="https://isiobrasyservicios.com/",
 		description="Web de la empresa"
 	)
 	
