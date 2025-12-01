@@ -29,9 +29,9 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from loguru import logger
 
-from src.config.settings import settings
-from src.config.pricing_data import DISCLAIMERS
-from src.domain.models.budget import Budget
+from ...config.settings import settings
+from ...config.pricing_data import DISCLAIMERS
+from ...domain.models.budget import Budget
 
 
 class PDFGenerator:
@@ -474,6 +474,8 @@ class PDFGenerator:
         
         datos.extend([
             ["Base imponible:", f"{budget.base_imponible:,.2f} €"],
+            ["Redondeo al alza (5%):", f"+{budget.importe_redondeo:,.2f} €"],
+            ["Base con redondeo:", f"{budget.base_con_redondeo:,.2f} €"],
             [f"IVA ({budget.iva_porcentaje}%):", f"{budget.importe_iva:,.2f} €"],
             ["TOTAL:", f"{budget.total:,.2f} €"],
         ])
