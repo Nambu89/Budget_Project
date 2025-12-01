@@ -8,9 +8,9 @@ la experiencia completa de generación de presupuestos.
 import streamlit as st
 from loguru import logger
 
-from ...config.settings import settings
-from ..crews import get_budget_crew
-from .components import (
+from src.config.settings import settings
+from src.application.crews import get_budget_crew
+from src.presentation.components import (
     render_header,
     render_sidebar_info,
     render_progress_steps,
@@ -71,7 +71,7 @@ def main() -> None:
     
     # Renderizar según página actual
     if st.session_state.current_page == "mis_presupuestos":
-        from .pages.mis_presupuestos import render_mis_presupuestos
+        from src.presentation.pages.mis_presupuestos import render_mis_presupuestos
         render_mis_presupuestos()
         render_footer()
         return
@@ -393,7 +393,7 @@ def _finalizar_presupuesto() -> None:
                     logger.info(f"✓ Presupuesto guardado para usuario {user_id}")
                     
                     # Refrescar datos del usuario
-                    from ....application.services.auth_service import get_auth_service
+                    from src.application.services.auth_service import get_auth_service
                     auth_service = get_auth_service()
                     st.session_state.user = auth_service.refresh_user_data(user_id)
                     
