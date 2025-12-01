@@ -10,7 +10,7 @@ from loguru import logger
 
 from src.config.settings import settings
 from src.application.crews import get_budget_crew
-from src.presentation.components import (
+from src.application.presentation.components import (
     render_header,
     render_sidebar_info,
     render_progress_steps,
@@ -71,7 +71,7 @@ def main() -> None:
     
     # Renderizar según página actual
     if st.session_state.current_page == "mis_presupuestos":
-        from src.presentation.pages.mis_presupuestos import render_mis_presupuestos
+        from src.application.presentation.pages.mis_presupuestos import render_mis_presupuestos
         render_mis_presupuestos()
         render_footer()
         return
