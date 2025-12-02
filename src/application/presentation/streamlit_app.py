@@ -51,6 +51,19 @@ def init_session_state() -> None:
 
 def main() -> None:
     """Función principal de la aplicación."""
+
+    # Verificar si hay un token de reset en la URL
+    query_params = st.query_params
+    if "reset_token" in query_params:
+        from src.application.presentation.pages.reset_password import render_reset_password_page
+        render_reset_password_page(query_params["reset_token"])
+        return
+    
+    # Verificar autenticación
+    if not st.session_state.get("authenticated"):
+        render_login()
+        return
+
     # Verificar autenticación
     if not st.session_state.get("authenticated"):
         render_login()

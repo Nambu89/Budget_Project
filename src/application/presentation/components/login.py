@@ -17,6 +17,11 @@ def render_login():
 	st.title("🔐 Bienvenido")
 	st.markdown("---")
 	
+	# Verificar si se está mostrando el formulario de reset
+	if st.session_state.get("show_forgot_password", False):
+		_render_forgot_password_form()
+		return
+	
 	# Tabs para Login y Registro
 	tab1, tab2 = st.tabs(["Iniciar Sesión", "Registrarse"])
 	
@@ -183,6 +188,73 @@ def _render_register_form():
 				logger.error(f"Error en registro: {e}")
 				st.error("❌ Error al crear la cuenta. Inténtalo de nuevo.")
 
+def _render_forgot_password_form():
+	"""Renderiza el formulario de recuperación de contraseña."""
+	st.subheader("Recuperar Contraseña")
+	
+	st.info("💡 Ingresa tu email y te enviaremos un link para restablecer tu contraseña.")
+	
+	with st.form("forgot_password_form"):
+		email = st.text_input(
+			"Email",
+			placeholder="tu@email.com",
+			help="Email con el que te registraste"
+		)
+		
+		col1, col2 = st.columns(2)
+		
+		with col1:
+			cancelar = st.form_submit_button(
+				"← Cancelar",
+				use_container_width=True
+			)
+		
+		with col2:
+			enviar = st.form_submit_button(
+				"Enviar link",
+				use_container_width=True,
+				type="primary"
+			)
+		
+		if cancelar:
+			st.session_state.show_forgot_password = False
+			st.rerun()
+		
+		if enviar:
+			if not email:
+				st.error("Por favor ingresa tu email")
+				return
+			
+			try:
+				auth_service = get_auth_service()
+				token = auth_service.request_password_reset(email)
+				
+				# Siempre mostrar éxito (seguridad)
+				st.success(
+					"✅ Si el email existe en nuestro sistema, "
+					"recibirás un link de recuperación en los próximos minutos.\n\n"
+					"**Revisa tu bandeja de entrada y spam.**"
+				)
+				
+				# Si se generó token, enviar email
+				if token:
+					from ...services.email_service import get_email_service
+					from ....config.settings import settings
+					
+					reset_link = f"{settings.app_url}/?reset_token={token}"
+					
+					email_service = get_email_service()
+					email_service.enviar_reset_password(
+						email_destinatario=email,
+						reset_link=reset_link,
+						nombre="Usuario"
+					)
+					
+					logger.info(f"Email de reset enviado a: {email}")
+				
+			except Exception as e:
+				logger.error(f"Error en forgot password: {e}")
+				st.error("❌ Error al procesar la solicitud. Inténtalo de nuevo.")
 
 def render_user_info() -> None:
 	"""Renderiza la información del usuario autenticado en el sidebar."""
