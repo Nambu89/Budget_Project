@@ -81,11 +81,11 @@ class Settings(BaseSettings):
 		description="API Key de Azure OpenAI"
 	)
 	azure_openai_api_version: str = Field(
-		default="2024-02-15-preview",
+		default="2025-04-01-preview",
 		description="Versión de la API de Azure OpenAI"
 	)
 	azure_openai_deployment_name: str = Field(
-		default="gpt-4o-mini",
+		default="gpt-5-mini",
 		description="Nombre del deployment en Azure"
 	)
 	
@@ -97,20 +97,68 @@ class Settings(BaseSettings):
 		description="API Key de OpenAI"
 	)
 	openai_model: str = Field(
-		default="gpt-4o-mini",
+		default="gpt-5-mini",
 		description="Modelo de OpenAI a usar"
 	)
 	
 	# ==========================================
-	# Resend Email Service
+	# Resend Email Service (Reset de contraseñas)
 	# ==========================================
 	resend_api_key: Optional[str] = Field(
 		default=None,
-		description="API Key de Resend para envío de emails"
+		description="API Key de Resend para emails de sistema"
 	)
-	email_from: str = Field(
-		default="presupuestos@easyobras.es",
-		description="Email remitente"
+	email_from_system: str = Field(
+		default="presupuestos@isiobrasyservicios.com",
+		description="Email remitente para emails de sistema (reset contraseña)"
+	)
+	
+	# ==========================================
+	# SMTP Configuration (Enviar presupuestos)
+	# ==========================================
+	smtp_host: Optional[str] = Field(
+		default=None,
+		description="Host del servidor SMTP"
+	)
+	smtp_port: int = Field(
+		default=465,
+		description="Puerto SMTP (465 para SSL, 587 para TLS)"
+	)
+	smtp_username: Optional[str] = Field(
+		default=None,
+		description="Usuario SMTP"
+	)
+	smtp_password: Optional[str] = Field(
+		default=None,
+		description="Contraseña SMTP"
+	)
+	smtp_use_ssl: bool = Field(
+		default=True,
+		description="Usar SSL para SMTP (True para puerto 465)"
+	)
+	smtp_use_tls: bool = Field(
+		default=False,
+		description="Usar TLS para SMTP (True para puerto 587)"
+	)
+	email_from_budgets: str = Field(
+		default="info@isiobrasyservicios.com",
+		description="Email remitente para presupuestos"
+	)
+	
+	# ==========================================
+	# Email General
+	# ==========================================
+	email_from_name: str = Field(
+		default="ISI Obras y Servicios",
+		description="Nombre del remitente para emails"
+	)
+	
+	# ==========================================
+	# Application URLs
+	# ==========================================
+	app_url: str = Field(
+		default="http://localhost:8501",
+		description="URL base de la aplicación (para links en emails)"
 	)
 	
 	# ==========================================
@@ -154,7 +202,7 @@ class Settings(BaseSettings):
 		description="Ruta para logos de clientes"
 	)
 	empresa_nombre: str = Field(
-		default="ISI Obras",
+		default="ISI Obras y Presupuestos",
 		description="Nombre de la empresa"
 	)
 	empresa_telefono: str = Field(
@@ -162,7 +210,7 @@ class Settings(BaseSettings):
 		description="Teléfono de la empresa"
 	)
 	empresa_email: str = Field(
-		default="info@easyobras.es",
+		default="info@isiobrasyservicios.com",
 		description="Email de la empresa"
 	)
 	empresa_web: str = Field(
@@ -338,6 +386,21 @@ class Settings(BaseSettings):
 		return bool(
 			self.openai_api_key and
 			"placeholder" not in self.openai_api_key.lower()
+		)
+	
+	def is_smtp_configured(self) -> bool:
+		"""Verifica si SMTP está correctamente configurado."""
+		return bool(
+			self.smtp_host and
+			self.smtp_username and
+			self.smtp_password
+		)
+	
+	def is_resend_configured(self) -> bool:
+		"""Verifica si Resend está correctamente configurado."""
+		return bool(
+			self.resend_api_key and
+			"placeholder" not in self.resend_api_key.lower()
 		)
 	
 	def get_active_llm_config(self) -> dict:

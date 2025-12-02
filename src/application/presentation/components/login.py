@@ -85,10 +85,10 @@ def _render_login_form():
 				st.error("❌ Error al iniciar sesión. Inténtalo de nuevo.")
 	
 	# Botón de forgot password
-	# st.markdown("---")
-	# if st.button("¿Olvidaste tu contraseña?", use_container_width=True):
-	# 	st.session_state.show_forgot_password = True
-	# 	st.rerun()
+	st.markdown("---")
+	if st.button("¿Olvidaste tu contraseña?", use_container_width=True):
+		st.session_state.show_forgot_password = True
+		st.rerun()
 
 
 def _render_register_form():
