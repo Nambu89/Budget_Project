@@ -25,7 +25,8 @@ azure-identity>=1.15.0
 # Azure/OpenAI
 # ============================================
 openai>=1.50.0
-azure-ai-inference>=1.0.0
+azure-ai-inference==1.0.0b9
+azure-ai-projects==1.0.0b4
 
 # ============================================
 # UI
