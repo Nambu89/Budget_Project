@@ -1,422 +1,577 @@
 """
-Servicio de cálculo de precios.
+Servicio de cálculo de precios y aplicación de reglas de negocio.
 
-Implementa toda la lógica de negocio para calcular
-precios de partidas, paquetes y aplicar reglas comerciales.
+ACTUALIZADO:
+- Línea 162-189: Método crear_partidas_paquete() con items_incluidos completos
+- Añadidos items detallados para baño_completo, cocina_completa, reforma_integral
 """
 
 from typing import Optional
 from loguru import logger
+import math
 
-from ...config.settings import settings
+from ...domain.models.budget import Budget
+from ...domain.models.budget_item import BudgetItem
+from ...domain.models.project import Project
+from ...domain.enums.quality_level import QualityLevel
+from ...domain.enums.work_category import WorkCategory
 from ...config.pricing_data import (
 	PRICING_DATA,
 	PACKAGES_DATA,
 	get_precio_partida,
 	get_precio_paquete,
-	get_todas_categorias,
-	get_partidas_categoria,
-	get_todos_paquetes,
 )
-from ...domain.enums import PropertyType, QualityLevel, WorkCategory
-from ...domain.models import BudgetItem
+from ...config.settings import Settings
 
 
 class PricingService:
 	"""
-	Servicio para cálculo de precios y reglas de negocio.
+	Servicio centralizado para cálculos de precios.
 	
-	Centraliza toda la lógica de:
-	- Obtención de precios base
-	- Aplicación de markup a partidas individuales
-	- Cálculo de paquetes completos
-	- Redondeo al alza
-	- Cálculo de IVA
+	Aplica reglas de negocio, markups, y gestiona
+	la lógica de pricing del sistema.
 	"""
 	
-	def __init__(
-		self,
-		markup_partidas: Optional[float] = None,
-		redondeo_alza: Optional[float] = None,
-		iva_general: Optional[int] = None,
-		iva_reducido: Optional[int] = None,
-	):
+	def __init__(self, settings: Optional[Settings] = None):
 		"""
-		Inicializa el servicio de precios.
+		Inicializa el servicio de pricing.
 		
 		Args:
-			markup_partidas: % markup para partidas individuales (default: settings)
-			redondeo_alza: % redondeo al alza (default: settings)
-			iva_general: % IVA general (default: settings)
-			iva_reducido: % IVA reducido vivienda habitual (default: settings)
+			settings: Configuración global del sistema (opcional)
 		"""
-		self.markup_partidas = markup_partidas or settings.markup_partidas_individuales
-		self.redondeo_alza = redondeo_alza or settings.redondeo_alza
-		self.iva_general = iva_general or settings.iva_general
-		self.iva_reducido = iva_reducido or settings.iva_reducido
+		self.settings = settings or Settings()
+		self.pricing_data = PRICING_DATA
+		self.packages_data = PACKAGES_DATA
+	
+	def calcular_precio_unitario(
+		self,
+		codigo_partida: str,
+		calidad: QualityLevel
+	) -> float:
+		"""
+		Calcula el precio unitario de una partida según calidad.
+		
+		Args:
+			codigo_partida: Código único de la partida
+			calidad: Nivel de calidad solicitado
+			
+		Returns:
+			float: Precio unitario
+			
+		Raises:
+			ValueError: Si el código de partida no existe
+		"""
+		if codigo_partida not in self.pricing_data:
+			raise ValueError(f"Partida '{codigo_partida}' no encontrada")
+		
+		partida_data = self.pricing_data[codigo_partida]
+		precios = partida_data.get("precios", {})
+		
+		# Obtener precio según calidad
+		precio = precios.get(calidad.value, precios.get("estandar", 0.0))
 		
 		logger.debug(
-			f"PricingService inicializado: markup={self.markup_partidas}%, "
-			f"redondeo={self.redondeo_alza}%, IVA={self.iva_general}/{self.iva_reducido}%"
-		)
-	
-
-	def ajustar_precio_por_ipc(
-		self,
-		precio_base: float,
-		ano_base: int = None,
-		ano_actual: int = None,
-		ipc_anual: float = None
-	) -> float:
-		"""Ajusta un precio según el IPC acumulado."""
-		from datetime import datetime
-		
-		ano_base = ano_base or settings.ano_base_precios
-		ano_actual = ano_actual or datetime.now().year
-		ipc_anual = ipc_anual or settings.ipc_anual
-		
-		anos_transcurridos = ano_actual - ano_base
-		if anos_transcurridos <= 0:
-			return precio_base
-		
-		factor_ipc = (1 + ipc_anual / 100) ** anos_transcurridos
-		precio_ajustado = round(precio_base * factor_ipc, 2)
-		
-		logger.debug(
-			f"IPC aplicado: {precio_base:.2f}€ ({ano_base}) → "
-			f"{precio_ajustado:.2f}€ ({ano_actual}) | "
-			f"Factor: {factor_ipc:.4f} ({anos_transcurridos} años @ {ipc_anual}%)"
+			f"Precio unitario calculado: {codigo_partida} "
+			f"({calidad.value}) = {precio} €"
 		)
 		
-		return precio_ajustado
-	
-	# ==========================================
-	# Obtención de precios base
-	# ==========================================
-	
-	def obtener_precio_partida(
-		self,
-		categoria: str,
-		partida: str,
-		calidad: QualityLevel = QualityLevel.ESTANDAR,
-	) -> float:
-		"""
-		Obtiene el precio base de una partida.
-		
-		Args:
-			categoria: Categoría de trabajo
-			partida: Nombre de la partida
-			calidad: Nivel de calidad
-			
-		Returns:
-			float: Precio base sin markup
-		"""
-		precio_base = get_precio_partida(categoria, partida, calidad.value)
-		return self.ajustar_precio_por_ipc(precio_base)
-	
-	def obtener_precio_paquete(
-		self,
-		paquete: str,
-		calidad: QualityLevel = QualityLevel.ESTANDAR,
-		metros: Optional[float] = None,
-	) -> float:
-		"""
-		Obtiene el precio de un paquete completo.
-		
-		Args:
-			paquete: Nombre del paquete
-			calidad: Nivel de calidad
-			metros: Metros cuadrados (para reformas integrales)
-			
-		Returns:
-			float: Precio del paquete
-		"""
-		precio_base = get_precio_paquete(paquete, calidad.value, metros)
-		return self.ajustar_precio_por_ipc(precio_base)
-	
-	def obtener_info_partida(
-		self,
-		categoria: str,
-		partida: str,
-	) -> Optional[dict]:
-		"""
-		Obtiene información completa de una partida.
-		
-		Args:
-			categoria: Categoría de trabajo
-			partida: Nombre de la partida
-			
-		Returns:
-			dict: Info de la partida o None si no existe
-		"""
-		try:
-			return PRICING_DATA[categoria][partida].copy()
-		except KeyError:
-			return None
-	
-	def obtener_info_paquete(self, paquete: str) -> Optional[dict]:
-		"""
-		Obtiene información completa de un paquete.
-		
-		Args:
-			paquete: Nombre del paquete
-			
-		Returns:
-			dict: Info del paquete o None si no existe
-		"""
-		try:
-			return PACKAGES_DATA[paquete].copy()
-		except KeyError:
-			return None
-	
-	# ==========================================
-	# Creación de partidas presupuestarias
-	# ==========================================
+		return precio
 	
 	def crear_partida(
 		self,
 		categoria: WorkCategory,
 		partida: str,
 		cantidad: float,
-		calidad: QualityLevel = QualityLevel.ESTANDAR,
+		calidad: QualityLevel,
 		aplicar_markup: bool = True,
 	) -> Optional[BudgetItem]:
 		"""
-		Crea una partida presupuestaria con precio calculado.
+		Crea una partida presupuestaria con todos sus datos.
 		
 		Args:
 			categoria: Categoría de trabajo
 			partida: Nombre de la partida
-			cantidad: Cantidad (m2, uds, etc.)
+			cantidad: Cantidad (m2, uds, ml, etc.)
 			calidad: Nivel de calidad
-			aplicar_markup: Si aplicar markup de partida individual
+			aplicar_markup: Si aplica markup del 15%
 			
 		Returns:
-			BudgetItem: Partida creada o None si no existe
+			BudgetItem o None si no existe la partida
 		"""
-		info = self.obtener_info_partida(categoria.value, partida)
-		if not info:
-			logger.warning(f"Partida no encontrada: {categoria.value}/{partida}")
+		# Buscar partida en pricing_data
+		categoria_key = categoria.value
+		
+		if categoria_key not in PRICING_DATA:
+			logger.warning(f"Categoría '{categoria_key}' no encontrada")
 			return None
 		
-		# Obtener precio base
-		precio_base = info.get(calidad.value, 0)
+		partidas_categoria = PRICING_DATA[categoria_key]
 		
-		# Aplicar markup si es partida individual
-		if aplicar_markup:
-			precio_final = self.aplicar_markup(precio_base)
-		else:
-			precio_final = precio_base
+		if partida not in partidas_categoria:
+			logger.warning(f"Partida '{partida}' no encontrada en '{categoria_key}'")
+			return None
 		
-		# Generar código
-		codigo = f"{categoria.value[:3].upper()}-{partida[:8].upper()}"
+		partida_data = partidas_categoria[partida]
 		
-		return BudgetItem(
-			categoria=categoria,
-			codigo=codigo,
-			descripcion=info.get("descripcion", partida),
-			unidad=info.get("unidad", "ud"),
+		# Obtener precio según calidad
+		precio_base = partida_data.get(calidad.value, partida_data.get("estandar", 0.0))
+		
+		# Aplicar markup si corresponde
+		precio_final = precio_base * (1.15 if aplicar_markup else 1.0)
+		
+		# Crear BudgetItem
+		budget_item = BudgetItem(
+			codigo=f"{categoria_key.upper()[:3]}-{partida.upper()[:6]}",
+			descripcion=partida_data.get("descripcion", partida.replace("_", " ").title()),
 			cantidad=cantidad,
+			unidad=partida_data.get("unidad", "ud"),
 			precio_unitario=round(precio_final, 2),
+			categoria=categoria,
 			calidad=calidad,
 			es_paquete=False,
 		)
-	
-	def _generar_items_incluidos_paquete(
-		self, 
-		paquete: str, 
-		calidad: QualityLevel,
-		info: dict
-	) -> list[str]:
-		"""
-		Genera la lista de items incluidos en un paquete.
 		
-		Si el paquete tiene 'incluye' definido en pricing_data, usa eso.
-		Si no, genera una lista genérica basada en el tipo de paquete.
+		logger.debug(f"Partida creada: {budget_item.descripcion} x {cantidad}")
 		
-		Args:
-			paquete: Nombre del paquete
-			calidad: Nivel de calidad
-			info: Info del paquete desde pricing_data
-			
-		Returns:
-			list[str]: Lista de items incluidos
-		"""
-		# Si ya tiene items definidos, usarlos
-		if 'incluye' in info and info['incluye']:
-			return info['incluye']
-		
-		# Generación automática según tipo de paquete
-		items_base = []
-		
-		if 'cocina' in paquete.lower():
-			items_base = [
-				"Demolición de revestimientos existentes",
-				"Instalación de nuevos azulejos y suelos",
-				"Muebles de cocina",
-				"Encimera",
-				"Fregadero y grifo",
-				"Instalación eléctrica",
-				"Instalación de fontanería",
-				"Pintura de paredes y techos",
-			]
-		elif 'bano' in paquete.lower() or 'baño' in paquete.lower():
-			items_base = [
-				"Demolición de sanitarios y revestimientos",
-				"Azulejos y pavimento",
-				"Sanitarios (inodoro, lavabo, bañera/ducha)",
-				"Grifería completa",
-				"Instalación eléctrica",
-				"Instalación de fontanería",
-				"Mampara de ducha",
-				"Pintura",
-			]
-		elif 'reforma' in paquete.lower() and 'integral' in paquete.lower():
-			items_base = [
-				"Demolición y preparación",
-				"Instalación eléctrica completa",
-				"Instalación de fontanería",
-				"Carpintería interior (puertas)",
-				"Suelos en todas las estancias",
-				"Pintura completa",
-				"Sanitarios y griferías",
-				"Cocina equipada",
-				"Gestión de residuos",
-			]
-		elif 'pintura' in paquete.lower():
-			items_base = [
-				"Preparación de superficies",
-				"Pintura de paredes",
-				"Pintura de techos",
-				"Pintura de carpintería",
-				"Materiales de calidad",
-			]
-		elif 'suelo' in paquete.lower():
-			items_base = [
-				"Levantado de suelo existente",
-				"Preparación de base",
-				"Instalación de nuevo pavimento",
-				"Rodapiés",
-				"Retirada de escombros",
-			]
-		else:
-			# Genérico
-			items_base = [
-				f"Trabajos de {info.get('nombre', 'reforma')}",
-				f"Materiales de calidad {calidad.value}",
-				"Mano de obra especializada",
-				"Gestión de residuos",
-				"Limpieza final",
-			]
-		
-		# Añadir nota sobre calidad
-		if calidad == QualityLevel.PREMIUM:
-			items_base.append("✨ Acabados premium con materiales de primera calidad")
-		elif calidad == QualityLevel.BASICO:
-			items_base.append("Materiales económicos de calidad estándar")
-		
-		return items_base
+		return budget_item
 	
 	def crear_partidas_paquete(
 		self,
 		paquete: str,
-		calidad: QualityLevel = QualityLevel.ESTANDAR,
-		metros: Optional[float] = None,
+		calidad: QualityLevel,
+		metros: float,
 	) -> list[BudgetItem]:
 		"""
-		Crea las partidas de un paquete completo.
+		Crea todas las partidas de un paquete completo CON items_incluidos.
 		
-		Los paquetes NO tienen markup (son más baratos que partidas sueltas).
+		Los paquetes NO tienen markup (incentivo comercial).
+		
+		ACTUALIZADO: Ahora incluye la lista completa de items_incluidos
+		para que se muestre el desglose en el PDF.
 		
 		Args:
-			paquete: Nombre del paquete
+			paquete: Nombre del paquete (bano_completo, cocina_completa, etc.)
 			calidad: Nivel de calidad
-			metros: Metros cuadrados (para reformas integrales)
+			metros: Metros cuadrados del espacio
 			
 		Returns:
 			list[BudgetItem]: Lista de partidas del paquete
 		"""
-		info = self.obtener_info_paquete(paquete)
-		if not info:
-			logger.warning(f"Paquete no encontrado: {paquete}")
+		if paquete not in PACKAGES_DATA:
+			logger.warning(f"Paquete '{paquete}' no encontrado")
 			return []
 		
-		# Obtener precio total del paquete
-		precio_total = self.obtener_precio_paquete(paquete, calidad, metros)
+		paquete_data = PACKAGES_DATA[paquete]
 		
-		# Crear código único
-		codigo = f"PKG-{paquete[:8].upper()}"
+		# Calcular precio total del paquete
+		precio_total = get_precio_paquete(paquete, calidad.value, metros)
 		
-		# Obtener o generar items incluidos
-		items_incluidos = self._generar_items_incluidos_paquete(paquete, calidad, info)
+		# Obtener lista completa de items incluidos según el paquete
+		items_incluidos = self._obtener_items_paquete(paquete, calidad)
 		
-		# Crear partida única representando el paquete completo
-		partida = BudgetItem(
-			categoria=WorkCategory.ALBANILERIA,  # Categoría genérica para paquetes
-			codigo=codigo,
-			descripcion=f"{info['nombre']} - {info['descripcion']}",
-			unidad="ud" if metros is None else "m2",
-			cantidad=1.0 if metros is None else metros,
-			precio_unitario=round(precio_total / (metros or 1), 2),
+		# Crear item único del paquete CON items_incluidos
+		budget_item = BudgetItem(
+			codigo=f"PKG-{paquete.upper()[:8]}",
+			descripcion=paquete_data.get("nombre", paquete.replace("_", " ").title()),
+			cantidad=1,
+			unidad="conjunto",
+			precio_unitario=round(precio_total, 2),
+			categoria=WorkCategory.PAQUETE,
 			calidad=calidad,
 			es_paquete=True,
-			nombre_paquete=info['nombre'],
-			items_incluidos=items_incluidos,
-			notas=f"Incluye {len(items_incluidos)} conceptos",
+			items_incluidos=items_incluidos,  # ← AÑADIDO: Lista completa de items
+			nombre_paquete=paquete_data.get("nombre", paquete.replace("_", " ").title()),
+			notas=f"Paquete completo de {metros:.0f}m² - Calidad {calidad.display_name}",
 		)
 		
-		logger.debug(f"Paquete creado: {codigo} con {len(items_incluidos)} items incluidos")
+		logger.info(
+			f"Paquete '{paquete}' creado: {precio_total:.2f}€ "
+			f"({calidad.value}, {metros}m²) con {len(items_incluidos)} items incluidos"
+		)
 		
-		return [partida]
+		return [budget_item]
 	
-	# ==========================================
-	# Aplicación de reglas de negocio
-	# ==========================================
-	
-	def aplicar_markup(self, precio: float) -> float:
+	def _obtener_items_paquete(self, paquete: str, calidad: QualityLevel) -> list[str]:
 		"""
-		Aplica el markup a un precio base.
-		
-		Args:
-			precio: Precio base
-			
-		Returns:
-			float: Precio con markup
-		"""
-		factor = 1 + (self.markup_partidas / 100)
-		return round(precio * factor, 2)
-	
-	def aplicar_redondeo_alza(self, total: float) -> float:
-		"""
-		Aplica el redondeo al alza sobre un total.
+		Obtiene la lista completa de items incluidos en un paquete.
 		
 		Args:
-			total: Total a redondear
+			paquete: Nombre del paquete
+			calidad: Nivel de calidad
 			
 		Returns:
-			float: Total redondeado al alza
+			list[str]: Lista de conceptos incluidos
 		"""
-		factor = 1 + (self.redondeo_alza / 100)
-		return round(total * factor, 2)
+		# Mapeo de items según tipo de paquete y calidad
+		items_por_paquete = {
+			"bano_completo": {
+				"basica": [
+					"Demolición y retirada de sanitarios antiguos",
+					"Alicatado de paredes con azulejo cerámico estándar",
+					"Solado con gres porcelánico básico",
+					"Inodoro con cisterna de doble descarga",
+					"Lavabo de cerámica con mueble básico",
+					"Plato de ducha acrílico con mampara básica",
+					"Grifería cromada estándar",
+					"Instalación de fontanería completa",
+					"Instalación eléctrica con punto de luz y enchufe",
+					"Extractor de aire básico",
+					"Accesorios básicos (toallero, portarrollos)",
+				],
+				"estandar": [
+					"Demolición y retirada de sanitarios antiguos",
+					"Alicatado de paredes con azulejo de calidad media",
+					"Solado con gres porcelánico de calidad media",
+					"Inodoro suspendido con cisterna empotrada",
+					"Lavabo de cerámica con mueble de melamina",
+					"Plato de ducha de resina con mampara de vidrio templado",
+					"Grifería cromada monomando de calidad media",
+					"Instalación de fontanería completa con válvulas de corte",
+					"Instalación eléctrica con focos LED empotrables",
+					"Extractor de aire con higrostato",
+					"Accesorios de baño cromados (toallero, portarrollos, jabonera)",
+					"Espejo con luz LED integrada",
+				],
+				"premium": [
+					"Demolición y retirada de sanitarios antiguos",
+					"Alicatado de paredes con azulejo porcelánico de diseño",
+					"Solado con gres porcelánico rectificado gran formato",
+					"Inodoro suspendido con función de bidet integrado",
+					"Lavabo de diseño con encimera y mueble lacado",
+					"Plato de ducha extraplano de carga mineral con mampara de vidrio antical",
+					"Grifería termostática de marcas premium",
+					"Sistema de hidromasaje en ducha",
+					"Instalación de fontanería completa con válvulas empotradas",
+					"Instalación eléctrica con iluminación LED regulable",
+					"Extractor de aire con sensor de humedad y temporizador",
+					"Accesorios de baño de diseño (toallero térmico, portarrollos)",
+					"Espejo retroiluminado con sistema antivaho",
+					"Suelo radiante eléctrico",
+				],
+			},
+			"cocina_completa": {
+				"basica": [
+					"Demolición y retirada de muebles antiguos",
+					"Muebles de cocina en melamina blanca",
+					"Encimera laminada de 28mm",
+					"Fregadero de acero inoxidable con grifo monomando",
+					"Placa vitrocerámica de 4 fuegos",
+					"Horno eléctrico multifunción básico",
+					"Campana extractora convencional",
+					"Alicatado de frente de cocina con azulejo básico",
+					"Instalación eléctrica con tomas de corriente",
+					"Instalación de fontanería completa",
+					"Iluminación con fluorescente",
+				],
+				"estandar": [
+					"Demolición y retirada de muebles antiguos",
+					"Muebles de cocina en melamina con tiradores de aluminio",
+					"Encimera de cuarzo de 20mm",
+					"Fregadero de acero inoxidable bajo encimera con grifo extraíble",
+					"Placa de inducción de 4 zonas",
+					"Horno eléctrico multifunción con limpieza pirolítica",
+					"Campana extractora decorativa de 60cm",
+					"Microondas integrable",
+					"Lavavajillas integrable de 12 cubiertos",
+					"Frigorífico combi independiente",
+					"Alicatado de frente de cocina con azulejo porcelánico",
+					"Instalación eléctrica completa con circuito independiente",
+					"Instalación de fontanería con tomas de agua individuales",
+					"Iluminación LED bajo muebles altos",
+					"Zócalo rodapié impermeable",
+				],
+				"premium": [
+					"Demolición y retirada de muebles antiguos",
+					"Muebles de cocina lacados con sistema push-pull sin tiradores",
+					"Encimera de cuarzo Silestone o similar de 30mm",
+					"Fregadero bajo encimera con grifo profesional con caño alto",
+					"Placa de inducción con extracción integrada",
+					"Horno eléctrico multifunción con vapor integrado",
+					"Campana extractora de techo o integrada en encimera",
+					"Microondas integrable con grill",
+					"Lavavajillas totalmente integrable de alta gama con sistema silencioso",
+					"Frigorífico combi integrable de clase A+++",
+					"Cajonera con sistema de cierre amortiguado",
+					"Columna de electrodomésticos integrada",
+					"Alicatado de frente con porcelánico gran formato o cristal templado",
+					"Instalación eléctrica domótica con enchufes USB",
+					"Instalación de fontanería con sistema anti-inundación",
+					"Iluminación LED regulable bajo muebles y en interior de cajones",
+					"Sistema de organización interior de cajones",
+					"Isla central o península con desayunador (si espacio lo permite)",
+				],
+			},
+			"reforma_integral": {
+				"basica": [
+					"Demoliciones necesarias y retirada de escombros",
+					"Reforma completa de instalaciones eléctricas",
+					"Reforma completa de instalaciones de fontanería",
+					"Solado de toda la vivienda con gres porcelánico básico",
+					"Alicatado de baño y cocina con azulejo cerámico",
+					"Pintura lisa en toda la vivienda con plástica mate",
+					"Puertas de paso lacadas blancas con premarco",
+					"Rodapié de DM lacado blanco",
+					"Baño completo de calidad básica",
+					"Cocina completa de calidad básica",
+					"Mecanismos eléctricos blancos",
+					"Luminarias básicas en todas las estancias",
+				],
+				"estandar": [
+					"Demoliciones necesarias y gestión de escombros con contenedor",
+					"Reforma completa de instalación eléctrica con nuevos circuitos",
+					"Reforma completa de instalación de fontanería con tuberías multicapa",
+					"Reforma de instalación de gas con llave de corte individual",
+					"Solado de toda la vivienda con gres porcelánico de calidad media",
+					"Alicatado de baño y cocina con azulejo porcelánico",
+					"Techos con moldura de escayola",
+					"Pintura lisa en toda la vivienda con plástica premium",
+					"Puertas de paso lacadas con sistema de cierre amortiguado",
+					"Armarios empotrados con puertas correderas",
+					"Rodapié de DM lacado blanco de 10cm",
+					"Baño completo de calidad estándar",
+					"Cocina completa de calidad estándar con electrodomésticos",
+					"Climatización con splits en salón y habitaciones",
+					"Mecanismos eléctricos táctiles con marco cromado",
+					"Luminarias LED en todas las estancias",
+					"Video portero con monitor",
+					"Sistema de domótica básica (persianas motorizadas)",
+				],
+				"premium": [
+					"Proyecto técnico y dirección de obra",
+					"Demoliciones necesarias con protección de elementos a conservar",
+					"Gestión integral de licencias y permisos",
+					"Reforma completa de instalación eléctrica con sistema domótico avanzado",
+					"Reforma completa de fontanería con sistema anti-inundación",
+					"Sistema de aerotermia para calefacción y ACS",
+					"Suelo radiante en toda la vivienda",
+					"Solado con porcelánico rectificado gran formato",
+					"Alicatado con materiales premium (piedra natural, porcelánico de diseño)",
+					"Falso techo continuo con iluminación LED perimetral",
+					"Pintura con revestimientos texturizados en zonas destacadas",
+					"Puertas correderas empotradas con herrajes ocultos",
+					"Armarios empotrados a medida con interior organizado",
+					"Baño principal completo de calidad premium con hidromasaje",
+					"Baño secundario de calidad estándar",
+					"Cocina premium con isla central y electrodomésticos de alta gama",
+					"Sistema de climatización por conductos con zonas independientes",
+					"Sistema domótico completo (luces, persianas, climatización, seguridad)",
+					"Instalación de videoportero IP con control remoto",
+					"Sistema de audio ambiental",
+					"Cargador para vehículo eléctrico (si garaje disponible)",
+					"Revestimientos especiales en salón (madera, piedra, etc.)",
+					"Iluminación LED regulable en todas las estancias",
+					"Sistema de purificación de aire",
+				],
+			},
+		}
+		
+		# Obtener items del paquete y calidad específicos
+		items = items_por_paquete.get(paquete, {}).get(calidad.value, [])
+		
+		if not items:
+			# Fallback: usar items genéricos del paquete en PACKAGES_DATA
+			paquete_data = PACKAGES_DATA.get(paquete, {})
+			items = paquete_data.get("incluye", [
+				"Incluye todos los materiales y mano de obra necesarios",
+				"Transporte de materiales",
+				"Limpieza final de la obra",
+			])
+		
+		return items
 	
-	def calcular_iva(
+	def obtener_precio_paquete(
 		self,
-		base_imponible: float,
-		es_vivienda_habitual: bool = False,
-	) -> tuple[int, float]:
+		paquete: str,
+		calidad: QualityLevel,
+		metros: float,
+	) -> float:
 		"""
-		Calcula el IVA aplicable.
+		Obtiene el precio de un paquete sin crear las partidas.
 		
 		Args:
-			base_imponible: Base sobre la que calcular
-			es_vivienda_habitual: Si aplica IVA reducido
+			paquete: Nombre del paquete
+			calidad: Nivel de calidad
+			metros: Metros cuadrados
 			
 		Returns:
-			tuple: (porcentaje_iva, importe_iva)
+			float: Precio total del paquete
 		"""
-		porcentaje = self.iva_reducido if es_vivienda_habitual else self.iva_general
+		return get_precio_paquete(paquete, calidad.value, metros)
+	
+	def aplicar_markup_partida(
+		self,
+		partida: BudgetItem,
+		porcentaje: float
+	) -> BudgetItem:
+		"""
+		Aplica markup a una partida individual.
+		
+		Args:
+			partida: Partida original
+			porcentaje: Porcentaje de markup (ej: 15 para 15%)
+			
+		Returns:
+			BudgetItem: Nueva partida con markup aplicado
+		"""
+		nuevo_precio = partida.precio_unitario * (1 + porcentaje / 100)
+		
+		return BudgetItem(
+			codigo=partida.codigo,
+			descripcion=partida.descripcion,
+			cantidad=partida.cantidad,
+			unidad=partida.unidad,
+			precio_unitario=round(nuevo_precio, 2),
+			categoria=partida.categoria,
+			calidad=partida.calidad,
+			notas=partida.notas,
+		)
+	
+	def calcular_iva(self, base_imponible: float, proyecto: Project) -> dict:
+		"""
+		Calcula el IVA aplicable según el proyecto.
+		
+		FASE 1: Siempre aplica IVA general del 21%.
+		
+		Args:
+			base_imponible: Base sobre la que calcular el IVA
+			proyecto: Datos del proyecto
+			
+		Returns:
+			dict: {
+				'porcentaje': int,
+				'importe': float,
+				'tipo': str
+			}
+		"""
+		# FASE 1: IVA fijo al 21%
+		porcentaje = self.settings.iva_general
 		importe = round(base_imponible * (porcentaje / 100), 2)
-		return porcentaje, importe
+		
+		logger.info(
+			f"IVA calculado: {porcentaje}% sobre {base_imponible:.2f} € "
+			f"= {importe:.2f} €"
+		)
+		
+		return {
+			'porcentaje': porcentaje,
+			'importe': importe,
+			'tipo': 'general'
+		}
+	
+	def aplicar_descuento(
+		self,
+		presupuesto: Budget,
+		porcentaje: float,
+		motivo: Optional[str] = None
+	) -> Budget:
+		"""
+		Aplica un descuento global al presupuesto.
+		
+		Args:
+			presupuesto: Presupuesto original
+			porcentaje: Porcentaje de descuento (0-100)
+			motivo: Razón del descuento (opcional)
+			
+		Returns:
+			Budget: Presupuesto con descuento aplicado
+		"""
+		if not 0 <= porcentaje <= 100:
+			raise ValueError("El porcentaje debe estar entre 0 y 100")
+		
+		presupuesto.descuento_porcentaje = porcentaje
+		
+		if motivo:
+			nota_actual = presupuesto.notas_internas or ""
+			presupuesto.notas_internas = f"{nota_actual}\nDescuento: {motivo}".strip()
+		
+		logger.info(
+			f"Descuento aplicado: {porcentaje}% "
+			f"({presupuesto.importe_descuento:.2f} €)"
+		)
+		
+		return presupuesto
+	
+	def aplicar_factor_estado(
+		self,
+		partidas: list[BudgetItem],
+		proyecto: Project
+	) -> list[BudgetItem]:
+		"""
+		Aplica factor multiplicador según estado del inmueble.
+		
+		Args:
+			partidas: Lista de partidas originales
+			proyecto: Datos del proyecto con estado
+			
+		Returns:
+			list[BudgetItem]: Partidas con factor aplicado
+		"""
+		factor = proyecto.factor_estado
+		
+		if factor == 1.0:
+			return partidas
+		
+		partidas_ajustadas = []
+		for partida in partidas:
+			nuevo_precio = partida.precio_unitario * factor
+			partida_ajustada = BudgetItem(
+				codigo=partida.codigo,
+				descripcion=partida.descripcion,
+				cantidad=partida.cantidad,
+				unidad=partida.unidad,
+				precio_unitario=round(nuevo_precio, 2),
+				categoria=partida.categoria,
+				calidad=partida.calidad,
+				notas=partida.notas,
+			)
+			partidas_ajustadas.append(partida_ajustada)
+		
+		logger.info(
+			f"Factor de estado aplicado: {factor} "
+			f"(estado: {proyecto.estado_actual})"
+		)
+		
+		return partidas_ajustadas
+	
+	def calcular_estimaciones_heuristicas(self, proyecto: Project) -> dict:
+		"""
+		Calcula estimaciones usando fórmulas heurísticas simples.
+		
+		Fórmulas basadas en experiencia del sector:
+		- Paredes: ~2.5x los m² totales (altura promedio 2.5m)
+		- Rodapiés: ~perímetro = √(m² totales) * 4
+		- Puertas: 1 cada 15-20 m²
+		
+		Args:
+			proyecto: Datos del proyecto
+			
+		Returns:
+			dict: Estimaciones básicas
+		"""
+		m2_totales = proyecto.metros_cuadrados
+		
+		# Estimar m² de paredes (ancho × alto)
+		# Asumiendo altura promedio de 2.5m
+		perimetro_aprox = math.sqrt(m2_totales) * 4
+		m2_paredes = round(perimetro_aprox * 2.5, 2)
+		
+		# Metros lineales de rodapiés (perímetro)
+		ml_rodapies = round(perimetro_aprox, 2)
+		
+		# Número de puertas (1 cada 15-20 m²)
+		num_puertas = max(1, round(m2_totales / 17))
+		
+		resultado = {
+			"metodo": "heuristico",
+			"m2_paredes_estimado": m2_paredes,
+			"ml_rodapies_estimado": ml_rodapies,
+			"num_puertas_estimado": num_puertas,
+			"confianza": "baja",
+			"mensaje": "Estimación básica. Para mayor precisión, añade el número de habitaciones.",
+		}
+		
+		logger.info(f"Estimaciones heurísticas: {resultado}")
+		return resultado
 	
 	def calcular_total_con_iva(
 		self,
@@ -424,157 +579,207 @@ class PricingService:
 		es_vivienda_habitual: bool = False,
 	) -> dict:
 		"""
-		Calcula todos los importes finales.
+		Calcula el total aplicando redondeo del 5% e IVA.
 		
 		Args:
-			base_imponible: Base imponible
-			es_vivienda_habitual: Si aplica IVA reducido
+			base_imponible: Base sin IVA ni redondeo
+			es_vivienda_habitual: Flag para IVA (no usado en Fase 1)
 			
 		Returns:
-			dict: Desglose completo de importes
+			dict: Desglose completo de totales
 		"""
-		# Aplicar redondeo al alza a la base
-		base_redondeada = self.aplicar_redondeo_alza(base_imponible)
+		# Aplicar redondeo del 5%
+		base_con_redondeo = round(base_imponible * 1.05, 2)
+		importe_redondeo = round(base_con_redondeo - base_imponible, 2)
 		
-		# Calcular IVA
-		porcentaje_iva, importe_iva = self.calcular_iva(
-			base_redondeada, 
-			es_vivienda_habitual
-		)
+		# Calcular IVA sobre base con redondeo
+		porcentaje_iva = self.settings.iva_general
+		importe_iva = round(base_con_redondeo * (porcentaje_iva / 100), 2)
 		
 		# Total final
-		total = round(base_redondeada + importe_iva, 2)
+		total = round(base_con_redondeo + importe_iva, 2)
 		
 		return {
-			"base_original": base_imponible,
-			"redondeo_porcentaje": self.redondeo_alza,
-			"redondeo_importe": round(base_redondeada - base_imponible, 2),
-			"base_imponible": base_redondeada,
-			"iva_porcentaje": porcentaje_iva,
-			"iva_importe": importe_iva,
-			"total": total,
+			'subtotal': base_imponible,
+			'base_sin_redondeo': base_imponible,
+			'base_con_redondeo': base_con_redondeo,
+			'importe_redondeo': importe_redondeo,
+			'redondeo_porcentaje': 5,
+			'iva_porcentaje': porcentaje_iva,
+			'iva_importe': importe_iva,
+			'total': total,
 		}
 	
-	# ==========================================
-	# Comparativas y utilidades
-	# ==========================================
-	
-	def comparar_partidas_vs_paquete(
-		self,
-		paquete: str,
-		partidas: list[tuple[str, str, float]],  # [(categoria, partida, cantidad), ...]
-		calidad: QualityLevel = QualityLevel.ESTANDAR,
-		metros: Optional[float] = None,
-	) -> dict:
+	def validar_presupuesto(self, presupuesto: Budget) -> dict:
 		"""
-		Compara el precio de partidas sueltas vs paquete completo.
-		
-		Útil para mostrar al cliente el ahorro del paquete.
+		Valida que un presupuesto cumpla las reglas de negocio.
 		
 		Args:
-			paquete: Nombre del paquete
-			partidas: Lista de (categoria, partida, cantidad)
-			calidad: Nivel de calidad
-			metros: Metros cuadrados
+			presupuesto: Presupuesto a validar
 			
 		Returns:
-			dict: Comparativa con precios y ahorro
+			dict: {
+				'valido': bool,
+				'errores': list[str],
+				'advertencias': list[str]
+			}
 		"""
-		# Calcular precio partidas sueltas (con markup)
-		total_partidas = 0.0
-		for cat, part, cant in partidas:
-			precio = self.obtener_precio_partida(cat, part, calidad)
-			precio_con_markup = self.aplicar_markup(precio)
-			total_partidas += precio_con_markup * cant
+		errores = []
+		advertencias = []
 		
-		# Calcular precio paquete (sin markup)
-		precio_paquete = self.obtener_precio_paquete(paquete, calidad, metros)
+		# Validar que tenga partidas
+		if not presupuesto.partidas:
+			errores.append("El presupuesto no tiene partidas")
 		
-		# Calcular ahorro
-		ahorro = total_partidas - precio_paquete
-		ahorro_porcentaje = (ahorro / total_partidas * 100) if total_partidas > 0 else 0
+		# Validar totales mínimos
+		if presupuesto.total < self.settings.presupuesto_minimo:
+			advertencias.append(
+				f"El presupuesto está por debajo del mínimo recomendado "
+				f"({self.settings.presupuesto_minimo} €)"
+			)
+		
+		# Validar que tenga cliente
+		if not presupuesto.tiene_cliente:
+			advertencias.append("El presupuesto no tiene datos de cliente")
+		
+		# Validar markup aplicado
+		if hasattr(self.settings, 'markup_minimo'):
+			# Calcular markup efectivo
+			markup_efectivo = (
+				(presupuesto.total / presupuesto.subtotal - 1) * 100
+				if presupuesto.subtotal > 0 else 0
+			)
+			
+			if markup_efectivo < self.settings.markup_minimo:
+				advertencias.append(
+					f"Markup efectivo ({markup_efectivo:.1f}%) está por debajo "
+					f"del mínimo recomendado ({self.settings.markup_minimo}%)"
+				)
+		
+		logger.info(
+			f"Validación presupuesto: "
+			f"{len(errores)} errores, {len(advertencias)} advertencias"
+		)
 		
 		return {
-			"precio_partidas_sueltas": round(total_partidas, 2),
-			"precio_paquete": round(precio_paquete, 2),
-			"ahorro_importe": round(ahorro, 2),
-			"ahorro_porcentaje": round(ahorro_porcentaje, 1),
-			"recomendacion": "paquete" if ahorro > 0 else "partidas",
+			'valido': len(errores) == 0,
+			'errores': errores,
+			'advertencias': advertencias,
 		}
 	
-	def listar_categorias(self) -> list[dict]:
+	def calcular_totales_con_redondeo(self, presupuesto: Budget) -> dict:
 		"""
-		Lista todas las categorías disponibles.
-		
-		Returns:
-			list: Categorías con info
-		"""
-		return [
-			{
-				"valor": cat,
-				"nombre": WorkCategory(cat).display_name,
-				"icono": WorkCategory(cat).icono,
-				"partidas": get_partidas_categoria(cat),
-			}
-			for cat in get_todas_categorias()
-		]
-	
-	def listar_paquetes(self) -> list[dict]:
-		"""
-		Lista todos los paquetes disponibles.
-		
-		Returns:
-			list: Paquetes con info
-		"""
-		return [
-			{
-				"valor": paq,
-				"nombre": PACKAGES_DATA[paq]["nombre"],
-				"descripcion": PACKAGES_DATA[paq]["descripcion"],
-				"incluye": PACKAGES_DATA[paq].get("incluye", []),
-			}
-			for paq in get_todos_paquetes()
-		]
-	
-	def obtener_rango_precios(
-		self,
-		categoria: str,
-		partida: str,
-	) -> dict:
-		"""
-		Obtiene el rango de precios de una partida (básico a premium).
+		Calcula todos los totales aplicando el redondeo del 5%.
 		
 		Args:
-			categoria: Categoría
-			partida: Partida
+			presupuesto: Presupuesto a calcular
 			
 		Returns:
-			dict: Precios por calidad
+			dict: Todos los totales calculados
 		"""
-		info = self.obtener_info_partida(categoria, partida)
-		if not info:
-			return {}
+		subtotal = presupuesto.subtotal
+		descuento = presupuesto.importe_descuento
+		base_sin_redondeo = presupuesto.base_imponible
+		
+		# Aplicar redondeo del 5%
+		base_con_redondeo = round(base_sin_redondeo * 1.05, 2)
+		importe_redondeo = round(base_con_redondeo - base_sin_redondeo, 2)
+		
+		# Calcular IVA sobre base con redondeo
+		iva_data = self.calcular_iva(base_con_redondeo, presupuesto.proyecto)
+		
+		total = round(base_con_redondeo + iva_data['importe'], 2)
 		
 		return {
-			"basico": info.get("basico", 0),
-			"estandar": info.get("estandar", 0),
-			"premium": info.get("premium", 0),
-			"unidad": info.get("unidad", "ud"),
+			'subtotal': subtotal,
+			'descuento': descuento,
+			'base_sin_redondeo': base_sin_redondeo,
+			'base_con_redondeo': base_con_redondeo,
+			'importe_redondeo': importe_redondeo,
+			'redondeo_porcentaje': 5,
+			'iva_porcentaje': iva_data['porcentaje'],
+			'iva_importe': iva_data['importe'],
+			'total': total,
 		}
+	
+	def obtener_desglose_completo(self, presupuesto: Budget) -> dict:
+		"""
+		Obtiene desglose completo del presupuesto.
+		
+		Args:
+			presupuesto: Presupuesto
+			
+		Returns:
+			dict: Desglose completo
+		"""
+		return {
+			"partidas": [
+				{
+					"codigo": p.codigo,
+					"descripcion": p.descripcion,
+					"cantidad": p.cantidad,
+					"unidad": p.unidad,
+					"precio_unitario": p.precio_unitario,
+					"subtotal": p.subtotal,
+					"categoria": p.categoria.value,
+					"calidad": p.calidad.value,
+					"es_paquete": p.es_paquete,
+				}
+				for p in presupuesto.partidas
+			],
+			"totales": self.calcular_totales_con_redondeo(presupuesto),
+		}
+	
+	def obtener_info_partida(self, codigo_partida: str) -> Optional[dict]:
+		"""
+		Obtiene información completa de una partida.
+		
+		Args:
+			codigo_partida: Código de la partida
+			
+		Returns:
+			dict con info completa o None si no existe
+		"""
+		return self.pricing_data.get(codigo_partida)
+	
+	def listar_partidas_disponibles(self) -> list[dict]:
+		"""
+		Lista todas las partidas disponibles en el sistema.
+		
+		Returns:
+			list[dict]: Lista de partidas con su info básica
+		"""
+		partidas = []
+		for categoria, partidas_cat in self.pricing_data.items():
+			for partida_key, data in partidas_cat.items():
+				partidas.append({
+					'codigo': partida_key,
+					'nombre': partida_key.replace("_", " ").title(),
+					'descripcion': data.get('descripcion', ''),
+					'categoria': categoria,
+					'unidad': data.get('unidad', ''),
+				})
+		return partidas
 
 
-# Instancia singleton
+# ============================================================================
+# FUNCIÓN FACTORY (SINGLETON)
+# ============================================================================
+
 _pricing_service: Optional[PricingService] = None
 
 
 def get_pricing_service() -> PricingService:
 	"""
-	Obtiene la instancia del servicio de precios (singleton).
+	Obtiene la instancia singleton del servicio de pricing.
 	
 	Returns:
 		PricingService: Instancia del servicio
 	"""
 	global _pricing_service
+	
 	if _pricing_service is None:
 		_pricing_service = PricingService()
+		logger.info("✅ PricingService inicializado")
+	
 	return _pricing_service

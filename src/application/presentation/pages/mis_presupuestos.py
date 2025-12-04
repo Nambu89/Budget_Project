@@ -68,7 +68,7 @@ def render_mis_presupuestos():
                 st.markdown(f"**Tipo:** {datos_proyecto.get('tipo_inmueble', 'N/A').capitalize()}")
                 st.markdown(f"**Superficie:** {datos_proyecto.get('metros_cuadrados', 0):.0f} m²")
                 st.markdown(f"**Calidad:** {datos_proyecto.get('calidad', 'N/A').capitalize()}")
-                st.markdown(f"**IVA:** {presupuesto['iva_aplicado']:.0f}%")
+                st.markdown(f"**IVA:** 21%")  # SIEMPRE 21%
                 
                 # Partidas
                 partidas = presupuesto['partidas']

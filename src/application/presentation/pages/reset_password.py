@@ -82,7 +82,7 @@ def render_reset_password_page(token: str):
 				if resultado:
 					st.success("✅ ¡Contraseña cambiada correctamente!")
 					st.info("Ya puedes iniciar sesión con tu nueva contraseña.")
-					st.balloons()
+					# st.balloons()
 					
 					st.markdown("---")
 					if st.button("Ir al login", use_container_width=True, type="primary", key="goto_login"):

@@ -149,10 +149,12 @@ class Budget(BaseModel):
         """
         Porcentaje de IVA aplicable según el proyecto.
         
+        NOTA: Desde FASE 1, siempre es 21% para todos los inmuebles.
+        
         Returns:
-            int: Porcentaje de IVA (10 o 21)
+            int: 21 (IVA general único)
         """
-        return self.proyecto.iva_aplicable
+        return 21
     
     @computed_field
     @property
@@ -368,7 +370,7 @@ class Budget(BaseModel):
         
         lineas.extend([
             f"   Base imponible: {self.base_imponible:,.2f} €",
-            f"   IVA ({self.iva_porcentaje}%): {self.importe_iva:,.2f} €",
+            f"   IVA (21%): {self.importe_iva:,.2f} €",
             f"   ─────────────────",
             f"   💰 TOTAL: {self.total:,.2f} €",
         ])

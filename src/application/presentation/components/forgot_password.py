@@ -145,7 +145,7 @@ def render_reset_password(token: str):
                     
                     if reset_response.status_code == 200:
                         st.success("✅ ¡Contraseña actualizada correctamente!")
-                        st.balloons()
+                        # st.balloons()
                         st.info("Ahora puedes iniciar sesión con tu nueva contraseña")
                         
                         # Limpiar query params y volver al login

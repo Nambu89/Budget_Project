@@ -47,10 +47,10 @@ class BudgetService:
         tipo_inmueble: PropertyType,
         metros_cuadrados: float,
         calidad: QualityLevel = QualityLevel.ESTANDAR,
-        es_vivienda_habitual: bool = False,
         estado_actual: str = "normal",
         ubicacion: Optional[str] = None,
         descripcion: Optional[str] = None,
+        num_habitaciones: Optional[int] = None,  # NUEVO FASE 2
     ) -> Budget:
         """
         Crea un nuevo presupuesto vacío.
@@ -59,10 +59,10 @@ class BudgetService:
             tipo_inmueble: Tipo de propiedad
             metros_cuadrados: Superficie en m²
             calidad: Nivel de calidad por defecto
-            es_vivienda_habitual: Si aplica IVA reducido
             estado_actual: Estado del inmueble
             ubicacion: Ciudad/zona
             descripcion: Descripción adicional
+            num_habitaciones: Número de habitaciones (FASE 2)
             
         Returns:
             Budget: Presupuesto creado (sin partidas)
@@ -70,8 +70,8 @@ class BudgetService:
         proyecto = Project(
             tipo_inmueble=tipo_inmueble,
             metros_cuadrados=metros_cuadrados,
+            num_habitaciones=num_habitaciones,  # NUEVO
             calidad_general=calidad,
-            es_vivienda_habitual=es_vivienda_habitual,
             estado_actual=estado_actual,
             ubicacion=ubicacion,
             descripcion=descripcion,
@@ -100,7 +100,6 @@ class BudgetService:
         metros_cuadrados: float,
         paquete: str,
         calidad: QualityLevel = QualityLevel.ESTANDAR,
-        es_vivienda_habitual: bool = False,
     ) -> Budget:
         """
         Crea un presupuesto rápido con un paquete predefinido.
@@ -110,8 +109,6 @@ class BudgetService:
             metros_cuadrados: Superficie en m²
             paquete: Nombre del paquete a aplicar
             calidad: Nivel de calidad
-            es_vivienda_habitual: Si aplica IVA reducido
-            
         Returns:
             Budget: Presupuesto con paquete incluido
         """
@@ -119,7 +116,6 @@ class BudgetService:
             tipo_inmueble=tipo_inmueble,
             metros_cuadrados=metros_cuadrados,
             calidad=calidad,
-            es_vivienda_habitual=es_vivienda_habitual,
         )
         
         # Agregar paquete
@@ -285,7 +281,6 @@ class BudgetService:
         email: str,
         telefono: str,
         direccion_obra: Optional[str] = None,
-        es_vivienda_habitual: Optional[bool] = None,
         logo_path: Optional[str] = None,
         notas: Optional[str] = None,
     ) -> Customer:
@@ -298,22 +293,18 @@ class BudgetService:
             email: Email
             telefono: Teléfono
             direccion_obra: Dirección de la obra
-            es_vivienda_habitual: Override del flag de vivienda habitual
             logo_path: Ruta al logo del cliente
             notas: Notas adicionales
             
         Returns:
             Customer: Cliente creado
         """
-        if es_vivienda_habitual is not None:
-            presupuesto.proyecto.es_vivienda_habitual = es_vivienda_habitual
         
         cliente = Customer(
             nombre=nombre,
             email=email,
             telefono=telefono,
             direccion_obra=direccion_obra,
-            es_vivienda_habitual=presupuesto.proyecto.es_vivienda_habitual,
             logo_path=logo_path,
             notas=notas,
         )
@@ -341,7 +332,7 @@ class BudgetService:
         """
         return self.pricing.calcular_total_con_iva(
             base_imponible=presupuesto.subtotal,
-            es_vivienda_habitual=presupuesto.proyecto.puede_iva_reducido,
+            es_vivienda_habitual=False,
         )
     
     def obtener_total_con_redondeo(self, presupuesto: Budget) -> float:
@@ -356,7 +347,35 @@ class BudgetService:
         """
         totales = self.calcular_totales(presupuesto)
         return totales["total"]
-    
+
+    def sugerir_optimizaciones(self, presupuesto: Budget) -> list:
+        """
+        Sugiere optimizaciones del presupuesto.
+        
+        Args:
+            presupuesto: Presupuesto
+            
+        Returns:
+            list: Lista de sugerencias
+        """
+        sugerencias = []
+        
+        # Sugerir paquetes si tiene muchas partidas individuales
+        if len(presupuesto.partidas) > 3 and not any(p.es_paquete for p in presupuesto.partidas):
+            sugerencias.append({
+                "tipo": "paquete",
+                "mensaje": "Considera usar un paquete completo en lugar de partidas individuales para ahorrar hasta un 15%",
+            })
+        
+        # Sugerir si hay margen de optimización
+        if presupuesto.subtotal > 10000:
+            sugerencias.append({
+                "tipo": "ahorro",
+                "mensaje": "En presupuestos superiores a 10.000€ podemos ofrecer condiciones especiales. Contacta con nosotros.",
+            })
+        
+        return sugerencias
+
     def aplicar_descuento(
         self,
         presupuesto: Budget,
@@ -515,6 +534,18 @@ class BudgetService:
         
         logger.info(f"Presupuesto duplicado: {nuevo.numero_presupuesto}")
         return nuevo
+
+    def obtener_desglose(self, presupuesto: Budget) -> dict:  # ← AÑADIR ESTO
+        """
+        Obtiene desglose completo del presupuesto.
+        
+        Args:
+            presupuesto: Presupuesto
+            
+        Returns:
+            dict: Desglose completo
+        """
+        return self.pricing.obtener_desglose_completo(presupuesto)
     
     # ==========================================
     # Guardado en Base de Datos
@@ -544,7 +575,6 @@ class BudgetService:
                         "tipo_inmueble": presupuesto.proyecto.tipo_inmueble.value,
                         "metros_cuadrados": presupuesto.proyecto.metros_cuadrados,
                         "calidad": presupuesto.proyecto.calidad_general.value,
-                        "es_vivienda_habitual": presupuesto.proyecto.es_vivienda_habitual,
                         "estado_actual": presupuesto.proyecto.estado_actual,
                     }),
                     partidas=json.dumps([

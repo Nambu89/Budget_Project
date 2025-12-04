@@ -25,42 +25,42 @@ PRICING_DATA: Dict[str, Dict[str, Any]] = {
             "estandar": 47.5,
             "premium": 80.0,
             "unidad": "m2",
-            "descripcion": "Alicatado de paredes con azulejo (material + mano de obra)",
+            "descripcion": "Alicatado de paredes (m² de superficie - ancho × alto)",
         },
         "solado_porcelanico": {
             "basico": 30.0,
             "estandar": 47.5,
             "premium": 80.0,
             "unidad": "m2",
-            "descripcion": "Solado con baldosa porcelánica (material + mano de obra)",
+            "descripcion": "Solado con baldosa porcelánica",
         },
         "solado_vinilico": {
             "basico": 20.0,
             "estandar": 35.0,
             "premium": 52.5,
             "unidad": "m2",
-            "descripcion": "Solado con suelo vinílico (material + mano de obra)",
+            "descripcion": "Solado con suelo vinílico",
         },
         "alisado_paredes": {
             "basico": 13.5,
             "estandar": 20.0,
             "premium": 30.0,
             "unidad": "m2",
-            "descripcion": "Alisado y enyesado de paredes",
+            "descripcion": "Alisado y enyesado de paredes (m² de superficie - ancho × alto)",
         },
         "pintura": {
             "basico": 9.0,
             "estandar": 15.0,
             "premium": 30.0,
             "unidad": "m2",
-            "descripcion": "Pintura de paredes (incluye imprimación)",
+            "descripcion": "Pintura de paredes (m² de superficie - ancho × alto, incluye imprimación)",
         },
         "demolicion": {
             "basico": 17.5,
             "estandar": 17.5,
             "premium": 17.5,
             "unidad": "m2",
-            "descripcion": "Demolición y desescombro (precio único)",
+            "descripcion": "Demolición y desescombro",
         },
         "falso_techo_pladur": {
             "basico": 22.5,
@@ -74,7 +74,14 @@ PRICING_DATA: Dict[str, Dict[str, Any]] = {
             "estandar": 45.0,
             "premium": 60.0,
             "unidad": "m2",
-            "descripcion": "Tabique de pladur con aislamiento",
+            "descripcion": "Tabique de pladur con aislamiento (m² de superficie - ancho × alto)",
+        },
+        "rodapie": {
+            "basico": 8.0,
+            "estandar": 12.0,
+            "premium": 18.0,
+            "unidad": "ml",
+            "descripcion": "Rodapié instalado (metros lineales totales del perímetro)",
         },
     },
     
@@ -410,17 +417,16 @@ variaciones.
 
     "iva": """
 💰 IMPUESTOS
-- IVA del {iva_porcentaje}% NO incluido en los precios mostrados
-- El IVA se añadirá al total del presupuesto
-- Vivienda habitual: IVA reducido del 10% (bajo condiciones)
-- Resto de inmuebles: IVA general del 21%
+- IVA del 21% incluido en los precios mostrados
+- El IVA se añade al total del presupuesto
+- Todos los inmuebles: IVA general del 21%
 """,
 
     "forma_pago": """
 💳 FORMA DE PAGO
 Forma de pago habitual (negociable según contrato):
-- 40% al inicio de los trabajos
-- 40% a mitad de obra
+- 50% al inicio de los trabajos
+- 30% a mitad de obra
 - 20% a la finalización y conformidad
 """,
 

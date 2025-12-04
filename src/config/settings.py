@@ -166,13 +166,7 @@ class Settings(BaseSettings):
 	# ==========================================
 	iva_general: int = Field(
 		default=21,
-		description="IVA general (%)",
-		ge=0,
-		le=100
-	)
-	iva_reducido: int = Field(
-		default=10,
-		description="IVA reducido para vivienda habitual (%)",
+		description="IVA general (%) - ÚNICO IVA APLICABLE",
 		ge=0,
 		le=100
 	)
