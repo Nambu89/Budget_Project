@@ -18,7 +18,7 @@ sqlalchemy>=2.0.23
 # ============================================
 # Microsoft Agent Framework (NUEVO - reemplaza CrewAI)
 # ============================================
-agent-framework>=0.1.0
+agent-framework==1.0.0b251120
 azure-identity>=1.15.0
 
 # ============================================
