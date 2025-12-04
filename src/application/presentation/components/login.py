@@ -271,7 +271,16 @@ def render_user_info() -> None:
 		st.caption(user['email'])
 		
 		# Mostrar contador de presupuestos
-		num_presupuestos = user.get('num_presupuestos', 0)
+		# CONSULTAR PRESUPUESTOS DIRECTAMENTE A LA BD
+		try:
+			from ....application.services.user_budget_service import get_user_budget_service
+			budget_service = get_user_budget_service()
+			presupuestos = budget_service.get_user_budgets(user['id'])
+			num_presupuestos = len(presupuestos)
+		except Exception as e:
+			logger.error(f"Error obteniendo presupuestos del usuario: {e}")
+			num_presupuestos = 0
+
 		st.info(f"📊 {num_presupuestos} presupuesto{'s' if num_presupuestos != 1 else ''}")
 		
 		st.divider()
