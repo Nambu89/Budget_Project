@@ -65,7 +65,7 @@ class Settings(BaseSettings):
 	# Proveedor LLM
 	# ==========================================
 	llm_provider: Literal["azure", "openai"] = Field(
-		default="azure",
+		default="openai",
 		description="Proveedor de LLM a utilizar"
 	)
 	

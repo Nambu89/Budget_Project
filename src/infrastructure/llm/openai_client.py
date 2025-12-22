@@ -3,6 +3,10 @@ Cliente para OpenAI directo.
 
 Implementa la conexión con la API de OpenAI
 para usar modelos de lenguaje directamente.
+
+NOTA: gpt-5-mini y otros modelos de razonamiento:
+- NO soportan el parámetro 'temperature' (debe ser 1)
+- Usan 'max_completion_tokens' en lugar de 'max_tokens'
 """
 
 from typing import Optional
@@ -18,6 +22,8 @@ class OpenAIClient:
     
     Proporciona una interfaz simplificada para hacer
     llamadas a la API de OpenAI.
+    
+    Soporta modelos de razonamiento como gpt-5-mini.
     
     Attributes:
         client: Cliente de OpenAI
@@ -39,6 +45,9 @@ class OpenAIClient:
         self.api_key = api_key or settings.openai_api_key
         self.model = model or settings.openai_model
         
+        # Detectar si es modelo de razonamiento (no soporta temperature)
+        self.is_reasoning_model = "gpt-5" in self.model.lower() or "o1" in self.model.lower()
+        
         # Validar configuración
         if not self.api_key:
             raise ValueError(
@@ -49,7 +58,7 @@ class OpenAIClient:
         # Crear cliente
         self.client = OpenAI(api_key=self.api_key)
         
-        logger.info(f"✓ OpenAI Client inicializado (model: {self.model})")
+        logger.info(f"✓ OpenAI Client inicializado (model: {self.model}, reasoning: {self.is_reasoning_model})")
     
     def chat_completion(
         self,
@@ -63,7 +72,7 @@ class OpenAIClient:
         
         Args:
             messages: Lista de mensajes del chat
-            temperature: Temperatura de generación (0-2)
+            temperature: Temperatura de generación (IGNORADA en modelos de razonamiento)
             max_tokens: Máximo de tokens a generar
             **kwargs: Argumentos adicionales para la API
             
@@ -71,14 +80,35 @@ class OpenAIClient:
             str: Respuesta del modelo
         """
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                max_completion_tokens=max_tokens,
-                **kwargs
-            )
+            # Preparar parámetros base
+            # IMPORTANTE: Modelos de razonamiento (gpt-5-mini) usan tokens para
+            # "pensar" internamente (~64+ tokens para prompts simples, más para complejos).
+            # Necesitan mínimo 1000 tokens para producir respuestas útiles en prompts complejos.
+            effective_tokens = max_tokens
+            if self.is_reasoning_model and max_tokens < 1000:
+                effective_tokens = 1000
             
-            return response.choices[0].message.content
+            params = {
+                "model": self.model,
+                "messages": messages,
+                "max_completion_tokens": effective_tokens,
+            }
+            
+            # Solo añadir temperature si NO es modelo de razonamiento
+            if not self.is_reasoning_model:
+                params["temperature"] = temperature
+            
+            # Añadir kwargs (excluyendo temperature para modelos de razonamiento)
+            for key, value in kwargs.items():
+                if self.is_reasoning_model and key == "temperature":
+                    continue  # Ignorar temperature para modelos de razonamiento
+                params[key] = value
+            
+            response = self.client.chat.completions.create(**params)
+            
+            # Manejar respuesta None
+            content = response.choices[0].message.content
+            return content or ""
             
         except Exception as e:
             logger.error(f"Error en OpenAI chat completion: {e}")
@@ -97,7 +127,7 @@ class OpenAIClient:
         Args:
             prompt: Prompt del usuario
             system_prompt: Prompt del sistema (opcional)
-            temperature: Temperatura de generación
+            temperature: Temperatura de generación (IGNORADA en modelos de razonamiento)
             max_tokens: Máximo de tokens
             
         Returns:
@@ -125,11 +155,12 @@ class OpenAIClient:
         """
         try:
             # Hacer una llamada mínima de prueba
-            self.simple_completion(
-                prompt="test",
-                max_tokens=5,
+            response = self.simple_completion(
+                temperature=1,
+                prompt="Responde OK",
+                max_completion_tokens=10,
             )
-            return True
+            return len(response) > 0
         except Exception as e:
             logger.warning(f"OpenAI no disponible: {e}")
             return False

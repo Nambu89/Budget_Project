@@ -9,21 +9,11 @@ MIGRADO A: Microsoft Agent Framework (sin CrewAI)
 
 from typing import Optional, Any
 from agent_framework import ChatAgent
-from agent_framework.azure import AzureOpenAIChatClient
 from loguru import logger
 
 from ...config.settings import settings
+from ...infrastructure.llm import get_chat_client
 from src.domain.enums import PropertyType, QualityLevel, WorkCategory
-
-
-def get_azure_chat_client() -> AzureOpenAIChatClient:
-	"""Crea cliente Azure OpenAI para Agent Framework."""
-	return AzureOpenAIChatClient(
-		deployment_name=settings.azure_openai_deployment_name,
-		api_key=settings.azure_openai_api_key,
-		endpoint=settings.azure_openai_endpoint,
-		api_version=settings.azure_openai_api_version,
-	)
 
 
 # System prompt del agente
@@ -66,7 +56,7 @@ class DataCollectorAgent:
 	def __init__(self):
 		"""Inicializa el agente recolector."""
 		# Crear agente con Microsoft Agent Framework
-		chat_client = get_azure_chat_client()
+		chat_client = get_chat_client()
 		self.agent = ChatAgent(
 			name="Especialista en Recolección de Datos",
 			chat_client=chat_client,

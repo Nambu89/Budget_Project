@@ -16,27 +16,12 @@ from loguru import logger
 
 # Microsoft Agent Framework (reemplaza CrewAI)
 from agent_framework import ChatAgent
-from agent_framework.azure import AzureOpenAIChatClient
 
 from src.config.settings import settings
+from src.infrastructure.llm import get_chat_client
 from src.domain.enums import PropertyType, QualityLevel, WorkCategory
 from src.domain.models import Budget, Project
 from ..services import BudgetService, get_budget_service
-
-
-def get_azure_chat_client() -> AzureOpenAIChatClient:
-	"""
-	Crea un cliente de Azure OpenAI para Agent Framework.
-	
-	Returns:
-		AzureOpenAIChatClient: Cliente configurado
-	"""
-	return AzureOpenAIChatClient(
-		deployment_name=settings.azure_openai_deployment_name,
-		api_key=settings.azure_openai_api_key,
-		endpoint=settings.azure_openai_endpoint,
-		api_version=settings.azure_openai_api_version,
-	)
 
 class CalculatorAgent:
 	"""
@@ -62,8 +47,8 @@ class CalculatorAgent:
 		"""
 		self.budget_service = budget_service or get_budget_service()
 		
-		# Crear cliente Azure OpenAI
-		chat_client = get_azure_chat_client()
+		# Crear cliente usando factory (OpenAI o Azure según config)
+		chat_client = get_chat_client()
 		
 		# Crear agente con Microsoft Agent Framework
 		self.agent = ChatAgent(
