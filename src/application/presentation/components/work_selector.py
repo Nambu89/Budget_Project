@@ -91,6 +91,37 @@ def _render_paquetes_selector() -> None:
                 else:
                     st.metric("💎 Premium", f"desde {precios['premium']['precio_base']}€")
             
+            # ══════════════════════════════════════════════════════════════
+            # OPCIONES ADICIONALES (ej: armario empotrado para habitación)
+            # ══════════════════════════════════════════════════════════════
+            if "opciones" in paquete_data:
+                st.markdown("---")
+                st.markdown("**Opciones adicionales:**")
+                
+                for opcion_key, opcion_data in paquete_data["opciones"].items():
+                    # Inicializar estado de la opción si no existe
+                    opcion_state_key = f"opcion_{paquete_key}_{opcion_key}"
+                    if opcion_state_key not in st.session_state:
+                        st.session_state[opcion_state_key] = False
+                    
+                    # Checkbox para la opción
+                    opcion_seleccionada = st.checkbox(
+                        f"🚪 {opcion_data['descripcion']}",
+                        value=st.session_state[opcion_state_key],
+                        key=f"chk_{opcion_state_key}",
+                        help=f"Precio: +{opcion_data['precios']['estandar']}€ (calidad estándar)"
+                    )
+                    st.session_state[opcion_state_key] = opcion_seleccionada
+                    
+                    if opcion_seleccionada:
+                        col_a, col_b, col_c = st.columns(3)
+                        with col_a:
+                            st.caption(f"⚡ +{opcion_data['precios']['basico']}€")
+                        with col_b:
+                            st.caption(f"⭐ +{opcion_data['precios']['estandar']}€")
+                        with col_c:
+                            st.caption(f"💎 +{opcion_data['precios']['premium']}€")
+            
             # Botón para añadir/quitar
             if paquete_key in st.session_state.paquetes_seleccionados:
                 if st.button(

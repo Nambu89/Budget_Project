@@ -112,14 +112,25 @@ def render_sidebar_info() -> None:
     - Contacto
     """
     with st.sidebar:
-        # Renderizar info del usuario al principio
+        # Renderizar info del usuario o botón de login
         try:
             from .login import render_user_info
-            render_user_info()
             
-            # Solo añadir divider si el usuario está autenticado
             if st.session_state.get("authenticated"):
+                # Usuario autenticado: mostrar info
+                render_user_info()
                 st.divider()
+            else:
+                # Usuario no autenticado: mostrar opción de login
+                if st.button("🔐 Iniciar sesión", use_container_width=True, key="sidebar_login_btn"):
+                    st.session_state.show_sidebar_login = True
+                    st.rerun()
+                
+                # Modal de login en sidebar
+                if st.session_state.get("show_sidebar_login"):
+                    _render_sidebar_login_modal()
+                    st.divider()
+                    
         except ImportError:
             pass
         
@@ -202,3 +213,41 @@ def render_footer() -> None:
             Presupuesto orientativo - Requiere visita técnica
         </div>
         """, unsafe_allow_html=True)
+
+
+def _render_sidebar_login_modal() -> None:
+    """Modal de login rápido en el sidebar."""
+    from loguru import logger
+    from ...services.auth_service import get_auth_service
+    
+    with st.container(border=True):
+        st.markdown("#### 🔐 Iniciar sesión")
+        
+        with st.form("sidebar_login_form"):
+            email = st.text_input("Email", placeholder="tu@email.com", key="side_email")
+            password = st.text_input("Contraseña", type="password", key="side_pass")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.form_submit_button("Entrar", type="primary", use_container_width=True):
+                    if email and password:
+                        try:
+                            auth_service = get_auth_service()
+                            user = auth_service.login(email, password)
+                            if user:
+                                st.session_state.user = user
+                                st.session_state.authenticated = True
+                                st.session_state.show_sidebar_login = False
+                                st.rerun()
+                            else:
+                                st.error("Credenciales incorrectas")
+                        except Exception as e:
+                            logger.error(f"Error login sidebar: {e}")
+                            st.error("Error al iniciar sesión")
+                    else:
+                        st.error("Completa todos los campos")
+            
+            with col2:
+                if st.form_submit_button("Cancelar", use_container_width=True):
+                    st.session_state.show_sidebar_login = False
+                    st.rerun()

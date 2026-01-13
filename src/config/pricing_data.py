@@ -387,8 +387,77 @@ PACKAGES_DATA: Dict[str, Dict[str, Any]] = {
             },
         },
     },
+    
+    # ============================================
+    # NUEVOS PAQUETES 2026: SALÓN Y HABITACIÓN
+    # ============================================
+    
+    "salon_completo": {
+        "nombre": "Reforma de Salón",
+        "descripcion": "Reforma de salón incluyendo suelo, pintura, rodapiés y puntos de luz",
+        "incluye": [
+            "Suelo laminado/vinílico",
+            "Pintura de paredes y techo",
+            "Rodapiés",
+            "Puntos de luz (2-3 uds)",
+        ],
+        "precios": {
+            "basico": {
+                "precio_base": 1200.0,
+                "m2_referencia": 20,
+                "precio_m2_adicional": 55.0,
+            },
+            "estandar": {
+                "precio_base": 2000.0,
+                "m2_referencia": 20,
+                "precio_m2_adicional": 85.0,
+            },
+            "premium": {
+                "precio_base": 3500.0,
+                "m2_referencia": 20,
+                "precio_m2_adicional": 130.0,
+            },
+        },
+    },
+    
+    "habitacion_completa": {
+        "nombre": "Reforma de Habitación",
+        "descripcion": "Reforma de habitación/dormitorio con opción de armario empotrado",
+        "incluye": [
+            "Suelo laminado/vinílico",
+            "Pintura de paredes y techo",
+            "Rodapiés",
+            "Puntos de luz (1-2 uds)",
+        ],
+        "opciones": {
+            "armario_empotrado": {
+                "descripcion": "Armario empotrado a medida (2.5m ancho)",
+                "precios": {
+                    "basico": 500.0,
+                    "estandar": 950.0,
+                    "premium": 1500.0,
+                },
+            },
+        },
+        "precios": {
+            "basico": {
+                "precio_base": 800.0,
+                "m2_referencia": 12,
+                "precio_m2_adicional": 50.0,
+            },
+            "estandar": {
+                "precio_base": 1400.0,
+                "m2_referencia": 12,
+                "precio_m2_adicional": 80.0,
+            },
+            "premium": {
+                "precio_base": 2400.0,
+                "m2_referencia": 12,
+                "precio_m2_adicional": 120.0,
+            },
+        },
+    },
 }
-
 
 # ============================================
 # DISCLAIMERS LEGALES PROFESIONALES

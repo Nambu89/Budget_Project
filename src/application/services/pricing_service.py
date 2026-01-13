@@ -140,6 +140,7 @@ class PricingService:
 		paquete: str,
 		calidad: QualityLevel,
 		metros: float,
+		opciones: list[str] = None,  # NUEVO: opciones adicionales (ej: armario_empotrado)
 	) -> list[BudgetItem]:
 		"""
 		Crea todas las partidas de un paquete completo CON items_incluidos.
@@ -153,6 +154,7 @@ class PricingService:
 			paquete: Nombre del paquete (bano_completo, cocina_completa, etc.)
 			calidad: Nivel de calidad
 			metros: Metros cuadrados del espacio
+			opciones: Lista de opciones adicionales activadas
 			
 		Returns:
 			list[BudgetItem]: Lista de partidas del paquete
@@ -166,8 +168,22 @@ class PricingService:
 		# Calcular precio total del paquete
 		precio_total = get_precio_paquete(paquete, calidad.value, metros)
 		
+		# ══════════════════════════════════════════════════════════════════
+		# NUEVO: Sumar precio de opciones adicionales (ej: armario empotrado)
+		# ══════════════════════════════════════════════════════════════════
+		items_opciones = []
+		if opciones and "opciones" in paquete_data:
+			for opcion in opciones:
+				if opcion in paquete_data["opciones"]:
+					opcion_data = paquete_data["opciones"][opcion]
+					precio_opcion = opcion_data["precios"].get(calidad.value, 0)
+					precio_total += precio_opcion
+					items_opciones.append(f"+ {opcion_data['descripcion']} (+{precio_opcion}€)")
+					logger.info(f"Opción '{opcion}' añadida al paquete: +{precio_opcion}€")
+		
 		# Obtener lista completa de items incluidos según el paquete
 		items_incluidos = self._obtener_items_paquete(paquete, calidad)
+		items_incluidos.extend(items_opciones)  # Añadir opciones a la lista
 		
 		# Crear item único del paquete CON items_incluidos
 		budget_item = BudgetItem(

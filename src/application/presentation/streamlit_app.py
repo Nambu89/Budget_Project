@@ -32,6 +32,7 @@ from src.application.presentation.components import (
 	render_customer_summary,
 	render_login,
 	render_user_info,
+	render_registration_gate,
 )
 
 
@@ -91,10 +92,9 @@ def main() -> None:
 		render_reset_password_page(query_params["reset_token"])
 		return
 	
-	# Verificar autenticación
-	if not st.session_state.get("authenticated"):
-		render_login()
-		return
+	# LEAD GENERATION: Ya NO bloqueamos al inicio
+	# El usuario puede crear presupuesto sin login
+	# El login se requerirá en el paso 5 (ver resultado final)
 	
 	# Inicializar estado
 	init_session_state()
@@ -413,7 +413,25 @@ def _render_step_3_calculo() -> None:
 		with st.spinner("🔄 Calculando tu presupuesto..."):
 			_calcular_presupuesto()
 	
-	# Mostrar resultados
+	# ══════════════════════════════════════════════════════════════════
+	# LEAD GENERATION: Verificar autenticación antes de mostrar resultado
+	# ══════════════════════════════════════════════════════════════════
+	if st.session_state.presupuesto and not st.session_state.get("authenticated"):
+		# Mostrar gate de registro con rango de precios
+		render_registration_gate(st.session_state.presupuesto)
+		
+		st.divider()
+		
+		# Solo botón de volver
+		if st.button("← Modificar trabajos", use_container_width=True):
+			st.session_state.presupuesto = None
+			st.session_state.current_step = 2
+			st.rerun()
+		return  # No continuar hasta que se autentique
+	
+	# ══════════════════════════════════════════════════════════════════
+	# Usuario autenticado: Mostrar presupuesto completo
+	# ══════════════════════════════════════════════════════════════════
 	if st.session_state.presupuesto:
 		# FASE 2: Pasar estimaciones
 		render_results(
@@ -483,6 +501,25 @@ def _render_step_4_cliente() -> None:
 
 def _render_step_5_final() -> None:
 	"""Renderiza el paso 5: Presupuesto final CON email funcional."""
+	
+	# ══════════════════════════════════════════════════════════════════
+	# LEAD GENERATION: Verificar autenticación antes de mostrar resultado
+	# ══════════════════════════════════════════════════════════════════
+	if not st.session_state.get("authenticated"):
+		# Mostrar gate de registro con rango de precios
+		if st.session_state.presupuesto:
+			render_registration_gate(st.session_state.presupuesto)
+		else:
+			# Si no hay presupuesto calculado, volver al paso anterior
+			st.warning("⚠️ Ocurrió un error. Por favor, vuelve a calcular el presupuesto.")
+			if st.button("← Volver"):
+				st.session_state.current_step = 3
+				st.rerun()
+		return  # No continuar hasta que se autentique
+	
+	# ══════════════════════════════════════════════════════════════════
+	# Usuario autenticado: Mostrar presupuesto completo
+	# ══════════════════════════════════════════════════════════════════
 	st.markdown("## ✅ ¡Presupuesto completado!")
 	
 	# Asignar cliente al presupuesto y generar PDF
@@ -582,6 +619,23 @@ def _calcular_presupuesto() -> None:
 			"partidas": st.session_state.partidas_seleccionadas,
 			"paquetes": st.session_state.paquetes_seleccionados,
 		}
+		
+		# ══════════════════════════════════════════════════════════════════
+		# Extraer opciones de paquetes (ej: armario empotrado para habitación)
+		# ══════════════════════════════════════════════════════════════════
+		opciones_paquetes = {}
+		for paquete in st.session_state.paquetes_seleccionados:
+			# Buscar opciones en session_state (formato: opcion_{paquete}_{opcion})
+			for key in st.session_state:
+				if key.startswith(f"opcion_{paquete}_"):
+					opcion_nombre = key.replace(f"opcion_{paquete}_", "")
+					if st.session_state[key]:  # Solo si está activada
+						if paquete not in opciones_paquetes:
+							opciones_paquetes[paquete] = []
+						opciones_paquetes[paquete].append(opcion_nombre)
+		
+		if opciones_paquetes:
+			datos_formulario["opciones_paquetes"] = opciones_paquetes
 		
 		# Procesar
 		resultado = crew.procesar_presupuesto(

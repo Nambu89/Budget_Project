@@ -36,6 +36,9 @@ from .login import (
 from .forgot_password import (
     render_forgot_password,
 )
+from .registration_gate import (
+    render_registration_gate,
+)
 
 __all__ = [
     # Header
@@ -65,4 +68,6 @@ __all__ = [
     "require_auth",
     # Forgot Password
     "render_forgot_password",
+    # Registration Gate
+    "render_registration_gate",
 ]
