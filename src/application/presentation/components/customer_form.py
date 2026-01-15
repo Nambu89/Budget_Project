@@ -45,7 +45,7 @@ def render_customer_form() -> Optional[dict]:
         # Teléfono
         telefono = st.text_input(
             "Teléfono *",
-            placeholder="Ej: 6  678",
+            placeholder="Ej: 612 345 678",
             help="Para contactarte sobre el presupuesto",
         )
         
@@ -54,7 +54,7 @@ def render_customer_form() -> Optional[dict]:
         # Dirección de la obra (opcional)
         direccion = st.text_input(
             "Dirección de la obra (opcional)",
-            placeholder="Ej: Calle Mayor , Madrid",
+            placeholder="Ej: Calle Mayor 10, Madrid",
             help="Donde se realizará la reforma",
         )
         
@@ -63,7 +63,7 @@ def render_customer_form() -> Optional[dict]:
             "Notas adicionales (opcional)",
             placeholder="Ej: Preferiblemente contactar por las tardes...",
             help="Cualquier información adicional que quieras añadir",
-            max_chars=00,
+            max_chars=500,
         )
         
         st.divider()
@@ -94,7 +94,7 @@ def render_customer_form() -> Optional[dict]:
             # Validaciones
             errores = []
             
-            if not nombre or len(nombre.strip()) < :
+            if not nombre or len(nombre.strip()) < 2:
                 errores.append("El nombre es obligatorio")
             
             if not email or not _validar_email(email):
@@ -140,18 +140,18 @@ def render_customer_summary(datos: dict) -> None:
     """
     st.markdown("###  Datos del cliente")
     
-    col, col = st.columns()
+    col1, col2 = st.columns(2)
     
-    with col:
+    with col1:
         st.markdown(f"**Nombre:** {datos['nombre']}")
         st.markdown(f"**Email:** {datos['email']}")
         st.markdown(f"**Teléfono:** {datos['telefono']}")
     
-    with col:
+    with col2:
         if datos.get('direccion_obra'):
             st.markdown(f"**Dirección:** {datos['direccion_obra']}")
         if datos.get('notas'):
-            st.markdown(f"**Notas:** {datos['notas'][:0]}...")
+            st.markdown(f"**Notas:** {datos['notas'][:50]}...")
 
 
 def render_quick_customer_form() -> Optional[dict]:
@@ -163,27 +163,27 @@ def render_quick_customer_form() -> Optional[dict]:
     """
     st.markdown("###  Datos para el presupuesto")
     
-    col, col, col = st.columns()
+    col1, col2, col3 = st.columns(3)
     
-    with col:
+    with col1:
         nombre = st.text_input(
             "Nombre *",
             key="quick_nombre",
             placeholder="Tu nombre",
         )
     
-    with col:
+    with col2:
         email = st.text_input(
             "Email *",
             key="quick_email",
             placeholder="tu@email.com",
         )
     
-    with col:
+    with col3:
         telefono = st.text_input(
             "Teléfono *",
             key="quick_telefono",
-            placeholder="6678",
+            placeholder="612345678",
         )
     
     # Validación inline
@@ -202,7 +202,7 @@ def render_quick_customer_form() -> Optional[dict]:
 
 def _validar_email(email: str) -> bool:
     """Valida formato de email."""
-    patron = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{,}$'
+    patron = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return bool(re.match(patron, email))
 
 
@@ -212,10 +212,10 @@ def _validar_telefono(telefono: str) -> bool:
     telefono_limpio = re.sub(r'[\s\-\.\(\)]', '', telefono)
     
     # Quitar prefijo si existe
-    if telefono_limpio.startswith('+'):
-        telefono_limpio = telefono_limpio[:]
-    elif telefono_limpio.startswith('00'):
-        telefono_limpio = telefono_limpio[:]
+    if telefono_limpio.startswith('+34'):
+        telefono_limpio = telefono_limpio[3:]
+    elif telefono_limpio.startswith('0034'):
+        telefono_limpio = telefono_limpio[4:]
     
     # Validar 9 dígitos empezando por 6, 7, 8 o 9
     patron = r'^[6789]\d{8}$'
@@ -226,9 +226,9 @@ def _normalizar_telefono(telefono: str) -> str:
     """Normaliza el teléfono al formato estándar."""
     telefono_limpio = re.sub(r'[\s\-\.\(\)]', '', telefono)
     
-    if telefono_limpio.startswith('+'):
+    if telefono_limpio.startswith('+34'):
         return telefono_limpio
-    elif telefono_limpio.startswith('00'):
-        return '+' + telefono_limpio[:]
+    elif telefono_limpio.startswith('0034'):
+        return '+34' + telefono_limpio[4:]
     else:
-        return '+' + telefono_limpio
+        return '+34' + telefono_limpio

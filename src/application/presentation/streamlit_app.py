@@ -181,16 +181,16 @@ def _mostrar_estimaciones_guardadas() -> None:
 	st.markdown("###  Estimaciones Inteligentes con IA")
 	
 	# Mostrar estimaciones en columnas
-	col, col, col = st.columns()
+	col, col1, col2 = st.columns(2)
 	
-	with col:
+	with col1:
 		st.metric(
 			label=" m² de paredes",
 			value=f"{estimaciones['m_paredes_estimado']:.f} m²",
 			help="Superficie total de paredes (ancho × alto)"
 		)
 	
-	with col:
+	with col2:
 		st.metric(
 			label=" Rodapiés",
 			value=f"{estimaciones['ml_rodapies_estimado']:.f} ml",
@@ -232,7 +232,7 @@ def _mostrar_estimaciones_guardadas() -> None:
 		st.info(f" {mensaje}")
 
 
-def _render_step__proyecto() -> None:
+def _render_step_1_proyecto() -> None:
 	"""Renderiza el paso : Datos del proyecto."""
 	st.markdown("## Paso : Información del proyecto")
 	
@@ -262,7 +262,7 @@ def _render_step__proyecto() -> None:
 	
 	col1, col2 = st.columns([1, 2])
 	
-	with col:
+	with col1:
 		if datos_proyecto:
 			if st.button("Siguiente →", type="primary", use_container_width=True):
 				st.session_state.proyecto_data = datos_proyecto
@@ -276,7 +276,7 @@ def _render_step__proyecto() -> None:
 				help="Completa la información del proyecto",
 			)
 	
-	with col:
+	with col2:
 		if datos_proyecto:
 			st.success(" Proyecto configurado correctamente")
 		else:
@@ -301,16 +301,16 @@ def _mostrar_estimaciones_inteligentes(proyecto: Project) -> None:
 			st.session_state.estimaciones_ia = estimaciones
 			
 			# Mostrar estimaciones en columnas
-			col, col, col = st.columns()
+			col, col1, col2 = st.columns(2)
 			
-			with col:
+			with col1:
 				st.metric(
 					label=" m² de paredes",
 					value=f"{estimaciones['m_paredes_estimado']:.f} m²",
 					help="Superficie total de paredes (ancho × alto)"
 				)
 			
-			with col:
+			with col2:
 				st.metric(
 					label=" Rodapiés",
 					value=f"{estimaciones['ml_rodapies_estimado']:.f} ml",
@@ -356,7 +356,7 @@ def _mostrar_estimaciones_inteligentes(proyecto: Project) -> None:
 			st.warning(" No se pudieron calcular las estimaciones inteligentes. Continuaremos con estimaciones básicas.")
 
 
-def _render_step__trabajos() -> None:
+def _render_step_2_trabajos() -> None:
 	"""Renderiza el paso : Selección de trabajos."""
 	st.markdown("## Paso : Trabajos a realizar")
 	
@@ -565,14 +565,14 @@ def _render_step_5_final() -> None:
 		# ──────────────────────────────────────────────────────────────
 		# ACCIONES FINALES
 		# ──────────────────────────────────────────────────────────────
-		col, col, col = st.columns()
+		col, col1, col2 = st.columns(2)
 		
-		with col:
+		with col1:
 			if st.button(" Nuevo presupuesto", use_container_width=True):
 				_reset_session()
 				st.rerun()
 		
-		with col:
+		with col2:
 			#  BOTÓN EMAIL FUNCIONAL
 			if st.button(" Enviar por email", use_container_width=True, type="secondary"):
 				st.session_state.mostrar_modal_email = True
@@ -766,14 +766,14 @@ def _mostrar_modal_enviar_email() -> None:
 		)
 		
 		# Botones de acción
-		col, col = st.columns()
+		col1, col2 = st.columns(2)
 		
-		with col:
+		with col1:
 			if st.button(" Cancelar", use_container_width=True):
 				st.session_state.mostrar_modal_email = False
 				st.rerun()
 		
-		with col:
+		with col2:
 			if st.button(" Enviar ahora", type="primary", use_container_width=True):
 				if not email_destinatario or "@" not in email_destinatario:
 					st.error(" Por favor, introduce un email válido")

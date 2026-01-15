@@ -281,7 +281,7 @@ def render_user_info() -> None:
 			logger.error(f"Error obteniendo presupuestos del usuario: {e}")
 			num_presupuestos = 0
 
-		st.info(f" {num_presupuestos} presupuesto{'s' if num_presupuestos !=  else ''}")
+		st.info(f"{num_presupuestos} presupuesto{'s' if num_presupuestos != 1 else ''}")
 		
 		st.divider()
 		

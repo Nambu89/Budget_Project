@@ -86,16 +86,23 @@ def render_header() -> None:
         </style>
     """, unsafe_allow_html=True)
     
-    # Header con logo
-    col1, col2, col3 = st.columns([1, 3, 1])
+    # Header con logo centrado
+    col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        # Mostrar logo si existe
+        # Centrar logo usando HTML
         logo_path = "Logo/Logo ISI.jpeg"
         if os.path.exists(logo_path):
-            st.image(logo_path, width=200)
+            import base64
+            with open(logo_path, "rb") as f:
+                logo_data = base64.b64encode(f.read()).decode()
+            st.markdown(f'''
+                <div style="text-align: center;">
+                    <img src="data:image/jpeg;base64,{logo_data}" width="200">
+                </div>
+            ''', unsafe_allow_html=True)
         
-        # Título sin emoji
+        # Título centrado
         st.markdown("""
             <div class="main-header">
                 <div class="main-title">Calculadora de Presupuestos</div>
