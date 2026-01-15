@@ -35,16 +35,16 @@ def render_mis_presupuestos():
         return
     
     # Mostrar estadísticas
-    col, col, col = st.columns()
+    col, col1, col2 = st.columns(2)
     
-    with col:
+    with col1:
         st.metric("Total Presupuestos", len(presupuestos))
     
-    with col:
+    with col1:
         total_facturado = sum(p['total_con_iva'] for p in presupuestos)
-        st.metric("Total Facturado", f"{total_facturado:,.f} €")
+        st.metric("Total Facturado", f"{total_facturado:,.2f} €")
     
-    with col:
+    with col1:
         iva_medio = sum(p['iva_aplicado'] for p in presupuestos) / len(presupuestos)
         st.metric("IVA Medio", f"{iva_medio:.0f}%")
     
@@ -55,12 +55,12 @@ def render_mis_presupuestos():
     
     for presupuesto in presupuestos:
         with st.expander(
-            f" {presupuesto['numero_presupuesto']} - {presupuesto['total_con_iva']:,.f} €",
+            f" {presupuesto['numero_presupuesto']} - {presupuesto['total_con_iva']:,.2f} €",
             expanded=False
         ):
-            col, col = st.columns([, ])
+            col, col = st.columns([1, 1])
             
-            with col:
+            with col1:
                 # Información del presupuesto
                 datos_proyecto = presupuesto['datos_proyecto']
                 
@@ -77,9 +77,9 @@ def render_mis_presupuestos():
                     with st.expander("Ver detalle de partidas"):
                         for p in partidas:
                             tipo = " Paquete" if p.get('es_paquete') else " Individual"
-                            st.markdown(f"- {tipo}: {p['descripcion'][:0]}... - {p['subtotal']:.f} €")
+                            st.markdown(f"- {tipo}: {p['descripcion'][:0]}... - {p['subtotal']:.2f} €")
             
-            with col:
+            with col1:
                 # Acciones
                 st.markdown("**Acciones:**")
                 

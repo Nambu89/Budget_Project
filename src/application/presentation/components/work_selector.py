@@ -71,21 +71,21 @@ def _render_paquetes_selector() -> None:
             st.markdown("**Precios orientativos:**")
             precios = paquete_data["precios"]
             
-            col, col, col = st.columns()
+            col, col1, col2 = st.columns(2)
             
-            with col:
+            with col1:
                 if "precio_m" in precios["basico"]:
                     st.metric(" Básico", f"{precios['basico']['precio_m']}€/m²")
                 else:
                     st.metric(" Básico", f"desde {precios['basico']['precio_base']}€")
             
-            with col:
+            with col1:
                 if "precio_m" in precios["estandar"]:
                     st.metric("⭐ Estándar", f"{precios['estandar']['precio_m']}€/m²")
                 else:
                     st.metric("⭐ Estándar", f"desde {precios['estandar']['precio_base']}€")
             
-            with col:
+            with col1:
                 if "precio_m" in precios["premium"]:
                     st.metric(" Premium", f"{precios['premium']['precio_m']}€/m²")
                 else:
@@ -180,18 +180,18 @@ def _render_partidas_selector(calidad_default: QualityLevel) -> None:
                 st.markdown(f"Unidad: **{partida_data['unidad']}**")
                 
                 # Precios
-                col, col, col = st.columns()
-                with col:
+                col, col1, col2 = st.columns(2)
+                with col1:
                     st.metric(" Básico", f"{partida_data['basico']}€/{partida_data['unidad']}")
-                with col:
+                with col1:
                     st.metric("⭐ Estándar", f"{partida_data['estandar']}€/{partida_data['unidad']}")
-                with col:
+                with col1:
                     st.metric(" Premium", f"{partida_data['premium']}€/{partida_data['unidad']}")
                 
                 # Formulario para añadir
-                col, col, col = st.columns([, , ])
+                col, col, col = st.columns([1, 2, 1])
                 
-                with col:
+                with col1:
                     cantidad = st.number_input(
                         f"Cantidad ({partida_data['unidad']})",
                         min_value=0.0,
@@ -200,16 +200,16 @@ def _render_partidas_selector(calidad_default: QualityLevel) -> None:
                         key=f"cant_{categoria_seleccionada}_{partida_key}",
                     )
                 
-                with col:
+                with col1:
                     calidad_partida = st.selectbox(
                         "Calidad",
                         options=[QualityLevel.BASICO, QualityLevel.ESTANDAR, QualityLevel.PREMIUM],
-                        index=,
+                        index=1,
                         format_func=lambda x: x.display_name,
                         key=f"cal_{categoria_seleccionada}_{partida_key}",
                     )
                 
-                with col:
+                with col1:
                     st.markdown("<br>", unsafe_allow_html=True)
                     if cantidad > 0:
                         if st.button(
@@ -235,15 +235,15 @@ def _render_partidas_selector(calidad_default: QualityLevel) -> None:
         st.markdown("###  Partidas seleccionadas")
         
         for i, partida in enumerate(st.session_state.partidas_seleccionadas):
-            col, col, col = st.columns([, , ])
+            col, col, col = st.columns([1, 2, 1])
             
-            with col:
+            with col1:
                 st.markdown(f" {partida['descripcion'][:0]}...")
             
-            with col:
+            with col1:
                 st.markdown(f"{partida['cantidad']} {partida['unidad']}")
             
-            with col:
+            with col1:
                 if st.button("", key=f"del_partida_{i}"):
                     st.session_state.partidas_seleccionadas.pop(i)
                     st.rerun()
@@ -260,12 +260,12 @@ def render_work_summary() -> None:
     
     st.markdown("###  Resumen de trabajos")
     
-    col, col = st.columns()
+    col1, col2 = st.columns(2)
     
-    with col:
+    with col1:
         st.metric(" Paquetes", len(paquetes))
     
-    with col:
+    with col1:
         st.metric(" Partidas", len(partidas))
     
     if paquetes:
