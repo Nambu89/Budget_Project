@@ -14,7 +14,7 @@ def render_mis_presupuestos():
     """
     Renderiza la página de gestión de presupuestos del usuario.
     """
-    st.title("📊 Mis Presupuestos")
+    st.title(" Mis Presupuestos")
     
     if not st.session_state.get("authenticated"):
         st.warning("Debes iniciar sesión para ver tus presupuestos")
@@ -27,48 +27,48 @@ def render_mis_presupuestos():
     presupuestos = budget_service.get_user_budgets(user_id)
     
     if not presupuestos:
-        st.info("👋 Aún no tienes presupuestos guardados")
+        st.info(" Aún no tienes presupuestos guardados")
         st.markdown("---")
-        if st.button("🏗️ Crear mi primer presupuesto", type="primary", use_container_width=True):
+        if st.button(" Crear mi primer presupuesto", type="primary", use_container_width=True):
             st.session_state.current_page = "calculator"
             st.rerun()
         return
     
     # Mostrar estadísticas
-    col1, col2, col3 = st.columns(3)
+    col, col, col = st.columns()
     
-    with col1:
+    with col:
         st.metric("Total Presupuestos", len(presupuestos))
     
-    with col2:
+    with col:
         total_facturado = sum(p['total_con_iva'] for p in presupuestos)
-        st.metric("Total Facturado", f"{total_facturado:,.2f} €")
+        st.metric("Total Facturado", f"{total_facturado:,.f} €")
     
-    with col3:
+    with col:
         iva_medio = sum(p['iva_aplicado'] for p in presupuestos) / len(presupuestos)
         st.metric("IVA Medio", f"{iva_medio:.0f}%")
     
     st.markdown("---")
     
     # Tabla de presupuestos
-    st.markdown("### 📋 Mis Presupuestos Guardados")
+    st.markdown("###  Mis Presupuestos Guardados")
     
     for presupuesto in presupuestos:
         with st.expander(
-            f"📄 {presupuesto['numero_presupuesto']} - {presupuesto['total_con_iva']:,.2f} €",
+            f" {presupuesto['numero_presupuesto']} - {presupuesto['total_con_iva']:,.f} €",
             expanded=False
         ):
-            col1, col2 = st.columns([2, 1])
+            col, col = st.columns([, ])
             
-            with col1:
+            with col:
                 # Información del presupuesto
                 datos_proyecto = presupuesto['datos_proyecto']
                 
-                st.markdown(f"**Fecha:** {presupuesto['fecha_creacion'][:10]}")
+                st.markdown(f"**Fecha:** {presupuesto['fecha_creacion'][:0]}")
                 st.markdown(f"**Tipo:** {datos_proyecto.get('tipo_inmueble', 'N/A').capitalize()}")
                 st.markdown(f"**Superficie:** {datos_proyecto.get('metros_cuadrados', 0):.0f} m²")
                 st.markdown(f"**Calidad:** {datos_proyecto.get('calidad', 'N/A').capitalize()}")
-                st.markdown(f"**IVA:** 21%")  # SIEMPRE 21%
+                st.markdown(f"**IVA:** %")  # SIEMPRE %
                 
                 # Partidas
                 partidas = presupuesto['partidas']
@@ -76,16 +76,16 @@ def render_mis_presupuestos():
                     st.markdown(f"**Partidas:** {len(partidas)}")
                     with st.expander("Ver detalle de partidas"):
                         for p in partidas:
-                            tipo = "📦 Paquete" if p.get('es_paquete') else "🔧 Individual"
-                            st.markdown(f"- {tipo}: {p['descripcion'][:50]}... - {p['subtotal']:.2f} €")
+                            tipo = " Paquete" if p.get('es_paquete') else " Individual"
+                            st.markdown(f"- {tipo}: {p['descripcion'][:0]}... - {p['subtotal']:.f} €")
             
-            with col2:
+            with col:
                 # Acciones
                 st.markdown("**Acciones:**")
                 
                 # Descargar PDF
                 if st.button(
-                    "📥 Descargar PDF",
+                    " Descargar PDF",
                     key=f"download_{presupuesto['id']}",
                     use_container_width=True
                 ):
@@ -99,7 +99,7 @@ def render_mis_presupuestos():
                         
                         # Ofrecer descarga
                         st.download_button(
-                            label="💾 Guardar PDF",
+                            label=" Guardar PDF",
                             data=pdf_bytes,
                             file_name=f"{presupuesto['numero_presupuesto']}.pdf",
                             mime="application/pdf",
@@ -107,7 +107,7 @@ def render_mis_presupuestos():
                             use_container_width=True
                         )
                         
-                        st.success("✅ PDF generado correctamente")
+                        st.success(" PDF generado correctamente")
                         
                     except Exception as e:
                         logger.error(f"Error generando PDF: {e}")
@@ -115,13 +115,13 @@ def render_mis_presupuestos():
                 
                 # Eliminar
                 if st.button(
-                    "🗑️ Eliminar",
+                    " Eliminar",
                     key=f"delete_{presupuesto['id']}",
                     type="secondary",
                     use_container_width=True
                 ):
                     if budget_service.delete_budget(presupuesto['id'], user_id):
-                        st.success("✅ Presupuesto eliminado")
+                        st.success(" Presupuesto eliminado")
                         st.rerun()
                     else:
-                        st.error("❌ Error al eliminar")
+                        st.error(" Error al eliminar")

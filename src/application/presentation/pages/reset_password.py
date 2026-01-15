@@ -16,11 +16,11 @@ def render_reset_password_page(token: str):
 	"""
 	st.set_page_config(
 		page_title="Restablecer Contraseña - ISI Obras",
-		page_icon="🔐",
+		page_icon="",
 		layout="centered"
 	)
 	
-	st.title("🔐 Restablecer Contraseña")
+	st.title(" Restablecer Contraseña")
 	st.markdown("---")
 	
 	# Validar token
@@ -28,7 +28,7 @@ def render_reset_password_page(token: str):
 	user_info = auth_service.verify_reset_token(token)
 	
 	if not user_info:
-		st.error("❌ El link de recuperación es inválido o ha expirado.")
+		st.error(" El link de recuperación es inválido o ha expirado.")
 		st.info("Por favor solicita un nuevo link de recuperación.")
 		
 		st.markdown("---")
@@ -38,7 +38,7 @@ def render_reset_password_page(token: str):
 		return
 	
 	# Formulario de nueva contraseña
-	st.success(f"✅ Link válido para: **{user_info['email']}**")
+	st.success(f" Link válido para: **{user_info['email']}**")
 	st.info("Ingresa tu nueva contraseña a continuación.")
 	
 	with st.form("reset_password_form"):
@@ -80,7 +80,7 @@ def render_reset_password_page(token: str):
 				resultado = auth_service.reset_password(token, nueva_password)
 				
 				if resultado:
-					st.success("✅ ¡Contraseña cambiada correctamente!")
+					st.success(" ¡Contraseña cambiada correctamente!")
 					st.info("Ya puedes iniciar sesión con tu nueva contraseña.")
 					# st.balloons()
 					
@@ -89,10 +89,10 @@ def render_reset_password_page(token: str):
 						st.query_params.clear()
 						st.rerun()
 				else:
-					st.error("❌ Error al cambiar la contraseña.")
+					st.error(" Error al cambiar la contraseña.")
 					
 			except ValueError as e:
-				st.error(f"❌ {str(e)}")
+				st.error(f" {str(e)}")
 			except Exception as e:
 				logger.error(f"Error cambiando contraseña: {e}")
-				st.error("❌ Error al cambiar la contraseña. Inténtalo de nuevo.")
+				st.error(" Error al cambiar la contraseña. Inténtalo de nuevo.")

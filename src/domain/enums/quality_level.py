@@ -44,11 +44,11 @@ class QualityLevel(str, Enum):
 	def icono(self) -> str:
 		"""Icono emoji para la UI."""
 		iconos = {
-			self.BASICO: "⚡",
+			self.BASICO: "",
 			self.ESTANDAR: "⭐",
-			self.PREMIUM: "💎",
+			self.PREMIUM: "",
 		}
-		return iconos.get(self, "📦")
+		return iconos.get(self, "")
 	
 	@property
 	def color(self) -> str:

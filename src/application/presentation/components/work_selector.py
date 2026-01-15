@@ -22,12 +22,12 @@ def render_work_selector(calidad_default: QualityLevel = QualityLevel.ESTANDAR) 
     Returns:
         dict: Partidas y paquetes seleccionados
     """
-    st.markdown("### 🛠️ ¿Qué trabajos necesitas?")
+    st.markdown("###  ¿Qué trabajos necesitas?")
     
     # Tabs para elegir entre paquetes o partidas individuales
     tab_paquetes, tab_partidas = st.tabs([
-        "📦 Paquetes completos (Recomendado)",
-        "🔧 Partidas individuales",
+        " Paquetes completos (Recomendado)",
+        " Partidas individuales",
     ])
     
     # Inicializar estado
@@ -51,45 +51,45 @@ def render_work_selector(calidad_default: QualityLevel = QualityLevel.ESTANDAR) 
 def _render_paquetes_selector() -> None:
     """Renderiza el selector de paquetes completos."""
     st.markdown("""
-    💡 **Los paquetes incluyen todos los trabajos necesarios** y son 
+     **Los paquetes incluyen todos los trabajos necesarios** y son 
     más económicos que contratar las partidas por separado.
     """)
     
     # Mostrar paquetes disponibles
     for paquete_key, paquete_data in PACKAGES_DATA.items():
         with st.expander(
-            f"📦 {paquete_data['nombre']}",
+            f" {paquete_data['nombre']}",
             expanded=paquete_key in st.session_state.paquetes_seleccionados,
         ):
             st.markdown(f"**{paquete_data['descripcion']}**")
             
             st.markdown("**Incluye:**")
             for item in paquete_data["incluye"]:
-                st.markdown(f"- ✅ {item}")
+                st.markdown(f"-  {item}")
             
             # Mostrar precios
             st.markdown("**Precios orientativos:**")
             precios = paquete_data["precios"]
             
-            col1, col2, col3 = st.columns(3)
+            col, col, col = st.columns()
             
-            with col1:
-                if "precio_m2" in precios["basico"]:
-                    st.metric("⚡ Básico", f"{precios['basico']['precio_m2']}€/m²")
+            with col:
+                if "precio_m" in precios["basico"]:
+                    st.metric(" Básico", f"{precios['basico']['precio_m']}€/m²")
                 else:
-                    st.metric("⚡ Básico", f"desde {precios['basico']['precio_base']}€")
+                    st.metric(" Básico", f"desde {precios['basico']['precio_base']}€")
             
-            with col2:
-                if "precio_m2" in precios["estandar"]:
-                    st.metric("⭐ Estándar", f"{precios['estandar']['precio_m2']}€/m²")
+            with col:
+                if "precio_m" in precios["estandar"]:
+                    st.metric("⭐ Estándar", f"{precios['estandar']['precio_m']}€/m²")
                 else:
                     st.metric("⭐ Estándar", f"desde {precios['estandar']['precio_base']}€")
             
-            with col3:
-                if "precio_m2" in precios["premium"]:
-                    st.metric("💎 Premium", f"{precios['premium']['precio_m2']}€/m²")
+            with col:
+                if "precio_m" in precios["premium"]:
+                    st.metric(" Premium", f"{precios['premium']['precio_m']}€/m²")
                 else:
-                    st.metric("💎 Premium", f"desde {precios['premium']['precio_base']}€")
+                    st.metric(" Premium", f"desde {precios['premium']['precio_base']}€")
             
             # ══════════════════════════════════════════════════════════════
             # OPCIONES ADICIONALES (ej: armario empotrado para habitación)
@@ -106,7 +106,7 @@ def _render_paquetes_selector() -> None:
                     
                     # Checkbox para la opción
                     opcion_seleccionada = st.checkbox(
-                        f"🚪 {opcion_data['descripcion']}",
+                        f" {opcion_data['descripcion']}",
                         value=st.session_state[opcion_state_key],
                         key=f"chk_{opcion_state_key}",
                         help=f"Precio: +{opcion_data['precios']['estandar']}€ (calidad estándar)"
@@ -114,18 +114,18 @@ def _render_paquetes_selector() -> None:
                     st.session_state[opcion_state_key] = opcion_seleccionada
                     
                     if opcion_seleccionada:
-                        col_a, col_b, col_c = st.columns(3)
+                        col_a, col_b, col_c = st.columns()
                         with col_a:
-                            st.caption(f"⚡ +{opcion_data['precios']['basico']}€")
+                            st.caption(f" +{opcion_data['precios']['basico']}€")
                         with col_b:
                             st.caption(f"⭐ +{opcion_data['precios']['estandar']}€")
                         with col_c:
-                            st.caption(f"💎 +{opcion_data['precios']['premium']}€")
+                            st.caption(f" +{opcion_data['precios']['premium']}€")
             
             # Botón para añadir/quitar
             if paquete_key in st.session_state.paquetes_seleccionados:
                 if st.button(
-                    f"❌ Quitar {paquete_data['nombre']}",
+                    f" Quitar {paquete_data['nombre']}",
                     key=f"remove_pkg_{paquete_key}",
                     type="secondary",
                 ):
@@ -133,7 +133,7 @@ def _render_paquetes_selector() -> None:
                     st.rerun()
             else:
                 if st.button(
-                    f"✅ Añadir {paquete_data['nombre']}",
+                    f" Añadir {paquete_data['nombre']}",
                     key=f"add_pkg_{paquete_key}",
                     type="primary",
                 ):
@@ -143,15 +143,15 @@ def _render_paquetes_selector() -> None:
     # Resumen de paquetes seleccionados
     if st.session_state.paquetes_seleccionados:
         st.divider()
-        st.markdown("### ✅ Paquetes seleccionados")
+        st.markdown("###  Paquetes seleccionados")
         for pkg in st.session_state.paquetes_seleccionados:
-            st.success(f"📦 {PACKAGES_DATA[pkg]['nombre']}")
+            st.success(f" {PACKAGES_DATA[pkg]['nombre']}")
 
 
 def _render_partidas_selector(calidad_default: QualityLevel) -> None:
     """Renderiza el selector de partidas individuales."""
     st.markdown("""
-    ⚠️ **Las partidas individuales tienen un incremento del 15%** 
+     **Las partidas individuales tienen un incremento del %** 
     respecto a los paquetes completos.
     """)
     
@@ -175,45 +175,45 @@ def _render_partidas_selector(calidad_default: QualityLevel) -> None:
         partidas = PRICING_DATA[categoria_seleccionada]
         
         for partida_key, partida_data in partidas.items():
-            with st.expander(f"🔧 {partida_data['descripcion'][:50]}..."):
+            with st.expander(f" {partida_data['descripcion'][:0]}..."):
                 st.markdown(f"**{partida_data['descripcion']}**")
                 st.markdown(f"Unidad: **{partida_data['unidad']}**")
                 
                 # Precios
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("⚡ Básico", f"{partida_data['basico']}€/{partida_data['unidad']}")
-                with col2:
+                col, col, col = st.columns()
+                with col:
+                    st.metric(" Básico", f"{partida_data['basico']}€/{partida_data['unidad']}")
+                with col:
                     st.metric("⭐ Estándar", f"{partida_data['estandar']}€/{partida_data['unidad']}")
-                with col3:
-                    st.metric("💎 Premium", f"{partida_data['premium']}€/{partida_data['unidad']}")
+                with col:
+                    st.metric(" Premium", f"{partida_data['premium']}€/{partida_data['unidad']}")
                 
                 # Formulario para añadir
-                col1, col2, col3 = st.columns([2, 1, 1])
+                col, col, col = st.columns([, , ])
                 
-                with col1:
+                with col:
                     cantidad = st.number_input(
                         f"Cantidad ({partida_data['unidad']})",
                         min_value=0.0,
                         value=0.0,
-                        step=1.0 if partida_data['unidad'] == 'ud' else 0.5,
+                        step=.0 if partida_data['unidad'] == 'ud' else 0.,
                         key=f"cant_{categoria_seleccionada}_{partida_key}",
                     )
                 
-                with col2:
+                with col:
                     calidad_partida = st.selectbox(
                         "Calidad",
                         options=[QualityLevel.BASICO, QualityLevel.ESTANDAR, QualityLevel.PREMIUM],
-                        index=1,
+                        index=,
                         format_func=lambda x: x.display_name,
                         key=f"cal_{categoria_seleccionada}_{partida_key}",
                     )
                 
-                with col3:
+                with col:
                     st.markdown("<br>", unsafe_allow_html=True)
                     if cantidad > 0:
                         if st.button(
-                            "➕ Añadir",
+                            " Añadir",
                             key=f"add_{categoria_seleccionada}_{partida_key}",
                             type="primary",
                         ):
@@ -226,25 +226,25 @@ def _render_partidas_selector(calidad_default: QualityLevel) -> None:
                                 "unidad": partida_data["unidad"],
                             }
                             st.session_state.partidas_seleccionadas.append(nueva_partida)
-                            st.success(f"✅ Añadida: {partida_data['descripcion'][:30]}...")
+                            st.success(f" Añadida: {partida_data['descripcion'][:0]}...")
                             st.rerun()
     
     # Resumen de partidas seleccionadas
     if st.session_state.partidas_seleccionadas:
         st.divider()
-        st.markdown("### ✅ Partidas seleccionadas")
+        st.markdown("###  Partidas seleccionadas")
         
         for i, partida in enumerate(st.session_state.partidas_seleccionadas):
-            col1, col2, col3 = st.columns([3, 1, 1])
+            col, col, col = st.columns([, , ])
             
-            with col1:
-                st.markdown(f"🔧 {partida['descripcion'][:40]}...")
+            with col:
+                st.markdown(f" {partida['descripcion'][:0]}...")
             
-            with col2:
+            with col:
                 st.markdown(f"{partida['cantidad']} {partida['unidad']}")
             
-            with col3:
-                if st.button("🗑️", key=f"del_partida_{i}"):
+            with col:
+                if st.button("", key=f"del_partida_{i}"):
                     st.session_state.partidas_seleccionadas.pop(i)
                     st.rerun()
 
@@ -255,28 +255,28 @@ def render_work_summary() -> None:
     paquetes = st.session_state.get("paquetes_seleccionados", [])
     
     if not partidas and not paquetes:
-        st.warning("⚠️ No has seleccionado ningún trabajo")
+        st.warning(" No has seleccionado ningún trabajo")
         return
     
-    st.markdown("### 📋 Resumen de trabajos")
+    st.markdown("###  Resumen de trabajos")
     
-    col1, col2 = st.columns(2)
+    col, col = st.columns()
     
-    with col1:
-        st.metric("📦 Paquetes", len(paquetes))
+    with col:
+        st.metric(" Paquetes", len(paquetes))
     
-    with col2:
-        st.metric("🔧 Partidas", len(partidas))
+    with col:
+        st.metric(" Partidas", len(partidas))
     
     if paquetes:
         st.markdown("**Paquetes:**")
         for pkg in paquetes:
-            st.markdown(f"- 📦 {PACKAGES_DATA[pkg]['nombre']}")
+            st.markdown(f"-  {PACKAGES_DATA[pkg]['nombre']}")
     
     if partidas:
         st.markdown("**Partidas individuales:**")
         for p in partidas:
-            st.markdown(f"- 🔧 {p['descripcion'][:40]}... ({p['cantidad']} {p['unidad']})")
+            st.markdown(f"-  {p['descripcion'][:0]}... ({p['cantidad']} {p['unidad']})")
 
 
 def clear_selections() -> None:

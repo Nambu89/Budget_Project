@@ -14,7 +14,7 @@ def render_login():
 	
 	Gestiona el estado de autenticación en st.session_state.
 	"""
-	st.title("🔐 Bienvenido")
+	st.title(" Bienvenido")
 	st.markdown("---")
 	
 	# Verificar si se está mostrando el formulario de reset
@@ -23,14 +23,14 @@ def render_login():
 		return
 	
 	# Tabs para Login y Registro
-	tab1, tab2 = st.tabs(["Iniciar Sesión", "Registrarse"])
+	tab, tab = st.tabs(["Iniciar Sesión", "Registrarse"])
 	
-	# Tab 1: Login
-	with tab1:
+	# Tab : Login
+	with tab:
 		_render_login_form()
 	
-	# Tab 2: Registro
-	with tab2:
+	# Tab : Registro
+	with tab:
 		_render_register_form()
 
 
@@ -79,15 +79,15 @@ def _render_login_form():
 					# Recargar para mostrar app principal
 					st.rerun()
 				else:
-					st.error("❌ Email o contraseña incorrectos")
+					st.error(" Email o contraseña incorrectos")
 					
 			except ValueError as e:
 				# Capturar error de credenciales inválidas
-				st.error(f"❌ {str(e)}")
+				st.error(f" {str(e)}")
 			except Exception as e:
 				# Otros errores inesperados
 				logger.error(f"Error en login: {e}")
-				st.error("❌ Error al iniciar sesión. Inténtalo de nuevo.")
+				st.error(" Error al iniciar sesión. Inténtalo de nuevo.")
 	
 	# Botón de forgot password
 	st.markdown("---")
@@ -113,16 +113,16 @@ def _render_register_form():
 			help="Será tu nombre de usuario"
 		)
 		
-		col1, col2 = st.columns(2)
+		col, col = st.columns()
 		
-		with col1:
+		with col:
 			telefono = st.text_input(
 				"Teléfono",
-				placeholder="600123456",
+				placeholder="6006",
 				help="Opcional"
 			)
 		
-		with col2:
+		with col:
 			empresa = st.text_input(
 				"Empresa",
 				placeholder="Mi Empresa",
@@ -174,25 +174,25 @@ def _render_register_form():
 				)
 				
 				if user:
-					st.success("✅ ¡Cuenta creada correctamente!")
+					st.success(" ¡Cuenta creada correctamente!")
 					st.info("Ahora puedes iniciar sesión con tu email y contraseña")
 					logger.info(f"Nuevo usuario registrado: {user['email']}")
 				else:
-					st.error("❌ No se pudo crear la cuenta")
+					st.error(" No se pudo crear la cuenta")
 					
 			except ValueError as e:
 				# Email duplicado u otro error de validación
-				st.error(f"❌ {str(e)}")
+				st.error(f" {str(e)}")
 			except Exception as e:
 				# Otros errores inesperados
 				logger.error(f"Error en registro: {e}")
-				st.error("❌ Error al crear la cuenta. Inténtalo de nuevo.")
+				st.error(" Error al crear la cuenta. Inténtalo de nuevo.")
 
 def _render_forgot_password_form():
 	"""Renderiza el formulario de recuperación de contraseña."""
 	st.subheader("Recuperar Contraseña")
 	
-	st.info("💡 Ingresa tu email y te enviaremos un link para restablecer tu contraseña.")
+	st.info(" Ingresa tu email y te enviaremos un link para restablecer tu contraseña.")
 	
 	with st.form("forgot_password_form"):
 		email = st.text_input(
@@ -201,15 +201,15 @@ def _render_forgot_password_form():
 			help="Email con el que te registraste"
 		)
 		
-		col1, col2 = st.columns(2)
+		col, col = st.columns()
 		
-		with col1:
+		with col:
 			cancelar = st.form_submit_button(
 				"← Cancelar",
 				use_container_width=True
 			)
 		
-		with col2:
+		with col:
 			enviar = st.form_submit_button(
 				"Enviar link",
 				use_container_width=True,
@@ -231,7 +231,7 @@ def _render_forgot_password_form():
 				
 				# Siempre mostrar éxito (seguridad)
 				st.success(
-					"✅ Si el email existe en nuestro sistema, "
+					" Si el email existe en nuestro sistema, "
 					"recibirás un link de recuperación en los próximos minutos.\n\n"
 					"**Revisa tu bandeja de entrada y spam.**"
 				)
@@ -254,7 +254,7 @@ def _render_forgot_password_form():
 				
 			except Exception as e:
 				logger.error(f"Error en forgot password: {e}")
-				st.error("❌ Error al procesar la solicitud. Inténtalo de nuevo.")
+				st.error(" Error al procesar la solicitud. Inténtalo de nuevo.")
 
 def render_user_info() -> None:
 	"""Renderiza la información del usuario autenticado en el sidebar."""
@@ -266,7 +266,7 @@ def render_user_info() -> None:
 		return
 	
 	with st.sidebar:
-		st.markdown("### 👤 Usuario")
+		st.markdown("###  Usuario")
 		st.markdown(f"**{user['nombre']}**")
 		st.caption(user['email'])
 		
@@ -281,7 +281,7 @@ def render_user_info() -> None:
 			logger.error(f"Error obteniendo presupuestos del usuario: {e}")
 			num_presupuestos = 0
 
-		st.info(f"📊 {num_presupuestos} presupuesto{'s' if num_presupuestos != 1 else ''}")
+		st.info(f" {num_presupuestos} presupuesto{'s' if num_presupuestos !=  else ''}")
 		
 		st.divider()
 		
@@ -290,17 +290,17 @@ def render_user_info() -> None:
 		
 		if current_page == "calculator":
 			# Si estamos en la calculadora, mostrar botón a presupuestos
-			if st.button("📋 Mis Presupuestos", use_container_width=True):
+			if st.button(" Mis Presupuestos", use_container_width=True):
 				st.session_state.current_page = "mis_presupuestos"
 				st.rerun()
 		else:
 			# Si estamos en otra página, mostrar botón a calculadora
-			if st.button("🧮 Calculadora", use_container_width=True):
+			if st.button(" Calculadora", use_container_width=True):
 				st.session_state.current_page = "calculator"
 				st.rerun()
 		
 		# Botón de cerrar sesión
-		if st.button("🚪 Cerrar Sesión", use_container_width=True):
+		if st.button(" Cerrar Sesión", use_container_width=True):
 			st.session_state.authenticated = False
 			st.session_state.user = None
 			st.session_state.current_page = "calculator"

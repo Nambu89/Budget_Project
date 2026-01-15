@@ -11,7 +11,7 @@ def render_forgot_password():
     """
     Renderiza el formulario de solicitud de recuperación de contraseña.
     """
-    st.title("🔐 Recuperar Contraseña")
+    st.title(" Recuperar Contraseña")
     
     st.markdown("""
     Ingresa tu email y te enviaremos un link para restablecer tu contraseña.
@@ -19,7 +19,7 @@ def render_forgot_password():
     
     with st.form("forgot_password_form"):
         email = st.text_input(
-            "📧 Email",
+            " Email",
             placeholder="tu@email.com",
             help="Ingresa el email de tu cuenta"
         )
@@ -37,17 +37,17 @@ def render_forgot_password():
             try:
                 # Llamar a la API
                 response = requests.post(
-                    "http://localhost:8000/api/v1/auth/request-password-reset",
+                    "http://localhost:8000/api/v/auth/request-password-reset",
                     json={"email": email}
                 )
                 
-                if response.status_code == 200:
+                if response.status_code == 00:
                     st.success(
-                        "✅ Si el email existe, recibirás un link de recuperación. "
+                        " Si el email existe, recibirás un link de recuperación. "
                         "Revisa tu bandeja de entrada."
                     )
                     st.info(
-                        "💡 El link expira en 1 hora. "
+                        " El link expira en  hora. "
                         "Si no recibes el email, verifica tu carpeta de spam."
                     )
                 else:
@@ -59,7 +59,7 @@ def render_forgot_password():
     
     # Botón para volver al login
     st.markdown("---")
-    if st.button("⬅️ Volver al Login"):
+    if st.button("⬅ Volver al Login"):
         st.session_state.show_forgot_password = False
         st.rerun()
 
@@ -71,16 +71,16 @@ def render_reset_password(token: str):
     Args:
         token: Token de reset de contraseña
     """
-    st.title("🔐 Nueva Contraseña")
+    st.title(" Nueva Contraseña")
     
     # Verificar token
     try:
         response = requests.get(
-            f"http://localhost:8000/api/v1/auth/verify-reset-token/{token}"
+            f"http://localhost:8000/api/v/auth/verify-reset-token/{token}"
         )
         
-        if response.status_code != 200:
-            st.error("❌ Link inválido o expirado")
+        if response.status_code != 00:
+            st.error(" Link inválido o expirado")
             st.info("Solicita un nuevo link de recuperación")
             if st.button("Ir a Recuperación"):
                 st.session_state.show_forgot_password = True
@@ -90,27 +90,27 @@ def render_reset_password(token: str):
         data = response.json()
         
         if not data.get('valid'):
-            st.error("❌ Link inválido o expirado")
-            st.info("El link solo es válido por 1 hora")
+            st.error(" Link inválido o expirado")
+            st.info("El link solo es válido por  hora")
             if st.button("Solicitar Nuevo Link"):
                 st.session_state.show_forgot_password = True
                 st.rerun()
             return
         
         # Mostrar info del usuario
-        st.success(f"✅ Link válido para: {data.get('email')}")
-        st.info(f"👤 Usuario: {data.get('nombre')}")
+        st.success(f" Link válido para: {data.get('email')}")
+        st.info(f" Usuario: {data.get('nombre')}")
         
         # Formulario de nueva contraseña
         with st.form("reset_password_form"):
             new_password = st.text_input(
-                "🔒 Nueva Contraseña",
+                " Nueva Contraseña",
                 type="password",
                 help="Mínimo 6 caracteres"
             )
             
             confirm_password = st.text_input(
-                "🔒 Confirmar Contraseña",
+                " Confirmar Contraseña",
                 type="password"
             )
             
@@ -136,15 +136,15 @@ def render_reset_password(token: str):
                 # Resetear contraseña
                 try:
                     reset_response = requests.post(
-                        "http://localhost:8000/api/v1/auth/reset-password",
+                        "http://localhost:8000/api/v/auth/reset-password",
                         json={
                             "token": token,
                             "new_password": new_password
                         }
                     )
                     
-                    if reset_response.status_code == 200:
-                        st.success("✅ ¡Contraseña actualizada correctamente!")
+                    if reset_response.status_code == 00:
+                        st.success(" ¡Contraseña actualizada correctamente!")
                         # st.balloons()
                         st.info("Ahora puedes iniciar sesión con tu nueva contraseña")
                         

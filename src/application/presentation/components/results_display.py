@@ -7,7 +7,7 @@ con desglose, totales y opciones de descarga.
 
 import streamlit as st
 from typing import Optional
-import base64
+import base6
 
 from src.domain.models import Budget
 from src.domain.models.project import Project  # NUEVO IMPORT
@@ -17,7 +17,7 @@ def render_results(
 	presupuesto: Budget,
 	desglose: dict,
 	sugerencias: list = None,
-	estimaciones: dict = None,  # NUEVO parámetro FASE 2
+	estimaciones: dict = None,  # NUEVO parámetro FASE 
 ) -> None:
 	"""
 	Renderiza los resultados del presupuesto.
@@ -28,23 +28,23 @@ def render_results(
 		sugerencias: Lista de sugerencias de optimización
 		estimaciones: Estimaciones inteligentes de IA (opcional)
 	"""
-	st.markdown("## 📊 Resultados del Presupuesto")
+	st.markdown("##  Resultados del Presupuesto")
 	
 	# Número y fecha
-	col1, col2, col3 = st.columns(3)
+	col, col, col = st.columns()
 	
-	with col1:
-		st.metric("📋 Nº Presupuesto", presupuesto.numero_presupuesto)
+	with col:
+		st.metric(" Nº Presupuesto", presupuesto.numero_presupuesto)
 	
-	with col2:
-		st.metric("📅 Fecha", presupuesto.fecha_emision_str)
+	with col:
+		st.metric(" Fecha", presupuesto.fecha_emision_str)
 	
-	with col3:
-		st.metric("⏰ Válido hasta", presupuesto.fecha_validez_str)
+	with col:
+		st.metric(" Válido hasta", presupuesto.fecha_validez_str)
 	
 	st.divider()
 	
-	# NUEVO FASE 2: Mostrar estimaciones IA si existen
+	# NUEVO FASE : Mostrar estimaciones IA si existen
 	if estimaciones and presupuesto.proyecto.num_habitaciones:
 		_render_estimaciones_ia_resumen(estimaciones, presupuesto.proyecto)
 		st.divider()
@@ -52,7 +52,7 @@ def render_results(
 	# Total destacado
 	st.markdown(f"""
 		<div class="total-display">
-			💰 TOTAL: {presupuesto.total:,.2f} €
+			 TOTAL: {presupuesto.total:,.f} €
 			<br>
 			<span style="font-size: 0.9rem; font-weight: normal;">
 				(IVA {presupuesto.iva_porcentaje}% incluido)
@@ -63,12 +63,12 @@ def render_results(
 	st.divider()
 	
 	# Desglose en columnas
-	col1, col2 = st.columns(2)
+	col, col = st.columns()
 	
-	with col1:
+	with col:
 		_render_desglose_partidas(presupuesto)
 	
-	with col2:
+	with col:
 		_render_desglose_totales(presupuesto, desglose)
 	
 	# Sugerencias de optimización
@@ -89,34 +89,34 @@ def _render_estimaciones_ia_resumen(estimaciones: dict, proyecto: Project) -> No
 		estimaciones: Diccionario con estimaciones
 		proyecto: Proyecto asociado
 	"""
-	st.markdown("### 🤖 Estimaciones Inteligentes Aplicadas")
+	st.markdown("###  Estimaciones Inteligentes Aplicadas")
 	
-	col1, col2, col3, col4 = st.columns(4)
+	col, col, col, col = st.columns()
 	
-	with col1:
+	with col:
 		st.metric(
-			label="🏠 Habitaciones",
+			label=" Habitaciones",
 			value=f"{proyecto.num_habitaciones}",
 			help="Habitaciones/salas del inmueble"
 		)
 	
-	with col2:
+	with col:
 		st.metric(
-			label="🏗️ Paredes",
-			value=f"{estimaciones.get('m2_paredes_estimado', 0):.1f} m²",
+			label=" Paredes",
+			value=f"{estimaciones.get('m_paredes_estimado', 0):.f} m²",
 			help="m² de paredes estimados"
 		)
 	
-	with col3:
+	with col:
 		st.metric(
-			label="📏 Rodapiés",
-			value=f"{estimaciones.get('ml_rodapies_estimado', 0):.1f} ml",
+			label=" Rodapiés",
+			value=f"{estimaciones.get('ml_rodapies_estimado', 0):.f} ml",
 			help="Metros lineales estimados"
 		)
 	
-	with col4:
+	with col:
 		st.metric(
-			label="🚪 Puertas",
+			label=" Puertas",
 			value=f"{estimaciones.get('num_puertas_estimado', 0)} ud",
 			help="Puertas de paso estimadas"
 		)
@@ -124,67 +124,67 @@ def _render_estimaciones_ia_resumen(estimaciones: dict, proyecto: Project) -> No
 	# Mensaje de confianza
 	metodo = estimaciones.get("metodo", "")
 	if metodo == "llm":
-		st.success("✅ Estimaciones calculadas con IA de alta precisión")
+		st.success(" Estimaciones calculadas con IA de alta precisión")
 	else:
-		st.info("ℹ️ Estimaciones calculadas con fórmulas heurísticas")
+		st.info(" Estimaciones calculadas con fórmulas heurísticas")
 
 
 def _render_desglose_partidas(presupuesto: Budget) -> None:
 	"""Renderiza el desglose de partidas."""
-	st.markdown("### 📋 Desglose de partidas")
+	st.markdown("###  Desglose de partidas")
 	
 	if not presupuesto.partidas:
 		st.info("No hay partidas en este presupuesto")
 		return
 	
 	# Tabla de partidas
-	for i, partida in enumerate(presupuesto.partidas, 1):
-		tipo_badge = "📦" if partida.es_paquete else "🔧"
+	for i, partida in enumerate(presupuesto.partidas, ):
+		tipo_badge = "" if partida.es_paquete else ""
 		
 		with st.expander(
-			f"{tipo_badge} {partida.descripcion[:40]}... - **{partida.subtotal:,.2f}€**",
+			f"{tipo_badge} {partida.descripcion[:0]}... - **{partida.subtotal:,.f}€**",
 			expanded=False,
 		):
-			col1, col2 = st.columns(2)
+			col, col = st.columns()
 			
-			with col1:
+			with col:
 				st.markdown(f"**Descripción:** {partida.descripcion}")
 				st.markdown(f"**Categoría:** {partida.categoria_nombre}")
 				st.markdown(f"**Calidad:** {partida.calidad_nombre}")
 			
-			with col2:
+			with col:
 				st.markdown(f"**Cantidad:** {partida.cantidad} {partida.unidad}")
-				st.markdown(f"**Precio unitario:** {partida.precio_unitario:,.2f}€/{partida.unidad}")
-				st.markdown(f"**Subtotal:** {partida.subtotal:,.2f}€")
+				st.markdown(f"**Precio unitario:** {partida.precio_unitario:,.f}€/{partida.unidad}")
+				st.markdown(f"**Subtotal:** {partida.subtotal:,.f}€")
 			
 			if partida.es_paquete:
-				st.info("📦 Este es un paquete completo (sin markup)")
+				st.info(" Este es un paquete completo (sin markup)")
 			else:
-				st.warning("🔧 Partida individual (+15% markup aplicado)")
+				st.warning(" Partida individual (+% markup aplicado)")
 	
 	# Resumen por categorías
-	st.markdown("#### 📈 Por categoría")
+	st.markdown("####  Por categoría")
 	
 	resumen = presupuesto.resumen_por_categorias()
 	
 	for categoria, importe in resumen.items():
-		porcentaje = (importe / presupuesto.subtotal * 100) if presupuesto.subtotal > 0 else 0
+		porcentaje = (importe / presupuesto.subtotal * 00) if presupuesto.subtotal > 0 else 0
 		
-		col1, col2, col3 = st.columns([2, 1, 1])
+		col, col, col = st.columns([, , ])
 		
-		with col1:
+		with col:
 			st.markdown(f"**{categoria}**")
 		
-		with col2:
-			st.markdown(f"{importe:,.2f}€")
+		with col:
+			st.markdown(f"{importe:,.f}€")
 		
-		with col3:
-			st.progress(porcentaje / 100)
+		with col:
+			st.progress(porcentaje / 00)
 
 
 def _render_desglose_totales(presupuesto: Budget, desglose: dict) -> None:
 	"""Renderiza el desglose de totales."""
-	st.markdown("### 💰 Desglose económico")
+	st.markdown("###  Desglose económico")
 	
 	# Tabla de totales
 	datos_totales = [
@@ -193,7 +193,7 @@ def _render_desglose_totales(presupuesto: Budget, desglose: dict) -> None:
 	
 	if presupuesto.descuento_porcentaje > 0:
 		datos_totales.append((
-			f"Descuento ({presupuesto.descuento_porcentaje:.1f}%)",
+			f"Descuento ({presupuesto.descuento_porcentaje:.f}%)",
 			-presupuesto.importe_descuento,
 		))
 	
@@ -208,49 +208,49 @@ def _render_desglose_totales(presupuesto: Budget, desglose: dict) -> None:
 		datos_totales.append(("Base con redondeo", desglose["base_imponible"]))
 	
 	datos_totales.append((
-		"IVA (21%)",
+		"IVA (%)",
 		desglose.get("iva_importe", presupuesto.importe_iva),
 	))
 	
 	# Mostrar tabla
 	for concepto, importe in datos_totales:
-		col1, col2 = st.columns([2, 1])
+		col, col = st.columns([, ])
 		
-		with col1:
+		with col:
 			st.markdown(concepto)
 		
-		with col2:
+		with col:
 			if importe < 0:
-				st.markdown(f"<span style='color: #ef4444;'>-{abs(importe):,.2f}€</span>", 
+				st.markdown(f"<span style='color: #ef;'>-{abs(importe):,.f}€</span>", 
 						   unsafe_allow_html=True)
 			else:
-				st.markdown(f"{importe:,.2f}€")
+				st.markdown(f"{importe:,.f}€")
 	
 	st.divider()
 	
 	# Total final
 	total_final = desglose.get("total", presupuesto.total)
 	
-	col1, col2 = st.columns([2, 1])
+	col, col = st.columns([, ])
 	
-	with col1:
+	with col:
 		st.markdown("### **TOTAL**")
 	
-	with col2:
-		st.markdown(f"### **{total_final:,.2f}€**")
+	with col:
+		st.markdown(f"### **{total_final:,.f}€**")
 	
 	# Info IVA
-	st.info("ℹ️ Se ha aplicado IVA general del 21% según normativa vigente")
+	st.info(" Se ha aplicado IVA general del % según normativa vigente")
 
 
 def _render_sugerencias(sugerencias: list) -> None:
 	"""Renderiza las sugerencias de optimización."""
-	st.markdown("### 💡 Sugerencias de ahorro")
+	st.markdown("###  Sugerencias de ahorro")
 	
 	for sug in sugerencias:
 		if sug.get("tipo") == "paquete":
 			st.success(f"""
-				**¿Sabías que puedes ahorrar {sug['ahorro']:,.2f}€?**
+				**¿Sabías que puedes ahorrar {sug['ahorro']:,.f}€?**
 				
 				{sug['mensaje']}
 			""")
@@ -260,13 +260,13 @@ def _render_sugerencias(sugerencias: list) -> None:
 
 def _render_reglas_aplicadas(desglose: dict) -> None:
 	"""Renderiza las reglas de negocio aplicadas."""
-	with st.expander("ℹ️ Reglas aplicadas a este presupuesto"):
+	with st.expander(" Reglas aplicadas a este presupuesto"):
 		reglas = desglose.get("reglas_aplicadas", {})
 		
 		st.markdown(f"""
-		- **Markup partidas individuales:** {reglas.get('markup_partidas', '15%')}
-		- **Redondeo:** {reglas.get('redondeo_alza', '5%')}
-		- **IVA aplicado:** {reglas.get('iva', '21%')}
+		- **Markup partidas individuales:** {reglas.get('markup_partidas', '%')}
+		- **Redondeo:** {reglas.get('redondeo_alza', '%')}
+		- **IVA aplicado:** {reglas.get('iva', '%')}
 		
 		*Los paquetes completos NO tienen markup, por eso son más económicos.*
 		""")
@@ -285,11 +285,11 @@ def render_download_section(
 		pdf_bytes: PDF en bytes (opcional)
 		resumen_texto: Resumen en texto (opcional)
 	"""
-	st.markdown("### 📥 Descargar presupuesto")
+	st.markdown("###  Descargar presupuesto")
 	
 	if pdf_bytes:
 		st.download_button(
-			label="📄 Descargar PDF",
+			label=" Descargar PDF",
 			data=pdf_bytes,
 			file_name=f"presupuesto_{presupuesto.numero_presupuesto}.pdf",
 			mime="application/pdf",
@@ -298,7 +298,7 @@ def render_download_section(
 		)
 	else:
 		st.button(
-			"📄 Generar PDF",
+			" Generar PDF",
 			disabled=True,
 			use_container_width=True,
 		)
@@ -307,14 +307,14 @@ def render_download_section(
 def render_empty_results() -> None:
 	"""Renderiza mensaje cuando no hay resultados."""
 	st.info("""
-		### 📋 Aquí aparecerá tu presupuesto
+		###  Aquí aparecerá tu presupuesto
 		
 		Completa los pasos anteriores para generar tu presupuesto:
 		
-		1. ✅ Selecciona el tipo de inmueble
-		2. ✅ Indica la superficie
-		3. ✅ Elige los trabajos a realizar
-		4. ⏳ ¡Genera tu presupuesto!
+		.  Selecciona el tipo de inmueble
+		.  Indica la superficie
+		.  Elige los trabajos a realizar
+		.  ¡Genera tu presupuesto!
 	""")
 
 
@@ -325,29 +325,29 @@ def render_comparison(comparativa: dict) -> None:
 	Args:
 		comparativa: Datos de la comparativa
 	"""
-	st.markdown("### ⚖️ Comparativa de opciones")
+	st.markdown("###  Comparativa de opciones")
 	
-	col1, col2 = st.columns(2)
+	col, col = st.columns()
 	
-	with col1:
-		st.markdown("#### 🔧 Partidas individuales")
+	with col:
+		st.markdown("####  Partidas individuales")
 		st.metric(
 			"Total",
-			f"{comparativa['total_partidas']:,.2f}€",
+			f"{comparativa['total_partidas']:,.f}€",
 		)
 	
-	with col2:
-		st.markdown("#### 📦 Paquete completo")
+	with col:
+		st.markdown("####  Paquete completo")
 		st.metric(
 			"Total",
-			f"{comparativa['total_paquete']:,.2f}€",
-			delta=f"-{comparativa['ahorro']:,.2f}€" if comparativa['ahorro'] > 0 else None,
+			f"{comparativa['total_paquete']:,.f}€",
+			delta=f"-{comparativa['ahorro']:,.f}€" if comparativa['ahorro'] > 0 else None,
 			delta_color="inverse",
 		)
 	
 	if comparativa["ahorro"] > 0:
 		st.success(f"""
-			💡 **{comparativa['mensaje_recomendacion']}**
+			 **{comparativa['mensaje_recomendacion']}**
 		""")
 	else:
 		st.info(comparativa["mensaje_recomendacion"])

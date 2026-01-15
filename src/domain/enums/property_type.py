@@ -36,12 +36,12 @@ class PropertyType(str, Enum):
 	def icono(self) -> str:
 		"""Icono emoji para la UI."""
 		iconos = {
-			self.PISO: "🏢",
-			self.VIVIENDA: "🏠",
-			self.OFICINA: "🏢",
-			self.LOCAL: "🏪",
+			self.PISO: "",
+			self.VIVIENDA: "",
+			self.OFICINA: "",
+			self.LOCAL: "",
 		}
-		return iconos.get(self, "🏗️")
+		return iconos.get(self, "")
 	
 	@classmethod
 	def get_choices(cls) -> list[tuple[str, str]]:

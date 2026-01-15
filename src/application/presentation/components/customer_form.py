@@ -17,10 +17,10 @@ def render_customer_form() -> Optional[dict]:
     Returns:
         dict: Datos del cliente o None si no está completo
     """
-    st.markdown("### 👤 Tus datos de contacto")
+    st.markdown("###  Tus datos de contacto")
     
     st.info("""
-        📋 **¿Por qué pedimos tus datos?**
+         **¿Por qué pedimos tus datos?**
         
         Para enviarte el presupuesto completo en PDF y poder 
         contactarte para concertar una visita técnica si lo deseas.
@@ -45,7 +45,7 @@ def render_customer_form() -> Optional[dict]:
         # Teléfono
         telefono = st.text_input(
             "Teléfono *",
-            placeholder="Ej: 612 345 678",
+            placeholder="Ej: 6  678",
             help="Para contactarte sobre el presupuesto",
         )
         
@@ -54,7 +54,7 @@ def render_customer_form() -> Optional[dict]:
         # Dirección de la obra (opcional)
         direccion = st.text_input(
             "Dirección de la obra (opcional)",
-            placeholder="Ej: Calle Mayor 123, Madrid",
+            placeholder="Ej: Calle Mayor , Madrid",
             help="Donde se realizará la reforma",
         )
         
@@ -63,7 +63,7 @@ def render_customer_form() -> Optional[dict]:
             "Notas adicionales (opcional)",
             placeholder="Ej: Preferiblemente contactar por las tardes...",
             help="Cualquier información adicional que quieras añadir",
-            max_chars=500,
+            max_chars=00,
         )
         
         st.divider()
@@ -75,7 +75,7 @@ def render_customer_form() -> Optional[dict]:
         )
         
         # Logo del cliente (monetización)
-        st.markdown("#### 💼 ¿Quieres tu logo en el presupuesto?")
+        st.markdown("####  ¿Quieres tu logo en el presupuesto?")
         
         logo_file = st.file_uploader(
             "Sube tu logo (opcional - característica premium)",
@@ -85,7 +85,7 @@ def render_customer_form() -> Optional[dict]:
         
         # Botón submit
         submitted = st.form_submit_button(
-            "✅ Generar presupuesto",
+            " Generar presupuesto",
             type="primary",
             use_container_width=True,
         )
@@ -94,7 +94,7 @@ def render_customer_form() -> Optional[dict]:
             # Validaciones
             errores = []
             
-            if not nombre or len(nombre.strip()) < 2:
+            if not nombre or len(nombre.strip()) < :
                 errores.append("El nombre es obligatorio")
             
             if not email or not _validar_email(email):
@@ -108,7 +108,7 @@ def render_customer_form() -> Optional[dict]:
             
             if errores:
                 for error in errores:
-                    st.error(f"❌ {error}")
+                    st.error(f" {error}")
                 return None
             
             # Procesar logo si existe
@@ -138,20 +138,20 @@ def render_customer_summary(datos: dict) -> None:
     Args:
         datos: Datos del cliente
     """
-    st.markdown("### 👤 Datos del cliente")
+    st.markdown("###  Datos del cliente")
     
-    col1, col2 = st.columns(2)
+    col, col = st.columns()
     
-    with col1:
+    with col:
         st.markdown(f"**Nombre:** {datos['nombre']}")
         st.markdown(f"**Email:** {datos['email']}")
         st.markdown(f"**Teléfono:** {datos['telefono']}")
     
-    with col2:
+    with col:
         if datos.get('direccion_obra'):
             st.markdown(f"**Dirección:** {datos['direccion_obra']}")
         if datos.get('notas'):
-            st.markdown(f"**Notas:** {datos['notas'][:50]}...")
+            st.markdown(f"**Notas:** {datos['notas'][:0]}...")
 
 
 def render_quick_customer_form() -> Optional[dict]:
@@ -161,29 +161,29 @@ def render_quick_customer_form() -> Optional[dict]:
     Returns:
         dict: Datos del cliente o None
     """
-    st.markdown("### 📝 Datos para el presupuesto")
+    st.markdown("###  Datos para el presupuesto")
     
-    col1, col2, col3 = st.columns(3)
+    col, col, col = st.columns()
     
-    with col1:
+    with col:
         nombre = st.text_input(
             "Nombre *",
             key="quick_nombre",
             placeholder="Tu nombre",
         )
     
-    with col2:
+    with col:
         email = st.text_input(
             "Email *",
             key="quick_email",
             placeholder="tu@email.com",
         )
     
-    with col3:
+    with col:
         telefono = st.text_input(
             "Teléfono *",
             key="quick_telefono",
-            placeholder="612345678",
+            placeholder="6678",
         )
     
     # Validación inline
@@ -195,14 +195,14 @@ def render_quick_customer_form() -> Optional[dict]:
                 "telefono": _normalizar_telefono(telefono),
             }
         else:
-            st.warning("⚠️ Revisa el email y teléfono")
+            st.warning(" Revisa el email y teléfono")
     
     return None
 
 
 def _validar_email(email: str) -> bool:
     """Valida formato de email."""
-    patron = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    patron = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{,}$'
     return bool(re.match(patron, email))
 
 
@@ -212,10 +212,10 @@ def _validar_telefono(telefono: str) -> bool:
     telefono_limpio = re.sub(r'[\s\-\.\(\)]', '', telefono)
     
     # Quitar prefijo si existe
-    if telefono_limpio.startswith('+34'):
-        telefono_limpio = telefono_limpio[3:]
-    elif telefono_limpio.startswith('0034'):
-        telefono_limpio = telefono_limpio[4:]
+    if telefono_limpio.startswith('+'):
+        telefono_limpio = telefono_limpio[:]
+    elif telefono_limpio.startswith('00'):
+        telefono_limpio = telefono_limpio[:]
     
     # Validar 9 dígitos empezando por 6, 7, 8 o 9
     patron = r'^[6789]\d{8}$'
@@ -226,9 +226,9 @@ def _normalizar_telefono(telefono: str) -> str:
     """Normaliza el teléfono al formato estándar."""
     telefono_limpio = re.sub(r'[\s\-\.\(\)]', '', telefono)
     
-    if telefono_limpio.startswith('+34'):
+    if telefono_limpio.startswith('+'):
         return telefono_limpio
-    elif telefono_limpio.startswith('0034'):
-        return '+34' + telefono_limpio[4:]
+    elif telefono_limpio.startswith('00'):
+        return '+' + telefono_limpio[:]
     else:
-        return '+34' + telefono_limpio
+        return '+' + telefono_limpio

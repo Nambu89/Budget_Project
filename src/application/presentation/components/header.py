@@ -6,6 +6,7 @@ título y descripción.
 """
 
 import streamlit as st
+import os
 from src.config.settings import settings
 
 
@@ -22,17 +23,17 @@ def render_header() -> None:
     # Configurar página (debe ser lo primero)
     st.set_page_config(
         page_title="ISI Obras y Presupuestos | Calculadora de Presupuestos",
-        page_icon="🏗️",
+        page_icon="Logo/Logo ISI.jpeg",
         layout="wide",
         initial_sidebar_state="expanded",
     )
     
-    # CSS personalizado con colores corporativos Easy Obras
+    # CSS personalizado con colores corporativos
     st.markdown("""
         <style>
-        /* Colores corporativos Easy Obras */
+        /* Colores corporativos */
         :root {
-            --easy-obras-orange: #F39200;
+            --easy-obras-orange: #F900;
             --easy-obras-grey: #999999;
             --easy-obras-black: #000000;
             --easy-obras-white: #FFFFFF;
@@ -40,60 +41,66 @@ def render_header() -> None:
         
         .main-header {
             text-align: center;
-            padding: 1rem 0;
+            padding: rem 0;
         }
         .main-title {
-            color: #F39200;
-            font-size: 2.5rem;
+            color: #F900;
+            font-size: rem;
             font-weight: bold;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.rem;
         }
         .main-subtitle {
             color: #999999;
-            font-size: 1.1rem;
+            font-size: .rem;
         }
         .stProgress > div > div > div > div {
-            background-color: #F39200;
+            background-color: #F900;
         }
         .success-box {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #d1fae5;
-            border: 1px solid #10b981;
+            padding: rem;
+            border-radius: 0.rem;
+            background-color: #dfae;
+            border: px solid #0b98;
         }
         .warning-box {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #fef3c7;
-            border: 1px solid #F39200;
+            padding: rem;
+            border-radius: 0.rem;
+            background-color: #fefc7;
+            border: px solid #F900;
         }
         .info-box {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #f5f5f5;
-            border: 1px solid #999999;
+            padding: rem;
+            border-radius: 0.rem;
+            background-color: #fff;
+            border: px solid #999999;
         }
         .total-display {
-            font-size: 2rem;
+            font-size: rem;
             font-weight: bold;
-            color: #F39200;
+            color: #F900;
             text-align: center;
-            padding: 1rem;
-            background: linear-gradient(135deg, #FFF5E6 0%, #FFE6C2 100%);
-            border-radius: 0.5rem;
+            padding: rem;
+            background: linear-gradient(deg, #FFFE6 0%, #FFE6C 00%);
+            border-radius: 0.rem;
         }
         </style>
     """, unsafe_allow_html=True)
     
-    # Header
-    col1, col2, col3 = st.columns([1, 3, 1])
+    # Header con logo
+    col, col, col = st.columns([, , ])
     
-    with col2:
+    with col:
+        # Mostrar logo si existe
+        logo_path = "Logo/Logo ISI.jpeg"
+        if os.path.exists(logo_path):
+            st.image(logo_path, width=00)
+        
+        # Título sin emoji
         st.markdown("""
             <div class="main-header">
-                <div class="main-title">🏗️ ISI Obras y Presupuestos - Calculadora de Presupuestos</div>
+                <div class="main-title">Calculadora de Presupuestos</div>
                 <div class="main-subtitle">
-                    Calcula tu presupuesto de reforma en menos de 3 minutos
+                    Calcula tu presupuesto de reforma en menos de  minutos
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -122,7 +129,7 @@ def render_sidebar_info() -> None:
                 st.divider()
             else:
                 # Usuario no autenticado: mostrar opción de login
-                if st.button("🔐 Iniciar sesión", use_container_width=True, key="sidebar_login_btn"):
+                if st.button(" Iniciar sesión", use_container_width=True, key="sidebar_login_btn"):
                     st.session_state.show_sidebar_login = True
                     st.rerun()
                 
@@ -134,36 +141,36 @@ def render_sidebar_info() -> None:
         except ImportError:
             pass
         
-        st.markdown("### 📞 Contacto")
+        st.markdown("###  Contacto")
         st.markdown(f"""
         **{settings.empresa_nombre}**
         
-        📞 {settings.empresa_telefono}  
-        ✉️ {settings.empresa_email}  
-        🌐 {settings.empresa_web}
+         {settings.empresa_telefono}  
+         {settings.empresa_email}  
+         {settings.empresa_web}
         """)
         
         st.divider()
         
-        st.markdown("### 💎 Niveles de Calidad")
+        st.markdown("###  Niveles de Calidad")
         st.markdown("""
-        **⚡ Básico**  
+        ** Básico**  
         Materiales económicos, buena relación calidad-precio
         
         **⭐ Estándar**  
         Materiales de calidad media-alta, equilibrio perfecto
         
-        **💎 Premium**  
+        ** Premium**  
         Materiales de alta gama, acabados de lujo
         """)
         
         st.divider()
         
-        st.markdown("### ℹ️ Información")
+        st.markdown("###  Información")
         st.markdown("""
         - Presupuesto orientativo
         - Precios con IVA incluido
-        - Válido 30 días
+        - Válido 0 días
         - Requiere visita técnica
         """)
 
@@ -173,30 +180,30 @@ def render_progress_steps(current_step: int) -> None:
     Renderiza los pasos del progreso.
     
     Args:
-        current_step: Paso actual (1-5)
+        current_step: Paso actual (-)
     """
     steps = [
-        ("1️⃣", "Tipo de obra"),
-        ("2️⃣", "Superficie"),
-        ("3️⃣", "Partidas"),
-        ("4️⃣", "Resultados"),
-        ("5️⃣", "Datos"),
+        ("⃣", "Tipo de obra"),
+        ("⃣", "Superficie"),
+        ("⃣", "Partidas"),
+        ("⃣", "Resultados"),
+        ("⃣", "Datos"),
     ]
     
     cols = st.columns(len(steps))
     
     for i, (icon, label) in enumerate(steps):
         with cols[i]:
-            step_num = i + 1
+            step_num = i + 
             if step_num < current_step:
-                st.markdown(f"✅ ~~{label}~~")
+                st.markdown(f" ~~{label}~~")
             elif step_num == current_step:
                 st.markdown(f"**{icon} {label}**")
             else:
                 st.markdown(f"⬜ {label}")
     
     # Barra de progreso con color corporativo
-    progress = (current_step - 1) / (len(steps) - 1)
+    progress = (current_step - ) / (len(steps) - )
     st.progress(progress)
 
 
@@ -204,12 +211,12 @@ def render_footer() -> None:
     """Renderiza el pie de página."""
     st.divider()
     
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col, col, col = st.columns([, , ])
     
-    with col2:
+    with col:
         st.markdown(f"""
-        <div style="text-align: center; color: #999999; font-size: 0.85rem;">
-            © 2025 {settings.empresa_nombre} | 
+        <div style="text-align: center; color: #999999; font-size: 0.8rem;">
+            © 0 {settings.empresa_nombre} | 
             Presupuesto orientativo - Requiere visita técnica
         </div>
         """, unsafe_allow_html=True)
@@ -221,14 +228,14 @@ def _render_sidebar_login_modal() -> None:
     from ...services.auth_service import get_auth_service
     
     with st.container(border=True):
-        st.markdown("#### 🔐 Iniciar sesión")
+        st.markdown("####  Iniciar sesión")
         
         with st.form("sidebar_login_form"):
             email = st.text_input("Email", placeholder="tu@email.com", key="side_email")
             password = st.text_input("Contraseña", type="password", key="side_pass")
             
-            col1, col2 = st.columns(2)
-            with col1:
+            col, col = st.columns()
+            with col:
                 if st.form_submit_button("Entrar", type="primary", use_container_width=True):
                     if email and password:
                         try:
@@ -247,7 +254,7 @@ def _render_sidebar_login_modal() -> None:
                     else:
                         st.error("Completa todos los campos")
             
-            with col2:
+            with col:
                 if st.form_submit_button("Cancelar", use_container_width=True):
                     st.session_state.show_sidebar_login = False
                     st.rerun()

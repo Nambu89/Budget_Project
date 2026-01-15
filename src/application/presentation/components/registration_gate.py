@@ -16,7 +16,7 @@ def render_registration_gate(presupuesto) -> bool:
     Renderiza la puerta de registro con teaser de rango de precios.
     
     Muestra:
-    - Rango de precios estimado (±3% del total real)
+    - Rango de precios estimado (±% del total real)
     - Call to action para registro
     - Formulario de login/registro inline
     
@@ -26,45 +26,45 @@ def render_registration_gate(presupuesto) -> bool:
     Returns:
         bool: True si el usuario se autenticó, False si no
     """
-    # Calcular rango de precios (±3%)
+    # Calcular rango de precios (±%)
     total_real = presupuesto.total
     precio_min = total_real * 0.97
-    precio_max = total_real * 1.03
+    precio_max = total_real * .0
     
     # Container principal con estilo
     st.markdown("""
         <style>
         .registration-gate {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            padding: 2rem;
+            background: linear-gradient(deg, #667eea 0%, #76ba 00%);
+            border-radius: 6px;
+            padding: rem;
             text-align: center;
             color: white;
-            margin: 1rem 0;
+            margin: rem 0;
         }
         .price-range {
-            font-size: 2rem;
+            font-size: rem;
             font-weight: bold;
-            margin: 1rem 0;
+            margin: rem 0;
         }
         .benefits-list {
             text-align: left;
-            margin: 1.5rem auto;
-            max-width: 300px;
+            margin: .rem auto;
+            max-width: 00px;
         }
         </style>
     """, unsafe_allow_html=True)
     
     # Mensaje principal
-    st.markdown("## 🎉 ¡Tu presupuesto está listo!")
+    st.markdown("##  ¡Tu presupuesto está listo!")
     
     st.markdown("---")
     
     # Rango de precios destacado
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
+    col, col, col = st.columns([, , ])
+    with col:
         st.markdown(f"""
-            ### 💰 Tu reforma costará entre
+            ###  Tu reforma costará entre
             ## {precio_min:,.0f}€ y {precio_max:,.0f}€
         """.replace(",", "."))
     
@@ -72,23 +72,23 @@ def render_registration_gate(presupuesto) -> bool:
     
     # Beneficios de registrarse
     st.markdown("""
-        ### 🔓 Regístrate **GRATIS** para:
+        ###  Regístrate **GRATIS** para:
         
-        ✅ **Ver el precio exacto** de tu reforma  
-        ✅ **Descargar PDF profesional** con desglose completo  
-        ✅ **Guardar y comparar** todos tus presupuestos  
-        ✅ **Recibir ofertas** exclusivas de proveedores  
+         **Ver el precio exacto** de tu reforma  
+         **Descargar PDF profesional** con desglose completo  
+         **Guardar y comparar** todos tus presupuestos  
+         **Recibir ofertas** exclusivas de proveedores  
     """)
     
     st.markdown("---")
     
     # Tabs para Login y Registro
-    tab1, tab2 = st.tabs(["📧 Registrarme", "🔑 Ya tengo cuenta"])
+    tab, tab = st.tabs([" Registrarme", " Ya tengo cuenta"])
     
-    with tab1:
+    with tab:
         _render_inline_register_form()
     
-    with tab2:
+    with tab:
         _render_inline_login_form()
     
     # Verificar si se autenticó
@@ -98,25 +98,25 @@ def render_registration_gate(presupuesto) -> bool:
 def _render_inline_register_form():
     """Formulario de registro inline simplificado."""
     with st.form("gate_register_form"):
-        col1, col2 = st.columns(2)
+        col, col = st.columns()
         
-        with col1:
+        with col:
             nombre = st.text_input(
                 "Nombre *",
                 placeholder="Tu nombre",
                 key="gate_reg_nombre"
             )
         
-        with col2:
+        with col:
             email = st.text_input(
                 "Email *",
                 placeholder="tu@email.com",
                 key="gate_reg_email"
             )
         
-        col3, col4 = st.columns(2)
+        col, col = st.columns()
         
-        with col3:
+        with col:
             password = st.text_input(
                 "Contraseña *",
                 type="password",
@@ -124,15 +124,15 @@ def _render_inline_register_form():
                 key="gate_reg_password"
             )
         
-        with col4:
+        with col:
             telefono = st.text_input(
                 "Teléfono (opcional)",
-                placeholder="600123456",
+                placeholder="6006",
                 key="gate_reg_telefono"
             )
         
         submitted = st.form_submit_button(
-            "🚀 Registrarme y ver mi presupuesto",
+            " Registrarme y ver mi presupuesto",
             use_container_width=True,
             type="primary"
         )
@@ -160,32 +160,32 @@ def _render_inline_register_form():
                     st.session_state.user = user
                     st.session_state.authenticated = True
                     
-                    st.success("✅ ¡Cuenta creada! Cargando tu presupuesto...")
+                    st.success(" ¡Cuenta creada! Cargando tu presupuesto...")
                     logger.info(f"Usuario registrado desde gate: {user['email']}")
                     st.rerun()
                 else:
-                    st.error("❌ No se pudo crear la cuenta")
+                    st.error(" No se pudo crear la cuenta")
                     
             except ValueError as e:
-                st.error(f"❌ {str(e)}")
+                st.error(f" {str(e)}")
             except Exception as e:
                 logger.error(f"Error en registro gate: {e}")
-                st.error("❌ Error al crear la cuenta. Inténtalo de nuevo.")
+                st.error(" Error al crear la cuenta. Inténtalo de nuevo.")
 
 
 def _render_inline_login_form():
     """Formulario de login inline simplificado."""
     with st.form("gate_login_form"):
-        col1, col2 = st.columns(2)
+        col, col = st.columns()
         
-        with col1:
+        with col:
             email = st.text_input(
                 "Email",
                 placeholder="tu@email.com",
                 key="gate_login_email"
             )
         
-        with col2:
+        with col:
             password = st.text_input(
                 "Contraseña",
                 type="password",
@@ -194,7 +194,7 @@ def _render_inline_login_form():
             )
         
         submitted = st.form_submit_button(
-            "🔓 Entrar y ver mi presupuesto",
+            " Entrar y ver mi presupuesto",
             use_container_width=True,
             type="primary"
         )
@@ -216,10 +216,10 @@ def _render_inline_login_form():
                     logger.info(f"Usuario logueado desde gate: {user['email']}")
                     st.rerun()
                 else:
-                    st.error("❌ Email o contraseña incorrectos")
+                    st.error(" Email o contraseña incorrectos")
                     
             except ValueError as e:
-                st.error(f"❌ {str(e)}")
+                st.error(f" {str(e)}")
             except Exception as e:
                 logger.error(f"Error en login gate: {e}")
-                st.error("❌ Error al iniciar sesión. Inténtalo de nuevo.")
+                st.error(" Error al iniciar sesión. Inténtalo de nuevo.")

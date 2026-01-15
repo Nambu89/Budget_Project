@@ -214,11 +214,16 @@ class PDFGenerator:
 		"""Crea la cabecera del documento."""
 		elementos = []
 		
-		# Logo (si existe)
-		if logo_path and Path(logo_path).exists():
+		# Logo de empresa (usar por defecto si no se proporciona otro)
+		logo_a_usar = logo_path
+		if not logo_a_usar or not Path(logo_a_usar).exists():
+			# Usar logo por defecto de la empresa
+			logo_a_usar = "Logo/Logo ISI.jpeg"
+		
+		if logo_a_usar and Path(logo_a_usar).exists():
 			try:
-				logo = Image(logo_path, width=4*cm, height=2*cm)
-				logo.hAlign = 'LEFT'
+				logo = Image(logo_a_usar, width=4*cm, height=2*cm)
+				logo.hAlign = 'CENTER'
 				elementos.append(logo)
 				elementos.append(Spacer(1, 10))
 			except Exception as e:
@@ -254,7 +259,7 @@ class PDFGenerator:
 		"""Crea la sección de datos del proyecto."""
 		elementos = []
 		
-		elementos.append(Paragraph("📋 DATOS DEL PROYECTO", self.styles['Seccion']))
+		elementos.append(Paragraph("DATOS DEL PROYECTO", self.styles['Seccion']))
 		
 		proyecto = budget.proyecto
 		datos = [
@@ -287,7 +292,7 @@ class PDFGenerator:
 		"""Crea la sección de datos del cliente."""
 		elementos = []
 		
-		elementos.append(Paragraph("👤 DATOS DEL CLIENTE", self.styles['Seccion']))
+		elementos.append(Paragraph("DATOS DEL CLIENTE", self.styles['Seccion']))
 		
 		cliente = budget.cliente
 		datos = [
@@ -318,7 +323,7 @@ class PDFGenerator:
 		"""Crea la tabla de partidas."""
 		elementos = []
 		
-		elementos.append(Paragraph("📊 DESGLOSE DE PARTIDAS", self.styles['Seccion']))
+		elementos.append(Paragraph("DESGLOSE DE PARTIDAS", self.styles['Seccion']))
 		
 		if not budget.partidas:
 			elementos.append(Paragraph(
@@ -383,7 +388,7 @@ class PDFGenerator:
 		if not paquetes:
 			return elementos
 		
-		elementos.append(Paragraph("📦 DETALLE DE PAQUETES INCLUIDOS", self.styles['Seccion']))
+		elementos.append(Paragraph("DETALLE DE PAQUETES INCLUIDOS", self.styles['Seccion']))
 		
 		for paquete in paquetes:
 			# Nombre del paquete
@@ -397,7 +402,7 @@ class PDFGenerator:
 			# Crear tabla con los items incluidos
 			datos = [["Concepto incluido"]]
 			for item in paquete.items_incluidos:
-				datos.append([f"  ✓ {item}"])
+				datos.append([f"  - {item}"])
 			
 			tabla = Table(datos, colWidths=[16*cm])
 			tabla.setStyle(TableStyle([
@@ -435,7 +440,7 @@ class PDFGenerator:
 		if not resumen:
 			return elementos
 		
-		elementos.append(Paragraph("📈 RESUMEN POR CATEGORÍA", self.styles['Seccion']))
+		elementos.append(Paragraph("RESUMEN POR CATEGORÍA", self.styles['Seccion']))
 		
 		datos = [["Categoría", "Importe"]]
 		for categoria, importe in resumen.items():
@@ -462,7 +467,7 @@ class PDFGenerator:
 		"""Crea la sección de totales."""
 		elementos = []
 		
-		elementos.append(Paragraph("💰 TOTALES", self.styles['Seccion']))
+		elementos.append(Paragraph("TOTALES", self.styles['Seccion']))
 		
 		datos = [
 			["Subtotal:", f"{budget.subtotal:,.2f} €"],
@@ -574,9 +579,9 @@ class PDFGenerator:
 		# Datos de la empresa
 		empresa_info = f"""
 		<b>{settings.empresa_nombre}</b><br/>
-		📞 {settings.empresa_telefono} | 
-		✉️ {settings.empresa_email} | 
-		🌐 {settings.empresa_web}
+		Tel: {settings.empresa_telefono} | 
+		Email: {settings.empresa_email} | 
+		Web: {settings.empresa_web}
 		"""
 		elementos.append(Paragraph(empresa_info, self.styles['TextoPequeno']))
 		

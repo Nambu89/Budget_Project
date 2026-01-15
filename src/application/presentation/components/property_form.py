@@ -19,7 +19,7 @@ def render_property_form() -> Optional[Project]:
 	Returns:
 		Project si el formulario está completo, None en caso contrario
 	"""
-	st.subheader("📋 Datos del Inmueble")
+	st.subheader("Datos del Inmueble")
 	
 	col1, col2 = st.columns(2)
 	
@@ -100,24 +100,24 @@ def render_property_form() -> Optional[Project]:
 	# Info box sobre estimaciones IA
 	if num_habitaciones > 0:
 		st.success(
-			f"✨ **Estimaciones inteligentes activadas:** Con {num_habitaciones} habitaciones, "
+			f"**Estimaciones inteligentes activadas:** Con {num_habitaciones} habitaciones, "
 			"el sistema calculará automáticamente m² de paredes, rodapiés y puertas estimadas usando IA."
 		)
 	else:
 		st.info(
-			"💡 **Tip:** Si añades el número de habitaciones, el sistema hará cálculos inteligentes "
+			"**Tip:** Si añades el número de habitaciones, el sistema hará cálculos inteligentes "
 			"de paredes, rodapiés y puertas automáticamente."
 		)
 	
 	# Info box sobre IVA
 	st.info(
-		"ℹ️ **IVA aplicable:** Todos los presupuestos aplican IVA general del 21% "
+		"**IVA aplicable:** Todos los presupuestos aplican IVA general del 21% "
 		"según normativa vigente."
 	)
 	
 	# Validación
 	if not ubicacion or not ubicacion.strip():
-		st.warning("⚠️ Por favor, indica la ubicación del inmueble")
+		st.warning("Por favor, indica la ubicación del inmueble")
 		return None
 	
 	# Crear objeto Project
@@ -135,7 +135,7 @@ def render_property_form() -> Optional[Project]:
 		return proyecto
 		
 	except Exception as e:
-		st.error(f"❌ Error al crear proyecto: {str(e)}")
+		st.error(f"Error al crear proyecto: {str(e)}")
 		return None
 
 
@@ -148,7 +148,7 @@ def render_property_summary(proyecto: Project, estimaciones: dict = None) -> Non
 		estimaciones: Estimaciones IA (opcional) - FASE 2
 	"""
 	st.markdown("---")
-	st.subheader("📊 Resumen del Proyecto")
+	st.subheader("Resumen del Proyecto")
 	
 	col1, col2, col3 = st.columns(3)
 	
@@ -195,7 +195,7 @@ def render_property_summary(proyecto: Project, estimaciones: dict = None) -> Non
 		col_hab = st.columns([1, 2])[0]
 		with col_hab:
 			st.metric(
-				label="🏠 Habitaciones/Salas",
+				label="Habitaciones/Salas",
 				value=f"{proyecto.num_habitaciones}",
 				delta=None,
 				help="Número de espacios diferenciados"
@@ -204,13 +204,13 @@ def render_property_summary(proyecto: Project, estimaciones: dict = None) -> Non
 	# FASE 2: Mostrar estimaciones IA si existen
 	if estimaciones:
 		st.divider()
-		st.markdown("### ✨ Estimaciones Inteligentes con IA")
+		st.markdown("### Estimaciones Inteligentes con IA")
 		
 		col1, col2, col3 = st.columns(3)
 		
 		with col1:
 			st.metric(
-				label="🏠 m² de paredes",
+				label="m² de paredes",
 				value=f"{estimaciones['m2_paredes_estimado']:.1f} m²",
 				delta=None,
 				help="Superficie total de paredes calculada por IA"
@@ -226,7 +226,7 @@ def render_property_summary(proyecto: Project, estimaciones: dict = None) -> Non
 		
 		with col3:
 			st.metric(
-				label="🚪 Puertas",
+				label="Puertas",
 				value=f"{estimaciones['num_puertas_estimado']} ud",
 				delta=None,
 				help="Número de puertas estimadas por IA"
@@ -234,15 +234,15 @@ def render_property_summary(proyecto: Project, estimaciones: dict = None) -> Non
 		
 		# Mostrar razonamiento si está disponible
 		if estimaciones.get("razonamiento"):
-			with st.expander("🧠 Razonamiento de la IA"):
+			with st.expander("Razonamiento de la IA"):
 				st.info(estimaciones["razonamiento"])
 		
 		# Indicador de ajuste por ubicación
 		if estimaciones.get("ubicacion"):
-			st.caption(f"📍 Estimaciones ajustadas para: **{estimaciones['ubicacion']}**")
+			st.caption(f"Estimaciones ajustadas para: **{estimaciones['ubicacion']}**")
 	
 	if proyecto.descripcion:
-		with st.expander("📝 Descripción del proyecto"):
+		with st.expander("Descripción del proyecto"):
 			st.write(proyecto.descripcion)
 	
 	# Mostrar factor de estado si es diferente de 1.0
@@ -250,12 +250,12 @@ def render_property_summary(proyecto: Project, estimaciones: dict = None) -> Non
 		factor_pct = (proyecto.factor_estado - 1) * 100
 		if factor_pct > 0:
 			st.info(
-				f"ℹ️ Por el estado '{proyecto.estado_actual}' del inmueble, "
+				f"Por el estado '{proyecto.estado_actual}' del inmueble, "
 				f"se aplicará un factor de ajuste de +{factor_pct:.0f}% en los precios."
 			)
 		else:
 			st.success(
-				f"✅ Por el estado '{proyecto.estado_actual}' del inmueble, "
+				f"Por el estado '{proyecto.estado_actual}' del inmueble, "
 				f"se aplicará un factor de ajuste de {factor_pct:.0f}% en los precios."
 			)
 
@@ -270,7 +270,7 @@ def render_property_edit_form(proyecto_actual: Project) -> Optional[Project]:
 	Returns:
 		Project actualizado o None si se cancela
 	"""
-	st.subheader("✏️ Editar Datos del Inmueble")
+	st.subheader("Editar Datos del Inmueble")
 	
 	col1, col2 = st.columns(2)
 	
@@ -359,14 +359,14 @@ def render_property_edit_form(proyecto_actual: Project) -> Optional[Project]:
 	
 	# Info box sobre IVA
 	st.info(
-		"ℹ️ **IVA aplicable:** Todos los presupuestos aplican IVA general del 21% "
+		"**IVA aplicable:** Todos los presupuestos aplican IVA general del 21% "
 		"según normativa vigente."
 	)
 	
 	col_btn1, col_btn2 = st.columns(2)
 	
 	with col_btn1:
-		if st.button("💾 Guardar cambios", type="primary", use_container_width=True):
+		if st.button("Guardar cambios", type="primary", use_container_width=True):
 			try:
 				proyecto_actualizado = Project(
 					tipo_inmueble=tipo_inmueble,
@@ -378,15 +378,15 @@ def render_property_edit_form(proyecto_actual: Project) -> Optional[Project]:
 					ubicacion=ubicacion.strip() if ubicacion else None
 				)
 				
-				st.success("✅ Proyecto actualizado correctamente")
+				st.success("Proyecto actualizado correctamente")
 				return proyecto_actualizado
 				
 			except Exception as e:
-				st.error(f"❌ Error al actualizar proyecto: {str(e)}")
+				st.error(f"Error al actualizar proyecto: {str(e)}")
 				return None
 	
 	with col_btn2:
-		if st.button("❌ Cancelar", use_container_width=True):
+		if st.button("Cancelar", use_container_width=True):
 			st.info("Edición cancelada")
 			return None
 	

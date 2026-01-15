@@ -21,7 +21,7 @@ def render_add_item_form(calidad_proyecto: QualityLevel) -> Optional[BudgetItem]
 	Returns:
 		BudgetItem si se completa el formulario, None en caso contrario
 	"""
-	st.subheader("➕ Añadir Partida")
+	st.subheader(" Añadir Partida")
 	
 	# Selector de categoría
 	categorias = list(WorkCategory)
@@ -62,12 +62,12 @@ def render_add_item_form(calidad_proyecto: QualityLevel) -> Optional[BudgetItem]
 	
 	# Mostrar descripción de la partida con aclaraciones
 	descripcion_partida = partida_data.get("descripcion", "")
-	st.info(f"ℹ️ **Descripción:** {descripcion_partida}")
+	st.info(f" **Descripción:** {descripcion_partida}")
 	
 	# Inputs de cantidad y calidad
-	col1, col2 = st.columns(2)
+	col, col = st.columns()
 	
-	with col1:
+	with col:
 		unidad = partida_data.get("unidad", "ud")
 		
 		# Personalizar el label según la unidad
@@ -83,14 +83,14 @@ def render_add_item_form(calidad_proyecto: QualityLevel) -> Optional[BudgetItem]
 		
 		cantidad = st.number_input(
 			label_cantidad,
-			min_value=0.01,
-			max_value=10000.0,
-			value=1.0,
-			step=0.5 if unidad in ["m²", "ml"] else 1.0,
+			min_value=0.0,
+			max_value=0000.0,
+			value=.0,
+			step=0. if unidad in ["m²", "ml"] else .0,
 			help=help_text
 		)
 	
-	with col2:
+	with col:
 		# Calidad de la partida
 		calidad_opciones = QualityLevel.get_choices()
 		calidad_labels = [label for _, label in calidad_opciones]
@@ -115,7 +115,7 @@ def render_add_item_form(calidad_proyecto: QualityLevel) -> Optional[BudgetItem]
 	
 	st.metric(
 		label=f"Precio unitario ({unidad})",
-		value=f"{precio_unitario:.2f} €",
+		value=f"{precio_unitario:.f} €",
 		help=f"Precio por {unidad} con calidad {calidad.display_name}"
 	)
 	
@@ -123,7 +123,7 @@ def render_add_item_form(calidad_proyecto: QualityLevel) -> Optional[BudgetItem]
 	subtotal = cantidad * precio_unitario
 	st.metric(
 		label="Subtotal partida",
-		value=f"{subtotal:.2f} €",
+		value=f"{subtotal:.f} €",
 		delta=None
 	)
 	
@@ -131,12 +131,12 @@ def render_add_item_form(calidad_proyecto: QualityLevel) -> Optional[BudgetItem]
 	notas = st.text_area(
 		"Notas (opcional)",
 		placeholder="Detalles adicionales sobre esta partida...",
-		max_chars=300,
+		max_chars=00,
 		help="Información adicional que quieras incluir en el presupuesto"
 	)
 	
 	# Botón de añadir
-	if st.button("➕ Añadir al presupuesto", type="primary", use_container_width=True):
+	if st.button(" Añadir al presupuesto", type="primary", use_container_width=True):
 		try:
 			partida = BudgetItem(
 				codigo=codigo_seleccionado,
@@ -149,11 +149,11 @@ def render_add_item_form(calidad_proyecto: QualityLevel) -> Optional[BudgetItem]
 				notas=notas.strip() if notas else None
 			)
 			
-			st.success(f"✅ Partida '{partida.descripcion}' añadida correctamente")
+			st.success(f" Partida '{partida.descripcion}' añadida correctamente")
 			return partida
 			
 		except Exception as e:
-			st.error(f"❌ Error al crear partida: {str(e)}")
+			st.error(f" Error al crear partida: {str(e)}")
 			return None
 	
 	return None
@@ -167,10 +167,10 @@ def render_items_list(partidas: list[BudgetItem]) -> None:
 		partidas: Lista de partidas del presupuesto
 	"""
 	if not partidas:
-		st.info("👋 No hay partidas añadidas. Añade la primera partida arriba.")
+		st.info(" No hay partidas añadidas. Añade la primera partida arriba.")
 		return
 	
-	st.subheader(f"📋 Partidas del Presupuesto ({len(partidas)})")
+	st.subheader(f" Partidas del Presupuesto ({len(partidas)})")
 	
 	# Calcular totales
 	subtotal_total = sum(p.subtotal for p in partidas)
@@ -178,21 +178,21 @@ def render_items_list(partidas: list[BudgetItem]) -> None:
 	# Tabla de partidas
 	for idx, partida in enumerate(partidas):
 		with st.expander(
-			f"{partida.categoria.icono} {partida.descripcion} - {partida.subtotal:.2f} €",
+			f"{partida.categoria.icono} {partida.descripcion} - {partida.subtotal:.f} €",
 			expanded=False
 		):
-			col1, col2, col3 = st.columns([2, 2, 1])
+			col, col, col = st.columns([, , ])
 			
-			with col1:
+			with col:
 				st.write(f"**Cantidad:** {partida.cantidad} {partida.unidad}")
-				st.write(f"**Precio unitario:** {partida.precio_unitario:.2f} €/{partida.unidad}")
+				st.write(f"**Precio unitario:** {partida.precio_unitario:.f} €/{partida.unidad}")
 			
-			with col2:
+			with col:
 				st.write(f"**Calidad:** {partida.calidad.display_name}")
 				st.write(f"**Categoría:** {partida.categoria.display_name}")
 			
-			with col3:
-				if st.button("🗑️ Eliminar", key=f"delete_{idx}", use_container_width=True):
+			with col:
+				if st.button(" Eliminar", key=f"delete_{idx}", use_container_width=True):
 					st.session_state[f"delete_item_{idx}"] = True
 					st.rerun()
 			
@@ -201,11 +201,11 @@ def render_items_list(partidas: list[BudgetItem]) -> None:
 	
 	# Mostrar subtotal
 	st.markdown("---")
-	col1, col2 = st.columns([3, 1])
-	with col2:
+	col, col = st.columns([, ])
+	with col:
 		st.metric(
 			label="Subtotal",
-			value=f"{subtotal_total:.2f} €",
+			value=f"{subtotal_total:.f} €",
 			help="Suma de todas las partidas (sin IVA ni descuentos)"
 		)
 
@@ -220,7 +220,7 @@ def render_quick_add_common_items(calidad_proyecto: QualityLevel) -> Optional[li
 	Returns:
 		Lista de BudgetItems o None
 	"""
-	st.subheader("⚡ Añadir Partidas Comunes")
+	st.subheader(" Añadir Partidas Comunes")
 	
 	# Partidas más comunes por categoría
 	partidas_comunes = {
@@ -231,21 +231,21 @@ def render_quick_add_common_items(calidad_proyecto: QualityLevel) -> Optional[li
 		"Rodapiés": "rodapie",
 	}
 	
-	col1, col2 = st.columns(2)
+	col, col = st.columns()
 	
 	partidas_seleccionadas = []
 	
 	for idx, (nombre, codigo) in enumerate(partidas_comunes.items()):
-		col = col1 if idx % 2 == 0 else col2
+		col = col if idx %  == 0 else col
 		
 		with col:
-			if st.button(f"➕ {nombre}", key=f"quick_{codigo}", use_container_width=True):
+			if st.button(f" {nombre}", key=f"quick_{codigo}", use_container_width=True):
 				# Obtener datos de la partida
 				if codigo in PRICING_DATA:
 					partida_data = PRICING_DATA[codigo]
 					
 					# Valores por defecto
-					cantidad_default = 50.0 if partida_data.get("unidad") == "m²" else 1.0
+					cantidad_default = 0.0 if partida_data.get("unidad") == "m²" else .0
 					precio = partida_data.get("precios", {}).get(calidad_proyecto.value, 0.0)
 					
 					partida = BudgetItem(
@@ -260,6 +260,6 @@ def render_quick_add_common_items(calidad_proyecto: QualityLevel) -> Optional[li
 					)
 					
 					partidas_seleccionadas.append(partida)
-					st.success(f"✅ {nombre} añadida")
+					st.success(f" {nombre} añadida")
 	
 	return partidas_seleccionadas if partidas_seleccionadas else None
