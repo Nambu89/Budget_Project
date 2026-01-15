@@ -62,7 +62,7 @@ def get_crew_cached():
 def init_session_state() -> None:
 	"""Inicializa el estado de la sesión."""
 	defaults = {
-		"current_step": ,
+		"current_step": 1,
 		"proyecto_data": None,
 		"partidas_seleccionadas": [],
 		"paquetes_seleccionados": [],
@@ -123,20 +123,20 @@ def main() -> None:
 	st.divider()
 	
 	# Contenido principal según el paso actual
-	if st.session_state.current_step == :
-		_render_step__proyecto()
+	if st.session_state.current_step == 1:
+		_render_step_1_proyecto()
 	
-	elif st.session_state.current_step == :
-		_render_step__trabajos()
+	elif st.session_state.current_step == 2:
+		_render_step_2_trabajos()
 	
-	elif st.session_state.current_step == :
-		_render_step__calculo()
+	elif st.session_state.current_step == 3:
+		_render_step_3_calculo()
 	
-	elif st.session_state.current_step == :
-		_render_step__cliente()
+	elif st.session_state.current_step == 4:
+		_render_step_4_cliente()
 	
-	elif st.session_state.current_step == :
-		_render_step__final()
+	elif st.session_state.current_step == 5:
+		_render_step_5_final()
 	
 	# Footer
 	render_footer()
@@ -260,13 +260,13 @@ def _render_step__proyecto() -> None:
 	
 	st.divider()
 	
-	col, col = st.columns([, ])
+	col1, col2 = st.columns([1, 2])
 	
 	with col:
 		if datos_proyecto:
 			if st.button("Siguiente →", type="primary", use_container_width=True):
 				st.session_state.proyecto_data = datos_proyecto
-				st.session_state.current_step = 
+				st.session_state.current_step = 2
 				st.rerun()
 		else:
 			st.button(
@@ -375,17 +375,17 @@ def _render_step__trabajos() -> None:
 	st.divider()
 	
 	# Navegación
-	col, col, col = st.columns([, , ])
+	col1, col2, col3 = st.columns([1, 2, 1])
 	
-	with col:
+	with col1:
 		if st.button("← Anterior", use_container_width=True):
-			st.session_state.current_step = 
+			st.session_state.current_step = 1
 			st.rerun()
 	
-	with col:
+	with col2:
 		render_work_summary()
 	
-	with col:
+	with col3:
 		tiene_trabajos = (
 			len(st.session_state.partidas_seleccionadas) > 0 or
 			len(st.session_state.paquetes_seleccionados) > 0
@@ -393,7 +393,7 @@ def _render_step__trabajos() -> None:
 		
 		if tiene_trabajos:
 			if st.button("Calcular presupuesto →", type="primary", use_container_width=True):
-				st.session_state.current_step = 
+				st.session_state.current_step = 3
 				st.rerun()
 		else:
 			st.button(
@@ -404,9 +404,9 @@ def _render_step__trabajos() -> None:
 			)
 
 
-def _render_step__calculo() -> None:
-	"""Renderiza el paso : Cálculo del presupuesto."""
-	st.markdown("## Paso : Tu presupuesto")
+def _render_step_3_calculo() -> None:
+	"""Renderiza el paso 3: Cálculo del presupuesto."""
+	st.markdown("## Paso 3: Tu presupuesto")
 	
 	# Calcular si no existe
 	if st.session_state.presupuesto is None:
@@ -425,7 +425,7 @@ def _render_step__calculo() -> None:
 		# Solo botón de volver
 		if st.button("← Modificar trabajos", use_container_width=True):
 			st.session_state.presupuesto = None
-			st.session_state.current_step = 
+			st.session_state.current_step = 2
 			st.rerun()
 		return  # No continuar hasta que se autentique
 	
@@ -433,7 +433,7 @@ def _render_step__calculo() -> None:
 	# Usuario autenticado: Mostrar presupuesto completo
 	# ══════════════════════════════════════════════════════════════════
 	if st.session_state.presupuesto:
-		# FASE : Pasar estimaciones
+		# FASE 2: Pasar estimaciones
 		render_results(
 			presupuesto=st.session_state.presupuesto,
 			desglose=st.session_state.desglose,
@@ -444,48 +444,48 @@ def _render_step__calculo() -> None:
 		st.divider()
 		
 		# Navegación
-		col, col, col = st.columns([, , ])
+		col1, col2, col3 = st.columns([1, 2, 1])
 		
-		with col:
+		with col1:
 			if st.button("← Modificar trabajos", use_container_width=True):
 				st.session_state.presupuesto = None
-				st.session_state.current_step = 
+				st.session_state.current_step = 2
 				st.rerun()
 		
-		with col:
-			if st.button(" Recalcular", use_container_width=True):
+		with col2:
+			if st.button("Recalcular", use_container_width=True):
 				st.session_state.presupuesto = None
 				st.rerun()
 		
-		with col:
+		with col3:
 			if st.button("Continuar →", type="primary", use_container_width=True):
-				st.session_state.current_step = 
+				st.session_state.current_step = 4
 				st.rerun()
 	else:
 		render_empty_results()
 		
 		if st.button("← Volver", use_container_width=True):
-			st.session_state.current_step = 
+			st.session_state.current_step = 2
 			st.rerun()
 
 
-def _render_step__cliente() -> None:
-	"""Renderiza el paso : Datos del cliente."""
-	st.markdown("## Paso : Tus datos")
+def _render_step_4_cliente() -> None:
+	"""Renderiza el paso 4: Datos del cliente."""
+	st.markdown("## Paso 4: Tus datos")
 	
 	# Resumen del presupuesto
 	if st.session_state.presupuesto:
-		col, col = st.columns([, ])
+		col1, col2 = st.columns([2, 1])
 		
-		with col:
+		with col1:
 			st.markdown(f"""
 				**Presupuesto:** {st.session_state.presupuesto.numero_presupuesto}  
-				**Total:** {st.session_state.presupuesto.total:,.f}€ (IVA incluido)
+				**Total:** {st.session_state.presupuesto.total:,.2f}€ (IVA incluido)
 			""")
 		
-		with col:
+		with col2:
 			if st.button("← Volver al presupuesto"):
-				st.session_state.current_step = 
+				st.session_state.current_step = 3
 				st.rerun()
 	
 	st.divider()
@@ -495,12 +495,12 @@ def _render_step__cliente() -> None:
 	
 	if datos_cliente:
 		st.session_state.cliente_data = datos_cliente
-		st.session_state.current_step = 
+		st.session_state.current_step = 5
 		st.rerun()
 
 
-def _render_step__final() -> None:
-	"""Renderiza el paso : Presupuesto final CON email funcional."""
+def _render_step_5_final() -> None:
+	"""Renderiza el paso 5: Presupuesto final CON email funcional."""
 	
 	# ══════════════════════════════════════════════════════════════════
 	# LEAD GENERATION: Verificar autenticación antes de mostrar resultado
@@ -511,9 +511,9 @@ def _render_step__final() -> None:
 			render_registration_gate(st.session_state.presupuesto)
 		else:
 			# Si no hay presupuesto calculado, volver al paso anterior
-			st.warning(" Ocurrió un error. Por favor, vuelve a calcular el presupuesto.")
+			st.warning("Ocurrió un error. Por favor, vuelve a calcular el presupuesto.")
 			if st.button("← Volver"):
-				st.session_state.current_step = 
+				st.session_state.current_step = 3
 				st.rerun()
 		return  # No continuar hasta que se autentique
 	
@@ -524,7 +524,7 @@ def _render_step__final() -> None:
 	
 	# Asignar cliente al presupuesto y generar PDF
 	if st.session_state.pdf_bytes is None:
-		with st.spinner(" Generando tu presupuesto en PDF..."):
+		with st.spinner("Generando tu presupuesto en PDF..."):
 			_finalizar_presupuesto()
 	
 	# Mostrar resumen final
