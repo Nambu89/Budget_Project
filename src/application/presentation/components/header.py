@@ -22,10 +22,10 @@ def render_header() -> None:
     """
     # Configurar página (debe ser lo primero)
     st.set_page_config(
-        page_title="ISI Obras y Presupuestos | Calculadora de Presupuestos",
+        page_title="ISI - Obras y Servicios | Calculadora de Presupuestos",
         page_icon="Logo/Logo ISI.jpeg",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="collapsed",
     )
     
     # CSS personalizado con colores corporativos

@@ -22,23 +22,25 @@ MOBILE_FIRST_CSS = """
 }
 
 /* ========================================
+   OCULTAR SIDEBAR GLOBALMENTE
+   ======================================== */
+/* Ocultar sidebar en todos los dispositivos */
+section[data-testid="stSidebar"] {
+    display: none !important;
+}
+
+/* Ocultar también el botón de toggle del sidebar */
+button[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
+
+/* ========================================
    MOBILE FIRST (< 768px)
    ======================================== */
 @media (max-width: 768px) {
     /* Contenedor principal */
     .stApp {
         padding: 0.5rem !important;
-    }
-    
-    /* Ocultar sidebar en móvil por defecto */
-    section[data-testid="stSidebar"] {
-        display: none;
-    }
-    
-    section[data-testid="stSidebar"][aria-expanded="true"] {
-        display: block;
-        width: 100% !important;
-        max-width: 100% !important;
     }
     
     /* Botones táctiles grandes */

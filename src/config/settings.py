@@ -196,7 +196,7 @@ class Settings(BaseSettings):
 		description="Ruta para logos de clientes"
 	)
 	empresa_nombre: str = Field(
-		default="ISI Obras y Presupuestos",
+		default="ISI - Obras y Servicios",
 		description="Nombre de la empresa"
 	)
 	empresa_telefono: str = Field(

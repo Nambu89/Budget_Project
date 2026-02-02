@@ -45,7 +45,7 @@ class QualityLevel(str, Enum):
 		"""Icono emoji para la UI."""
 		iconos = {
 			self.BASICO: "",
-			self.ESTANDAR: "⭐",
+			self.ESTANDAR: "",
 			self.PREMIUM: "",
 		}
 		return iconos.get(self, "")
@@ -79,11 +79,11 @@ class QualityLevel(str, Enum):
 	def get_choices(cls) -> list[tuple[str, str]]:
 		"""
 		Retorna opciones para selectores de formulario.
-		
+
 		Returns:
 			Lista de tuplas (valor, nombre_display)
 		"""
-		return [(item.value, f"{item.icono} {item.display_name}") for item in cls]
+		return [(item.value, item.display_name) for item in cls]
 	
 	@classmethod
 	def get_default(cls) -> "QualityLevel":
