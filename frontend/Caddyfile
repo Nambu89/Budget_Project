@@ -7,16 +7,19 @@
 	root * /srv
 	encode gzip
 
-	# Proxy API al backend (URL publica de Railway)
+	# Proxy API al backend (Railway private networking)
 	handle /api/* {
 		reverse_proxy {$BACKEND_URL:http://localhost:8000}
 	}
 
-	# SPA: rutas desconocidas -> index.html
-	try_files {path} /index.html
-	file_server
-
 	handle /health {
 		respond "OK" 200
 	}
+
+	# SPA: catch-all para rutas del frontend
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
 }
+
