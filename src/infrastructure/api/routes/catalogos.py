@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from loguru import logger
 
 from ..schemas.response import PaquetesResponse, CategoriasResponse, PaqueteInfo, CategoriaInfo
-from ....config.pricing_data import get_todos_paquetes, get_todas_categorias, PACKAGES_DATA
+from ....config.pricing_data import get_todos_paquetes, get_todas_categorias, PACKAGES_DATA, PRICING_DATA
 
 router = APIRouter()
 
@@ -25,11 +25,9 @@ async def obtener_paquetes(pais: str = "ES"):
     try:
         logger.info(f"Obteniendo paquetes para país: {pais}")
         
-        # Obtener paquetes del país especificado
-        paquetes_data = PACKAGES_DATA.get(pais, PACKAGES_DATA.get("ES", {}))
-        
+        # PACKAGES_DATA es un dict plano {paquete_id: datos}
         paquetes = []
-        for paquete_id, datos in paquetes_data.items():
+        for paquete_id, datos in PACKAGES_DATA.items():
             paquete_info = PaqueteInfo(
                 id=paquete_id,
                 nombre=datos.get("nombre", ""),
@@ -65,16 +63,14 @@ async def obtener_categorias(pais: str = "ES"):
     try:
         logger.info(f"Obteniendo categorías para país: {pais}")
         
-        # Obtener todas las categorías
-        categorias_dict = get_todas_categorias()
-        
+        # Obtener todas las categorías directamente del dict de precios
         categorias = []
-        for cat_id, datos in categorias_dict.items():
+        for cat_id, datos in PRICING_DATA.items():
             categoria_info = CategoriaInfo(
                 id=cat_id,
-                nombre=datos.get("nombre", cat_id.replace("_", " ").title()),
-                icono=datos.get("icono", "🔧"),
-                partidas=list(datos.get("partidas", {}).keys())
+                nombre=cat_id.replace("_", " ").title(),
+                icono={"albanileria": "🧱", "fontaneria": "🚿", "electricidad": "⚡", "cocina": "🍳", "carpinteria": "🚪"}.get(cat_id, "🔧"),
+                partidas=list(datos.keys())
             )
             categorias.append(categoria_info)
         
