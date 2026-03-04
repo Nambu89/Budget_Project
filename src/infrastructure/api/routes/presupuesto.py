@@ -43,9 +43,8 @@ def _preparar_datos_formulario(request: CalcularPresupuestoRequest) -> dict:
         "tipo_inmueble": request.proyecto.tipo_inmueble,
         "metros_cuadrados": request.proyecto.metros_cuadrados,
         "estado_actual": request.proyecto.estado_actual,
-        "es_vivienda_habitual": request.proyecto.es_vivienda_habitual,
-        "calidad_general": request.proyecto.calidad_general,
-        "paquetes_seleccionados": [
+        "calidad": request.proyecto.calidad_general,
+        "paquetes": [
             {
                 "id": p.id,
                 "cantidad": p.cantidad,
@@ -53,7 +52,7 @@ def _preparar_datos_formulario(request: CalcularPresupuestoRequest) -> dict:
             }
             for p in request.trabajos.paquetes
         ],
-        "partidas_seleccionadas": [
+        "partidas": [
             {
                 "categoria": p.categoria,
                 "partida": p.partida,

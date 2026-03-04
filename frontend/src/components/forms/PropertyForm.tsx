@@ -69,20 +69,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
         </p>
       </GlassCard>
 
-      {/* Vivienda habitual */}
-      <GlassCard>
-        <label className={styles.checkLabel}>
-          <input
-            type="checkbox"
-            checked={proyecto.es_vivienda_habitual}
-            onChange={e => onChange({ es_vivienda_habitual: e.target.checked })}
-          />
-          <span>Es vivienda habitual</span>
-        </label>
-        <p className={styles.hint}>
-          Marcar si es la vivienda donde resides habitualmente
-        </p>
-      </GlassCard>
+
     </div>
   );
 }
