@@ -93,9 +93,41 @@ class ErrorResponse(BaseModel):
 
 class ExplicacionResponse(BaseModel):
     """Explicación del presupuesto generada por IA."""
-    
+
     resumen_ejecutivo: str
     desglose_capitulos: List[Dict[str, Any]]
     observaciones_tecnicas: List[str]
     limitaciones_presupuesto: str
     texto_legal: str
+
+
+class UserBudgetResponse(BaseModel):
+    """Presupuesto guardado de un usuario."""
+
+    id: str
+    numero_presupuesto: str
+    datos_proyecto: Dict[str, Any]
+    partidas: List[Dict[str, Any]]
+    cliente_nombre: Optional[str] = None
+    cliente_email: Optional[str] = None
+    total_sin_iva: float
+    total_con_iva: float
+    iva_aplicado: float
+    fecha_creacion: Optional[str] = None
+    fecha_validez: Optional[str] = None
+
+
+class UserBudgetsListResponse(BaseModel):
+    """Lista de presupuestos de un usuario."""
+
+    presupuestos: List[UserBudgetResponse]
+    total: int
+
+
+class GuardarPresupuestoResponse(BaseModel):
+    """Respuesta tras guardar presupuesto."""
+
+    id: str
+    numero_presupuesto: str
+    total: float
+    guardado: bool

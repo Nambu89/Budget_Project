@@ -135,16 +135,19 @@ class TestOpenAIConnection:
 
 class TestLLMFactory:
 	"""Tests del factory de LLM."""
-	
+
+	@pytest.mark.skipif(
+		not (settings.is_azure_configured() or settings.is_openai_configured()),
+		reason="Ningún LLM configurado (get_provider_info requiere active config)"
+	)
 	def test_factory_get_provider_info(self):
 		"""Test: Factory retorna información del proveedor."""
 		info = LLMFactory.get_provider_info()
-		
+
 		assert "provider" in info
 		assert "azure_configured" in info
-		# Verificar que al menos uno está en el dict (compatibilidad)
 		assert "azure_configured" in info or "openai_configured" in info
-		print(f"✅ Provider info: {info}")
+		print(f"Provider info: {info}")
 	
 	@pytest.mark.skipif(
 		not (settings.is_azure_configured() or settings.is_openai_configured()),

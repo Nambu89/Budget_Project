@@ -1,0 +1,10 @@
+.nav {
+  display: flex;
+  align-items: center;
+  padding: var(--space-lg) 0;
+  gap: var(--space-md);
+}
+
+.spacer {
+  flex: 1;
+}

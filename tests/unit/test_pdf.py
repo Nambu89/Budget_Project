@@ -35,7 +35,7 @@ class TestPDFGenerator:
         """Test: Generar PDF básico."""
         generator = PDFGenerator()
         
-        pdf_bytes = generator.generar(presupuesto_con_partidas)
+        pdf_bytes = generator.generar_pdf(presupuesto_con_partidas)
         
         assert pdf_bytes is not None
         assert len(pdf_bytes) > 0
@@ -50,7 +50,7 @@ class TestPDFGenerator:
         presupuesto_con_partidas.cliente = cliente_ejemplo
         
         generator = PDFGenerator()
-        pdf_bytes = generator.generar(presupuesto_con_partidas)
+        pdf_bytes = generator.generar_pdf(presupuesto_con_partidas)
         
         assert pdf_bytes is not None
         assert len(pdf_bytes) > 0
@@ -65,8 +65,8 @@ class TestPDFGenerator:
             output_path = f.name
         
         try:
-            pdf_bytes = generator.generar(
-                presupuesto=presupuesto_con_partidas,
+            pdf_bytes = generator.generar_pdf(
+                budget=presupuesto_con_partidas,
                 output_path=output_path,
             )
             

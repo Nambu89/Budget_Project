@@ -1,0 +1,22 @@
+{
+	admin off
+	auto_https off
+}
+
+:{$PORT:3000} {
+	root * /srv
+	encode gzip
+
+	# Proxy API al backend (URL publica de Railway)
+	handle /api/* {
+		reverse_proxy {$BACKEND_URL:http://localhost:8000}
+	}
+
+	# SPA: rutas desconocidas -> index.html
+	try_files {path} /index.html
+	file_server
+
+	handle /health {
+		respond "OK" 200
+	}
+}

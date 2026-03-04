@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from loguru import logger
 
-from src.application.services import get_email_service
+from ....application.services import get_email_service
 
 router = APIRouter()
 

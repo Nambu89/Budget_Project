@@ -124,15 +124,20 @@ class ClienteRequest(BaseModel):
 
 
 class GenerarPDFRequest(BaseModel):
-    """Request para generar PDF."""
-    
-    presupuesto_id: Optional[str] = Field(
-        None,
-        description="ID del presupuesto ya calculado"
-    )
+    """Request para generar PDF del presupuesto."""
+
     cliente: ClienteRequest
-    # Si no hay presupuesto_id, incluir datos completos
-    presupuesto_data: Optional[dict] = Field(
-        None,
-        description="Datos completos del presupuesto si no hay ID"
-    )
+    proyecto: ProyectoRequest
+    trabajos: TrabajosRequest
+    modo: str = Field(default="particular")
+    pais: str = Field(default="ES")
+
+
+class GuardarPresupuestoRequest(BaseModel):
+    """Request para guardar presupuesto en BD (user_id viene del JWT)."""
+
+    cliente: ClienteRequest
+    proyecto: ProyectoRequest
+    trabajos: TrabajosRequest
+    modo: str = Field(default="particular")
+    pais: str = Field(default="ES")

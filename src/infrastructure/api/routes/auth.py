@@ -2,12 +2,13 @@
 Auth Routes - Endpoints de autenticación.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from loguru import logger
 
 from ....application.services.auth_service import get_auth_service
+from ..dependencies import create_jwt_token, get_current_user_id
 
 router = APIRouter()
 
@@ -70,7 +71,7 @@ class AuthResponse(BaseModel):
     """Response de autenticación correcta."""
     message: str
     user: UserResponse
-    token: str  # Por ahora fake, luego JWT real
+    token: str
 
 
 # Endpoints
@@ -106,23 +107,23 @@ async def register(request: RegisterRequest):
                 detail="El email ya está registrado"
             )
         
-        # Crear response
+        # Crear response (auth_service retorna dict)
         user_response = UserResponse(
-            id=user.id,
-            email=user.email,
-            nombre=user.nombre,
-            telefono=user.telefono,
-            empresa=user.empresa,
-            fecha_registro=user.fecha_registro.isoformat(),
-            num_presupuestos=user.num_presupuestos
+            id=user["id"],
+            email=user["email"],
+            nombre=user["nombre"],
+            telefono=user.get("telefono"),
+            empresa=user.get("empresa"),
+            fecha_registro=user["fecha_registro"] if isinstance(user["fecha_registro"], str) else user["fecha_registro"].isoformat(),
+            num_presupuestos=user.get("num_presupuestos", 0)
         )
-        
-        logger.info(f"✓ Usuario registrado correctamente: {user.email}")
-        
+
+        logger.info(f"Usuario registrado correctamente: {user['email']}")
+
         return AuthResponse(
             message="Usuario registrado correctamente",
             user=user_response,
-            token="fake-jwt-token-" + user.id  # TODO: Implementar JWT real
+            token=create_jwt_token(user_id=user["id"], email=user["email"])
         )
         
     except HTTPException:
@@ -161,23 +162,23 @@ async def login(request: LoginRequest):
                 detail="Email o contraseña incorrectos"
             )
         
-        # Crear response
+        # Crear response (auth_service retorna dict)
         user_response = UserResponse(
-            id=user.id,
-            email=user.email,
-            nombre=user.nombre,
-            telefono=user.telefono,
-            empresa=user.empresa,
-            fecha_registro=user.fecha_registro.isoformat(),
-            num_presupuestos=user.num_presupuestos
+            id=user["id"],
+            email=user["email"],
+            nombre=user["nombre"],
+            telefono=user.get("telefono"),
+            empresa=user.get("empresa"),
+            fecha_registro=user["fecha_registro"] if isinstance(user["fecha_registro"], str) else user["fecha_registro"].isoformat(),
+            num_presupuestos=user.get("num_presupuestos", 0)
         )
-        
-        logger.info(f"✓ Login correcto: {user.email}")
-        
+
+        logger.info(f"Login correcto: {user['email']}")
+
         return AuthResponse(
             message="Login correcto",
             user=user_response,
-            token="fake-jwt-token-" + user.id  # TODO: Implementar JWT real
+            token=create_jwt_token(user_id=user["id"], email=user["email"])
         )
         
     except HTTPException:
@@ -191,34 +192,34 @@ async def login(request: LoginRequest):
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user(email: str):
+async def get_me(user_id: str = Depends(get_current_user_id)):
     """
-    Obtiene datos del usuario actual.
-    
+    Obtiene datos del usuario actual a partir del JWT.
+
     Args:
-        email: Email del usuario (por ahora, luego desde JWT)
-        
+        user_id: ID del usuario extraído del JWT
+
     Returns:
         UserResponse: Datos del usuario
     """
     try:
         auth_service = get_auth_service()
-        user = auth_service.get_user(email)
-        
+        user = auth_service.get_user_by_id(user_id)
+
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Usuario no encontrado"
             )
-        
+
         return UserResponse(
-            id=user.id,
-            email=user.email,
-            nombre=user.nombre,
-            telefono=user.telefono,
-            empresa=user.empresa,
-            fecha_registro=user.fecha_registro.isoformat(),
-            num_presupuestos=user.num_presupuestos
+            id=user["id"],
+            email=user["email"],
+            nombre=user["nombre"],
+            telefono=user.get("telefono"),
+            empresa=user.get("empresa"),
+            fecha_registro=user["fecha_registro"] if isinstance(user["fecha_registro"], str) else user["fecha_registro"].isoformat(),
+            num_presupuestos=user.get("num_presupuestos", 0)
         )
         
     except HTTPException:

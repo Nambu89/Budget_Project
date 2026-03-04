@@ -28,13 +28,13 @@ app.add_middleware(
 )
 
 # Importar routers
-from .routes import catalogos, presupuesto, auth
+from .routes import catalogos, presupuesto, auth, email
 
 # Registrar routers
 app.include_router(
     catalogos.router,
     prefix="/api/v1/catalogos",
-    tags=["Catálogos"]
+    tags=["Catalogos"]
 )
 
 app.include_router(
@@ -46,7 +46,13 @@ app.include_router(
 app.include_router(
     auth.router,
     prefix="/api/v1/auth",
-    tags=["Autenticación"]
+    tags=["Autenticacion"]
+)
+
+app.include_router(
+    email.router,
+    prefix="/api/v1/email",
+    tags=["Email"]
 )
 
 

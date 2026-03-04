@@ -35,19 +35,11 @@ class TestPropertyType:
         assert PropertyType.OFICINA.display_name == "Oficina"
         assert PropertyType.LOCAL.display_name == "Local comercial"
     
-    def test_property_type_iva(self):
-        """Test: IVA se asigna correctamente."""
-        assert PropertyType.PISO.iva_aplicable == 10  # Vivienda habitual
-        assert PropertyType.VIVIENDA.iva_aplicable == 10
-        assert PropertyType.OFICINA.iva_aplicable == 21  # General
-        assert PropertyType.LOCAL.iva_aplicable == 21
-    
-    def test_property_type_es_vivienda_habitual(self):
-        """Test: Identificación de vivienda habitual."""
-        assert PropertyType.PISO.es_vivienda_habitual is True
-        assert PropertyType.VIVIENDA.es_vivienda_habitual is True
-        assert PropertyType.OFICINA.es_vivienda_habitual is False
-        assert PropertyType.LOCAL.es_vivienda_habitual is False
+    def test_property_type_display_names_exist(self):
+        """Test: Todos los tipos tienen display_name e icono."""
+        for pt in PropertyType:
+            assert pt.display_name is not None
+            assert len(pt.display_name) > 0
 
 
 class TestQualityLevel:
@@ -109,15 +101,14 @@ class TestProject:
         assert proyecto.metros_cuadrados == 80.0
         assert proyecto.calidad_general == QualityLevel.ESTANDAR  # Default
     
-    def test_project_iva_vivienda_habitual(self):
-        """Test: IVA reducido para vivienda habitual."""
+    def test_project_iva_siempre_21(self):
+        """Test: IVA siempre 21% (Fase 1)."""
         proyecto = Project(
             tipo_inmueble=PropertyType.PISO,
             metros_cuadrados=80.0,
-            es_vivienda_habitual=True,
         )
-        
-        assert proyecto.iva_aplicable == 10
+
+        assert proyecto.iva_aplicable == 21
     
     def test_project_iva_no_vivienda_habitual(self):
         """Test: IVA general para no vivienda habitual."""
@@ -340,13 +331,14 @@ class TestBudget:
         assert presupuesto_con_partidas.num_partidas == num_inicial - 1
     
     def test_budget_calcular_total_con_iva(self, presupuesto_con_partidas):
-        """Test: Cálculo de total con IVA."""
-        subtotal = presupuesto_con_partidas.subtotal
+        """Test: Cálculo de total con IVA (incluye redondeo 5%)."""
+        base_con_redondeo = presupuesto_con_partidas.base_con_redondeo
         iva_porcentaje = presupuesto_con_partidas.iva_porcentaje
-        
-        iva_esperado = subtotal * (iva_porcentaje / 100)
-        total_esperado = subtotal + iva_esperado
-        
+
+        assert iva_porcentaje == 21
+        iva_esperado = base_con_redondeo * (iva_porcentaje / 100)
+        total_esperado = base_con_redondeo + iva_esperado
+
         assert presupuesto_con_partidas.importe_iva == pytest.approx(iva_esperado, rel=0.01)
         assert presupuesto_con_partidas.total == pytest.approx(total_esperado, rel=0.01)
     

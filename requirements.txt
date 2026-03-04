@@ -29,9 +29,11 @@ azure-ai-inference==1.0.0b9
 azure-ai-projects==1.0.0b4
 
 # ============================================
-# UI
+# API Server
 # ============================================
-streamlit>=1.39.0
+fastapi>=0.115.0
+PyJWT>=2.8.0
+uvicorn[standard]>=0.30.0
 
 # ============================================
 # PDF Generation

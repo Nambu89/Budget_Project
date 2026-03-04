@@ -1,0 +1,167 @@
+.list {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.cardActive {
+  border-color: var(--color-primary) !important;
+  background: rgba(var(--color-primary-rgb), 0.05) !important;
+}
+
+.cardHeader {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  margin-bottom: var(--space-sm);
+}
+
+.cardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: rgba(var(--color-primary-rgb), 0.15);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 2px;
+}
+
+.cardDesc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.includeList {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: var(--space-sm) 0;
+  padding: 0;
+}
+
+.includeList li {
+  font-size: 0.75rem;
+  background: var(--color-surface);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.priceLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+/* Item selector */
+.itemGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  align-items: end;
+}
+
+@media (max-width: 640px) {
+  .itemGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field select,
+.field input {
+  width: 100%;
+  margin-top: var(--space-xs);
+}
+
+.fieldBtn {
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Work summary */
+.summaryTitle {
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-md);
+  color: var(--color-text);
+}
+
+.summaryItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.summaryItem:last-child {
+  border-bottom: none;
+}
+
+.summaryName {
+  flex: 1;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.iconPkg {
+  color: var(--color-primary);
+}
+
+.iconItem {
+  color: var(--color-text-muted);
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: var(--color-error);
+  opacity: 0.6;
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition-fast);
+}
+
+.removeBtn:hover {
+  opacity: 1;
+}
