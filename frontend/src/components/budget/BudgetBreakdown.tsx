@@ -1,5 +1,4 @@
 import type { PartidaResponse } from '../../types/api';
-import { CATEGORY_ICONS } from '../../types/domain';
 import GlassCard from '../ui/GlassCard';
 import { formatCurrency } from '../../utils/formatters';
 import styles from '../../styles/components/Budget.module.css';
@@ -21,7 +20,7 @@ export default function BudgetBreakdown({ partidas }: Props) {
       {Object.entries(byCategory).map(([cat, items]) => (
         <GlassCard key={cat}>
           <h4 className={styles.catTitle}>
-            {CATEGORY_ICONS[cat] || '🔧'} {cat.replace(/_/g, ' ')}
+            {cat.replace(/_/g, ' ')}
           </h4>
           <table className={styles.table}>
             <thead>

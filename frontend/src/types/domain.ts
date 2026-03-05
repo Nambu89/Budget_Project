@@ -69,10 +69,10 @@ export const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export const CATEGORY_ICONS: Record<string, string> = {
-  albanileria: '🧱',
-  fontaneria: '🚿',
-  electricidad: '⚡',
-  cocina: '🍳',
-  carpinteria: '🚪',
-  paquete: '📦',
+  albanileria: '',
+  fontaneria: '',
+  electricidad: '',
+  cocina: '',
+  carpinteria: '',
+  paquete: '',
 };

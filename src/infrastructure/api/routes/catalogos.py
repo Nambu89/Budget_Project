@@ -69,7 +69,7 @@ async def obtener_categorias(pais: str = "ES"):
             categoria_info = CategoriaInfo(
                 id=cat_id,
                 nombre=cat_id.replace("_", " ").title(),
-                icono={"albanileria": "🧱", "fontaneria": "🚿", "electricidad": "⚡", "cocina": "🍳", "carpinteria": "🚪"}.get(cat_id, "🔧"),
+                icono="",
                 partidas=list(datos.keys())
             )
             categorias.append(categoria_info)
