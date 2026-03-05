@@ -8,6 +8,7 @@ export interface ProyectoRequest {
   estado_actual: string;
   es_vivienda_habitual: boolean;
   calidad_general: string;
+  estado_mobiliario?: string;
 }
 
 export interface PaqueteRequest {
@@ -21,6 +22,7 @@ export interface PartidaRequest {
   partida: string;
   cantidad: number;
   calidad?: string;
+  notas?: string;
 }
 
 export interface TrabajosRequest {
@@ -114,11 +116,17 @@ export interface PaqueteInfo {
   precios: Record<string, Record<string, unknown>>;
 }
 
+export interface PartidaCatalogoInfo {
+  nombre: string;
+  unidad: string;
+  descripcion?: string;
+}
+
 export interface CategoriaInfo {
   id: string;
   nombre: string;
   icono: string;
-  partidas: string[];
+  partidas: PartidaCatalogoInfo[] | string[];
 }
 
 export interface PaquetesResponse {

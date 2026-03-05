@@ -55,6 +55,7 @@ export const WorkCategory = {
   ELECTRICIDAD: 'electricidad',
   COCINA: 'cocina',
   CARPINTERIA: 'carpinteria',
+  CLIMATIZACION: 'climatizacion',
   PAQUETE: 'paquete',
 } as const;
 export type WorkCategory = (typeof WorkCategory)[keyof typeof WorkCategory];
@@ -65,6 +66,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   electricidad: 'Electricidad',
   cocina: 'Cocina',
   carpinteria: 'Carpinteria',
+  climatizacion: 'Climatizacion',
   paquete: 'Paquete Completo',
 };
 
@@ -74,5 +76,6 @@ export const CATEGORY_ICONS: Record<string, string> = {
   electricidad: '',
   cocina: '',
   carpinteria: '',
+  climatizacion: '',
   paquete: '',
 };

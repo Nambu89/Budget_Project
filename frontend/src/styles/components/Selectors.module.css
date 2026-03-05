@@ -112,6 +112,49 @@
   margin-top: var(--space-xs);
 }
 
+.inputWithUnit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.inputWithUnit input {
+  flex: 1;
+  margin-top: 0;
+}
+
+.unitLabel {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  min-width: 2em;
+}
+
+.notasTextarea {
+  width: 100%;
+  margin-top: var(--space-xs);
+  resize: vertical;
+  min-height: 48px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast);
+}
+
+.notasTextarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.notasTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
 .fieldBtn {
   display: flex;
   align-items: flex-end;

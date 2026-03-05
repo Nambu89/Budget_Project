@@ -3,12 +3,22 @@ import { PropertyType, PROPERTY_TYPE_LABELS, PropertyState, PROPERTY_STATE_LABEL
 import GlassCard from '../ui/GlassCard';
 import styles from '../../styles/components/PropertyForm.module.css';
 
+const FURNITURE_OPTIONS = [
+  { value: 'vacio', label: 'Vacio / Desocupado', hint: 'Sin incremento adicional' },
+  { value: 'parcial', label: 'Parcialmente amueblado', hint: '+10% por retirada parcial de mobiliario' },
+  { value: 'amueblado', label: 'Totalmente amueblado', hint: '+20% por retirada completa de mobiliario' },
+] as const;
+
 interface Props {
   proyecto: ProyectoRequest;
   onChange: (changes: Partial<ProyectoRequest>) => void;
 }
 
 export default function PropertyForm({ proyecto, onChange }: Props) {
+  const currentFurniture = FURNITURE_OPTIONS.find(
+    opt => opt.value === (proyecto.estado_mobiliario || 'vacio')
+  );
+
   return (
     <div className={styles.grid}>
       {/* Tipo de inmueble */}
@@ -27,7 +37,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
 
       {/* Metros cuadrados */}
       <GlassCard>
-        <label htmlFor="metros">Superficie (m²)</label>
+        <label htmlFor="metros">Superficie (m2)</label>
         <input
           id="metros"
           type="number"
@@ -69,6 +79,22 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
         </p>
       </GlassCard>
 
+      {/* Estado del mobiliario */}
+      <GlassCard>
+        <label htmlFor="mobiliario">Estado del mobiliario</label>
+        <select
+          id="mobiliario"
+          value={proyecto.estado_mobiliario || 'vacio'}
+          onChange={e => onChange({ estado_mobiliario: e.target.value })}
+        >
+          {FURNITURE_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        <p className={styles.hint}>
+          {currentFurniture?.hint || ''}
+        </p>
+      </GlassCard>
 
     </div>
   );

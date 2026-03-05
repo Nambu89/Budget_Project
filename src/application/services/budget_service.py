@@ -51,6 +51,7 @@ class BudgetService:
         ubicacion: Optional[str] = None,
         descripcion: Optional[str] = None,
         num_habitaciones: Optional[int] = None,  # NUEVO FASE 2
+        estado_mobiliario: str = "vacio",
     ) -> Budget:
         """
         Crea un nuevo presupuesto vacío.
@@ -75,6 +76,7 @@ class BudgetService:
             estado_actual=estado_actual,
             ubicacion=ubicacion,
             descripcion=descripcion,
+            estado_mobiliario=estado_mobiliario,
         )
         
         presupuesto = Budget(

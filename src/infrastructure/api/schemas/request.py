@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 class ProyectoRequest(BaseModel):
     """Datos del proyecto para calcular presupuesto."""
-    
+
     tipo_inmueble: str = Field(
         ...,
         description="Tipo de inmueble: piso, vivienda, local, oficina"
@@ -29,6 +29,10 @@ class ProyectoRequest(BaseModel):
     calidad_general: str = Field(
         default="estandar",
         description="Calidad: basico, estandar, premium"
+    )
+    estado_mobiliario: str = Field(
+        default="vacio",
+        description="Estado del mobiliario: vacio, parcial, amueblado"
     )
 
 

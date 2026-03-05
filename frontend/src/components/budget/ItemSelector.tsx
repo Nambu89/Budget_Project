@@ -1,10 +1,19 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import type { CategoriaInfo, PartidaRequest } from '../../types/api';
+import type { CategoriaInfo, PartidaRequest, PartidaCatalogoInfo } from '../../types/api';
 import { CATEGORY_ICONS } from '../../types/domain';
 import GlassCard from '../ui/GlassCard';
 import SparkButton from '../ui/SparkButton';
 import styles from '../../styles/components/Selectors.module.css';
+
+/** Normaliza partidas: soporta tanto string[] (legacy) como PartidaCatalogoInfo[] */
+function normalizePartidas(partidas: PartidaCatalogoInfo[] | string[]): PartidaCatalogoInfo[] {
+  if (partidas.length === 0) return [];
+  if (typeof partidas[0] === 'string') {
+    return (partidas as string[]).map(p => ({ nombre: p, unidad: 'ud' }));
+  }
+  return partidas as PartidaCatalogoInfo[];
+}
 
 interface Props {
   categorias: CategoriaInfo[];
@@ -15,18 +24,27 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
   const [selectedCat, setSelectedCat] = useState('');
   const [selectedPartida, setSelectedPartida] = useState('');
   const [cantidad, setCantidad] = useState(1);
+  const [notas, setNotas] = useState('');
 
   const currentCat = categorias.find(c => c.id === selectedCat);
+  const partidasNormalizadas = currentCat ? normalizePartidas(currentCat.partidas) : [];
+  const selectedPartidaInfo = partidasNormalizadas.find(p => p.nombre === selectedPartida);
+  const unidadActual = selectedPartidaInfo?.unidad || '';
 
   const handleAdd = () => {
     if (!selectedCat || !selectedPartida || cantidad <= 0) return;
-    onAdd({
+    const partida: PartidaRequest = {
       categoria: selectedCat,
       partida: selectedPartida,
       cantidad,
-    });
+    };
+    if (notas.trim()) {
+      partida.notas = notas.trim();
+    }
+    onAdd(partida);
     setSelectedPartida('');
     setCantidad(1);
+    setNotas('');
   };
 
   return (
@@ -59,23 +77,41 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
             disabled={!currentCat}
           >
             <option value="">Seleccionar partida...</option>
-            {currentCat?.partidas.map(p => (
-              <option key={p} value={p}>
-                {p.replace(/_/g, ' ')}
+            {partidasNormalizadas.map(p => (
+              <option key={p.nombre} value={p.nombre}>
+                {p.nombre.replace(/_/g, ' ')}{p.unidad ? ` (${p.unidad})` : ''}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Cantidad */}
+        {/* Cantidad con unidad */}
         <div className={styles.field}>
-          <label htmlFor="cantidad">Cantidad</label>
-          <input
-            id="cantidad"
-            type="number"
-            min={1}
-            value={cantidad}
-            onChange={e => setCantidad(Number(e.target.value) || 1)}
+          <label htmlFor="cantidad">
+            Cantidad{unidadActual ? ` (${unidadActual})` : ''}
+          </label>
+          <div className={styles.inputWithUnit}>
+            <input
+              id="cantidad"
+              type="number"
+              min={1}
+              value={cantidad}
+              onChange={e => setCantidad(Number(e.target.value) || 1)}
+            />
+            {unidadActual && <span className={styles.unitLabel}>{unidadActual}</span>}
+          </div>
+        </div>
+
+        {/* Descripcion / Notas */}
+        <div className={styles.field}>
+          <label htmlFor="notas">Descripcion / Notas (opcional)</label>
+          <textarea
+            id="notas"
+            className={styles.notasTextarea}
+            value={notas}
+            onChange={e => setNotas(e.target.value)}
+            placeholder="Detalles adicionales sobre esta partida..."
+            rows={2}
           />
         </div>
 

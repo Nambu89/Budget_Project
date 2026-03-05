@@ -7,6 +7,7 @@ from loguru import logger
 
 from ..schemas.response import PaquetesResponse, CategoriasResponse, PaqueteInfo, CategoriaInfo
 from ....config.pricing_data import get_todos_paquetes, get_todas_categorias, PACKAGES_DATA, PRICING_DATA
+from ....domain.enums.work_category import WorkCategory
 
 router = APIRouter()
 
@@ -63,13 +64,23 @@ async def obtener_categorias(pais: str = "ES"):
     try:
         logger.info(f"Obteniendo categorías para país: {pais}")
         
-        # Obtener todas las categorías directamente del dict de precios
+        # Obtener todas las categorias directamente del dict de precios
+        # Usar WorkCategory enum para nombres e iconos correctos
         categorias = []
         for cat_id, datos in PRICING_DATA.items():
+            # Intentar obtener info del enum WorkCategory
+            try:
+                wc = WorkCategory(cat_id)
+                nombre = wc.display_name
+                icono = wc.icono
+            except ValueError:
+                nombre = cat_id.replace("_", " ").title()
+                icono = ""
+
             categoria_info = CategoriaInfo(
                 id=cat_id,
-                nombre=cat_id.replace("_", " ").title(),
-                icono="",
+                nombre=nombre,
+                icono=icono,
                 partidas=list(datos.keys())
             )
             categorias.append(categoria_info)

@@ -184,6 +184,8 @@ class DataCollectorAgent:
 			"carpinteria": WorkCategory.CARPINTERIA,
 			"carpintería": WorkCategory.CARPINTERIA,
 			"cocina": WorkCategory.COCINA,
+			"climatizacion": WorkCategory.CLIMATIZACION,
+			"climatización": WorkCategory.CLIMATIZACION,
 		}
 		
 		if categoria_lower in mapeo:
@@ -248,6 +250,17 @@ class DataCollectorAgent:
 		# Procesar estado actual (opcional)
 		if "estado_actual" in datos:
 			resultado["proyecto"]["estado_actual"] = datos["estado_actual"]
+
+		# Procesar estado del mobiliario (opcional, default: vacio)
+		if "estado_mobiliario" in datos:
+			estado_mob = datos["estado_mobiliario"]
+			if estado_mob in ("vacio", "parcial", "amueblado"):
+				resultado["proyecto"]["estado_mobiliario"] = estado_mob
+			else:
+				resultado["warnings"].append(
+					f"Estado de mobiliario no reconocido: '{estado_mob}'. Usando 'vacio'."
+				)
+				resultado["proyecto"]["estado_mobiliario"] = "vacio"
 		
 		# Procesar descripción (opcional)
 		if "descripcion" in datos:

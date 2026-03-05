@@ -20,6 +20,7 @@ const initialProyecto: ProyectoRequest = {
   estado_actual: 'normal',
   es_vivienda_habitual: false,
   calidad_general: 'estandar',
+  estado_mobiliario: 'vacio',
 };
 
 const initialCliente: ClienteRequest = {

@@ -23,6 +23,7 @@ class WorkCategory(str, Enum):
 	ELECTRICIDAD = "electricidad"
 	COCINA = "cocina"
 	CARPINTERIA = "carpinteria"
+	CLIMATIZACION = "climatizacion"
 	PAQUETE = "paquete"  # NUEVO: Para paquetes completos
 	
 	@property
@@ -34,6 +35,7 @@ class WorkCategory(str, Enum):
 			self.ELECTRICIDAD: "Electricidad",
 			self.COCINA: "Cocina",
 			self.CARPINTERIA: "Carpintería",
+			self.CLIMATIZACION: "Climatización",
 			self.PAQUETE: "Paquete Completo",  # NUEVO
 		}
 		return nombres.get(self, self.value)
@@ -47,6 +49,7 @@ class WorkCategory(str, Enum):
 			self.ELECTRICIDAD: "Instalación eléctrica, puntos de luz y cuadros",
 			self.COCINA: "Mobiliario, encimeras y electrodomésticos",
 			self.CARPINTERIA: "Puertas, ventanas y armarios",
+			self.CLIMATIZACION: "Calefacción, aire acondicionado y sistemas térmicos",
 			self.PAQUETE: "Conjunto completo de trabajos (baño, cocina, reforma integral)",  # NUEVO
 		}
 		return descripciones.get(self, "")
@@ -60,6 +63,7 @@ class WorkCategory(str, Enum):
 			self.ELECTRICIDAD: "⚡",
 			self.COCINA: "🍳",
 			self.CARPINTERIA: "🚪",
+			self.CLIMATIZACION: "🌡️",
 			self.PAQUETE: "📦",  # NUEVO
 		}
 		return iconos.get(self, "🔧")
@@ -73,6 +77,7 @@ class WorkCategory(str, Enum):
 			self.ELECTRICIDAD: "#ffc107",   # Amarillo
 			self.COCINA: "#198754",         # Verde
 			self.CARPINTERIA: "#795548",    # Marrón madera
+			self.CLIMATIZACION: "#ff6b35",  # Naranja cálido
 			self.PAQUETE: "#6f42c1",        # NUEVO: Púrpura
 		}
 		return colores.get(self, "#000000")

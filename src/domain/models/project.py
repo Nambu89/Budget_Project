@@ -5,7 +5,7 @@ Representa la información del proyecto/obra que se
 va a presupuestar.
 """
 
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 from ..enums.property_type import PropertyType
 from ..enums.quality_level import QualityLevel
@@ -68,6 +68,11 @@ class Project(BaseModel):
 		max_length=100,
 		description="Ciudad/zona donde se ubica el inmueble"
 	)
+
+	estado_mobiliario: Literal["vacio", "parcial", "amueblado"] = Field(
+		default="vacio",
+		description="Estado del mobiliario: vacio, parcial o amueblado"
+	)
 	
 	@field_validator("estado_actual")
 	@classmethod
@@ -119,7 +124,25 @@ class Project(BaseModel):
 			"ruina": 1.25,     # Mucho más trabajo
 		}
 		return factores.get(self.estado_actual, 1.0)
-	
+
+	@property
+	def factor_mobiliario(self) -> float:
+		"""
+		Factor multiplicador segun estado del mobiliario.
+
+		Los inmuebles amueblados requieren mas trabajo de
+		retirada, proteccion y logistica.
+
+		Returns:
+			float: Factor multiplicador (1.0 - 1.2)
+		"""
+		factors: dict[str, float] = {
+			"vacio": 1.0,
+			"parcial": 1.10,
+			"amueblado": 1.20,
+		}
+		return factors.get(self.estado_mobiliario, 1.0)
+
 	@property
 	def metros_por_habitacion(self) -> Optional[float]:
 		"""

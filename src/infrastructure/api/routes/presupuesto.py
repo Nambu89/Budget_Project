@@ -43,6 +43,7 @@ def _preparar_datos_formulario(request: CalcularPresupuestoRequest) -> dict:
         "tipo_inmueble": request.proyecto.tipo_inmueble,
         "metros_cuadrados": request.proyecto.metros_cuadrados,
         "estado_actual": request.proyecto.estado_actual,
+        "estado_mobiliario": request.proyecto.estado_mobiliario,
         "calidad": request.proyecto.calidad_general,
         "paquetes": [
             {

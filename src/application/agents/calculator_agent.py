@@ -136,6 +136,7 @@ class CalculatorAgent:
 			ubicacion=datos_proyecto.get("ubicacion"),
 			descripcion=datos_proyecto.get("descripcion"),
 			num_habitaciones=datos_proyecto.get("num_habitaciones"),
+			estado_mobiliario=datos_proyecto.get("estado_mobiliario", "vacio"),
 		)
 		
 		# Agregar partidas individuales (con markup)
