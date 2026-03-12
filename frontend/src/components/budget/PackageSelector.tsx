@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { Package, Plus, Trash2 } from 'lucide-react';
 import type { PaqueteInfo, PaqueteRequest } from '../../types/api';
-import { QUALITY_LABELS, type QualityLevel } from '../../types/domain';
+import { QUALITY_LABELS, type QualityLevel, PropertyType } from '../../types/domain';
 import GlassCard from '../ui/GlassCard';
 import SparkButton from '../ui/SparkButton';
 import { formatCurrency } from '../../utils/formatters';
@@ -10,16 +11,39 @@ interface Props {
   paquetes: PaqueteInfo[];
   selected: PaqueteRequest[];
   calidad: string;
+  tipoInmueble: string;
   onAdd: (paquete: PaqueteRequest) => void;
   onRemove: (id: string) => void;
 }
 
-export default function PackageSelector({ paquetes, selected, calidad, onAdd, onRemove }: Props) {
+export default function PackageSelector({ paquetes, selected, calidad, tipoInmueble, onAdd, onRemove }: Props) {
+  const [metrosInput, setMetrosInput] = useState<Record<string, number>>({});
+
   const isSelected = (id: string) => selected.some(p => p.id === id);
+
+  const filteredPaquetes = paquetes.filter(paq => {
+    const isVivienda = tipoInmueble === PropertyType.PISO || tipoInmueble === PropertyType.VIVIENDA;
+    const isLocal = tipoInmueble === PropertyType.LOCAL || tipoInmueble === PropertyType.OFICINA;
+
+    if (paq.id === 'reforma_integral_local') return isLocal;
+    if (paq.id === 'reforma_integral_vivienda') return isVivienda;
+    if (paq.id === 'salon_completo' || paq.id === 'habitacion_completa') return false; // Eliminados por el feedback
+
+    // El resto (baños, cocinas, aseos) se muestran siempre
+    return true;
+  });
+
+  const handleAdd = (id: string) => {
+    onAdd({
+      id,
+      cantidad: 1,
+      metros: metrosInput[id] || undefined
+    });
+  };
 
   return (
     <div className={styles.list}>
-      {paquetes.map(paq => {
+      {filteredPaquetes.map(paq => {
         const precioInfo = paq.precios[calidad] || paq.precios['estandar'] || {};
         const precioBase = (precioInfo as Record<string, unknown>).precio_base as number || 0;
         const active = isSelected(paq.id);
@@ -50,6 +74,17 @@ export default function PackageSelector({ paquetes, selected, calidad, onAdd, on
                 <span className={styles.price}>
                   {precioBase > 0 ? formatCurrency(precioBase) : 'Consultar'}
                 </span>
+                {!active && (
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="m2 (opc)"
+                    value={metrosInput[paq.id] || ''}
+                    onChange={e => setMetrosInput({ ...metrosInput, [paq.id]: Number(e.target.value) || 0 })}
+                    className={styles.metrosInput}
+                    style={{ width: '80px', marginLeft: '10px', padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                )}
               </div>
 
               {active ? (
@@ -57,8 +92,8 @@ export default function PackageSelector({ paquetes, selected, calidad, onAdd, on
                   <Trash2 size={16} /> Quitar
                 </SparkButton>
               ) : (
-                <SparkButton onClick={() => onAdd({ id: paq.id, cantidad: 1 })}>
-                  <Plus size={16} /> Anadir
+                <SparkButton onClick={() => handleAdd(paq.id)}>
+                  <Plus size={16} /> Añadir
                 </SparkButton>
               )}
             </div>

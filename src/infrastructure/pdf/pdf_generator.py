@@ -480,9 +480,7 @@ class PDFGenerator:
 			])
 		
 		datos.extend([
-			["Base imponible:", f"{budget.base_imponible:,.2f} €"],
-			["Redondeo (5%):", f"+{budget.importe_redondeo:,.2f} €"],  # ← CAMBIO AQUÍ
-			["Base con redondeo:", f"{budget.base_con_redondeo:,.2f} €"],
+			["Base imponible:", f"{budget.base_con_redondeo:,.2f} €"],
 			[f"IVA ({budget.iva_porcentaje}%):", f"{budget.importe_iva:,.2f} €"],
 			["TOTAL:", f"{budget.total:,.2f} €"],
 		])

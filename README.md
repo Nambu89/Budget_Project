@@ -12,15 +12,14 @@ Esta aplicación permite generar presupuestos profesionales para reformas de viv
 
 ### Características principales
 
-- ✅ Presupuestos para viviendas, pisos, locales y oficinas
+- ✅ Presupuestos interactivos para viviendas, pisos, locales y oficinas (soporta nº de plantas, habitaciones, salas, aseos)
 - ✅ Tres niveles de calidad: Básico, Estándar y Premium
-- ✅ Paquetes predefinidos (Baño completo, Cocina completa, Reforma integral)
-- ✅ Partidas individuales personalizables
-- ✅ Cálculo automático de IVA (10% vivienda habitual / 21% resto)
+- ✅ Paquetes predefinidos inteligentes filtrados por tipo de inmueble
+- ✅ Partidas individuales personalizables (ej. checkbox de asistencia de albañilería)
+- ✅ Cálculo automático de IVA (21% general en FASE 1)
 - ✅ Markup del 15% en partidas individuales
-- ✅ Redondeo al alza del 5%
-- ✅ Generación de PDF profesional con disclaimers legales
-- ✅ Interfaz web con Streamlit
+- ✅ Generación de PDF profesional transparente (ocultando redondeos internos)
+- ✅ Interfaces separadas: APIs potentes en Backend y transición hacia React moderno en Frontend
 
 ## 🛠️ Tecnologías
 
@@ -145,6 +144,8 @@ datos = {
     "metros_cuadrados": 80.0,
     "calidad": "estandar",
     "es_vivienda_habitual": True,
+    "habitaciones": 3,
+    "banos": 2,
     "paquetes": ["bano_completo"],
 }
 
@@ -196,10 +197,11 @@ pytest --cov=src --cov-report=html
 
 | Paquete | Descripción | Precio Base (Estándar) |
 |---------|-------------|------------------------|
-| `bano_completo` | Reforma integral de baño | 5.500€ + 500€/m² adicional |
-| `cocina_completa` | Reforma integral de cocina | 10.000€ + 600€/m² adicional |
+| `bano_completo` | Reforma integral de baño completo | 5.500€ + 500€/m² adicional |
+| `cocina_completa` | Reforma integral de cocina completa | 10.000€ + 600€/m² adicional |
 | `reforma_integral_vivienda` | Reforma completa vivienda | 950€/m² |
 | `reforma_integral_local` | Reforma local/oficina | 700€/m² |
+| `reforma_integral_aseo` | Reforma integral de aseo básico | 3.000€ + 300€/m² adicional |
 
 ## 💰 Reglas de Negocio
 

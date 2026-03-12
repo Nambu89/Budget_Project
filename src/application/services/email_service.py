@@ -141,7 +141,7 @@ class EmailService:
 			str: HTML del email
 		"""
 		numero = datos.get('numero', 'N/A')
-		fecha = datos.get('fecha', 'N/A')
+		fecha = datos.get('fecha_emision', 'N/A')
 		total = datos.get('total', '0.00')
 		cliente = datos.get('cliente', {})
 		nombre_cliente = cliente.get('nombre', 'Cliente')
@@ -275,7 +275,6 @@ class EmailService:
 					<p>El presupuesto incluye:</p>
 					<ul>
 						<li>Desglose detallado de todas las partidas</li>
-						<li>Precios actualizados con IPC</li>
 						<li>IVA aplicable según normativa</li>
 						<li>Condiciones y validez del presupuesto</li>
 					</ul>

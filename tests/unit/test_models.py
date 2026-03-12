@@ -78,7 +78,7 @@ class TestWorkCategory:
     def test_work_category_display_name(self):
         """Test: Display names son correctos."""
         assert WorkCategory.ALBANILERIA.display_name == "Albañilería"
-        assert WorkCategory.FONTANERIA.display_name == "Fontanería"
+        assert WorkCategory.FONTANERIA.display_name == "Baño"
     
     def test_work_category_icono(self):
         """Test: Iconos existen."""

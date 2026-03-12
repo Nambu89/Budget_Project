@@ -322,14 +322,14 @@ class TestBudgetService:
         service.agregar_partida(
             presupuesto=presupuesto,
             categoria=WorkCategory.FONTANERIA,
-            partida="plato_ducha",
+            partida="instalacion_inodoro",
             cantidad=1.0,
         )
 
         service.agregar_partida(
             presupuesto=presupuesto,
             categoria=WorkCategory.FONTANERIA,
-            partida="inodoro_suspendido",
+            partida="instalacion_mueble_lavabo",
             cantidad=1.0,
         )
 
@@ -389,7 +389,7 @@ class TestBudgetService:
             },
             {
                 "categoria": WorkCategory.FONTANERIA,
-                "partida": "plato_ducha",
+                "partida": "instalacion_inodoro",
                 "cantidad": 1.0,
                 "calidad": QualityLevel.ESTANDAR,
             },
@@ -418,7 +418,7 @@ class TestBusinessRules:
         service.agregar_partida(
             presupuesto=pres_partida,
             categoria=WorkCategory.FONTANERIA,
-            partida="plato_ducha",
+            partida="instalacion_inodoro",
             cantidad=1.0,
         )
 

@@ -40,11 +40,39 @@ class Project(BaseModel):
 		description="Superficie total en metros cuadrados"
 	)
 	
-	num_habitaciones: Optional[int] = Field(
+	habitaciones: Optional[int] = Field(
+		default=None,
+		ge=0,
+		le=50,
+		description="Número de habitaciones (vivienda/piso)"
+	)
+	
+	banos: Optional[int] = Field(
+		default=None,
+		ge=0,
+		le=20,
+		description="Número de baños"
+	)
+
+	plantas: Optional[int] = Field(
 		default=None,
 		ge=1,
+		le=10,
+		description="Número de plantas (vivienda independiente)"
+	)
+
+	salas: Optional[int] = Field(
+		default=None,
+		ge=0,
 		le=50,
-		description="Número de habitaciones/salas/espacios"
+		description="Número de salas (local/oficina)"
+	)
+
+	aseos: Optional[int] = Field(
+		default=None,
+		ge=0,
+		le=20,
+		description="Número de aseos (local/oficina)"
 	)
 	
 	calidad_general: QualityLevel = Field(
@@ -145,16 +173,9 @@ class Project(BaseModel):
 
 	@property
 	def metros_por_habitacion(self) -> Optional[float]:
-		"""
-		Calcula metros cuadrados promedio por habitación.
-		
-		NUEVO FASE 2: Útil para validar coherencia de estimaciones.
-		
-		Returns:
-			float: m² por habitación o None si no hay num_habitaciones
-		"""
-		if self.num_habitaciones and self.num_habitaciones > 0:
-			return round(self.metros_cuadrados / self.num_habitaciones, 2)
+		"""Calcula metros cuadrados promedio por habitación."""
+		if self.habitaciones and self.habitaciones > 0:
+			return round(self.metros_cuadrados / self.habitaciones, 2)
 		return None
 	
 	def to_dict_pdf(self) -> dict:
@@ -174,10 +195,17 @@ class Project(BaseModel):
 			"descripcion": self.descripcion or "",
 		}
 		
-		# NUEVO FASE 2: Incluir info de habitaciones si existe
-		if self.num_habitaciones:
-			result["num_habitaciones"] = f"{self.num_habitaciones} habitaciones/salas"
+		if self.habitaciones:
+			result["habitaciones"] = f"{self.habitaciones} habitaciones"
 			result["m2_por_habitacion"] = f"{self.metros_por_habitacion:.2f} m²/hab"
+		if self.banos is not None:
+			result["banos"] = f"{self.banos} baños"
+		if self.plantas is not None:
+			result["plantas"] = f"{self.plantas} plantas"
+		if self.salas is not None:
+			result["salas"] = f"{self.salas} salas"
+		if self.aseos is not None:
+			result["aseos"] = f"{self.aseos} aseos"
 		
 		return result
 	
@@ -194,8 +222,9 @@ class Project(BaseModel):
 			f"({self.calidad_nombre})"
 		)
 		
-		# NUEVO FASE 2: Añadir habitaciones al resumen
-		if self.num_habitaciones:
-			base += f" • {self.num_habitaciones} hab."
+		if self.habitaciones is not None:
+			base += f" • {self.habitaciones} hab."
+		if self.banos is not None:
+			base += f" • {self.banos} bñ."
 		
 		return base

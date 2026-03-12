@@ -56,6 +56,7 @@ export default function Step2WorkSelector() {
           paquetes={paquetes}
           selected={state.paquetes}
           calidad={state.proyecto.calidad_general}
+          tipoInmueble={state.proyecto.tipo_inmueble}
           onAdd={p => dispatch({ type: 'ADD_PAQUETE', paquete: p })}
           onRemove={id => dispatch({ type: 'REMOVE_PAQUETE', id })}
         />

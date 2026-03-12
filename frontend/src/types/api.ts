@@ -9,6 +9,11 @@ export interface ProyectoRequest {
   es_vivienda_habitual: boolean;
   calidad_general: string;
   estado_mobiliario?: string;
+  habitaciones?: number;
+  banos?: number;
+  plantas?: number;
+  salas?: number;
+  aseos?: number;
 }
 
 export interface PaqueteRequest {

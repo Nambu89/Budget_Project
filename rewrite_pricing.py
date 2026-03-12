@@ -1,23 +1,12 @@
-"""
-Base de datos de precios para reformas en Espana (2025-2026).
+import sys
 
-Este modulo contiene todos los precios de referencia para:
-- Partidas individuales por categoria
-- Paquetes completos (bano, cocina, reforma integral)
-- Disclaimers legales profesionales
+with open('src/config/pricing_data.py', 'r', encoding='utf-8') as f:
+    original_lines = f.readlines()
 
-Fuentes de precios: Cronoshare, Habitissimo, CYPE (referencia),
-datos de mercado espanoles actualizados.
-"""
+import re
+content = "".join(original_lines)
 
-from typing import Dict, Any
-
-
-# ============================================
-# PRECIOS POR PARTIDAS INDIVIDUALES
-# ============================================
-# Estructura: categoria -> partida -> {basico, estandar, premium, unidad, descripcion}
-
+new_pricing = """
 PRICING_DATA: Dict[str, Dict[str, Any]] = {
     "albanileria": {
         "demolicion": {
@@ -290,158 +279,17 @@ PACKAGES_DATA: Dict[str, Dict[str, Any]] = {
         },
     },
 }
+"""
 
-DISCLAIMERS: Dict[str, str] = {
-    "principal": """
-CONDICIONES GENERALES DEL PRESUPUESTO
+start_str = "PRICING_DATA: Dict[str, Dict[str, Any]] = {"
+end_str = "DISCLAIMERS: Dict[str, str] = {"
 
-Este presupuesto es una ESTIMACION ORIENTATIVA basada en la informacion
-proporcionada por el cliente sin visita presencial a la obra.
+start_idx = content.find(start_str)
+end_idx = content.find(end_str)
 
-El presupuesto definitivo se emitira tras:
-- Visita tecnica in situ
-- Evaluacion del estado real de las instalaciones
-- Confirmacion de mediciones exactas
-- Verificacion de cumplimiento normativo
-""",
+new_content = content[:start_idx] + new_pricing.strip() + "\n\n" + content[end_idx:]
 
-    "validez": """
-VALIDEZ
-Este presupuesto tiene una validez de {dias_validez} dias naturales desde
-su fecha de emision. Transcurrido este plazo, los precios podrian sufrir
-variaciones.
-""",
+with open('src/config/pricing_data.py', 'w', encoding='utf-8') as f:
+    f.write(new_content)
 
-    "iva": """
-IMPUESTOS
-- IVA del 21% incluido en los precios mostrados
-- El IVA se anade al total del presupuesto
-- Todos los inmuebles: IVA general del 21%
-""",
-
-    "forma_pago": """
-FORMA DE PAGO
-Forma de pago habitual (negociable segun contrato):
-- 50% al inicio de los trabajos
-- 30% a mitad de obra
-- 20% a la finalizacion y conformidad
-""",
-
-    "variaciones": """
-POSIBLES VARIACIONES
-Los precios pueden variar en funcion de:
-- Estado oculto de instalaciones (tuberias, cableado, estructura)
-- Necesidades no detectables sin catas previas
-- Cambios normativos o de permisos municipales
-- Variaciones significativas en costes de materiales
-- Modificaciones solicitadas por el cliente durante la obra
-""",
-
-    "no_incluido": """
-NO INCLUIDO (salvo indicacion expresa)
-- Licencias y tasas municipales
-- Permisos de obra
-- Contenedores de escombros
-- Mudanzas o vaciado previo
-- Mobiliario decorativo
-- Electrodomesticos no especificados
-""",
-
-    "garantias": """
-GARANTIAS
-Los trabajos ejecutados contaran con las garantias establecidas por la
-legislacion vigente:
-- Ley 38/1999 de Ordenacion de la Edificacion
-- Normativa de proteccion al consumidor aplicable
-- Garantia de materiales segun fabricante
-""",
-
-    "proteccion_datos": """
-PROTECCION DE DATOS
-Los datos personales proporcionados seran tratados conforme al Reglamento
-General de Proteccion de Datos (RGPD) y la Ley Organica 3/2018 de
-Proteccion de Datos Personales y garantia de los derechos digitales.
-""",
-
-    "pie": """
----
-Para presupuesto definitivo, contacte con nosotros para concertar visita tecnica.
-Este documento NO constituye oferta contractual vinculante.
-""",
-}
-
-
-# ============================================
-# FUNCIONES AUXILIARES
-# ============================================
-
-def get_precio_partida(
-    categoria: str,
-    partida: str,
-    calidad: str = "estandar"
-) -> float:
-    """
-    Obtiene el precio de una partida especifica.
-
-    Args:
-        categoria: Categoria de trabajo (albanileria, fontaneria, etc.)
-        partida: Nombre de la partida
-        calidad: Nivel de calidad (basico, estandar, premium)
-
-    Returns:
-        float: Precio de la partida o 0.0 si no existe
-    """
-    try:
-        return PRICING_DATA[categoria][partida][calidad]
-    except KeyError:
-        return 0.0
-
-
-def get_precio_paquete(
-    paquete: str,
-    calidad: str = "estandar",
-    metros: float = None
-) -> float:
-    """
-    Obtiene el precio de un paquete completo.
-
-    Args:
-        paquete: Nombre del paquete
-        calidad: Nivel de calidad (basico, estandar, premium)
-        metros: Metros cuadrados (para reformas integrales)
-
-    Returns:
-        float: Precio del paquete
-    """
-    try:
-        precios = PACKAGES_DATA[paquete]["precios"][calidad]
-
-        # Paquetes por m2 (reformas integrales)
-        if "precio_m2" in precios:
-            return precios["precio_m2"] * (metros or 0)
-
-        # Paquetes con precio base + m2 adicionales
-        precio = precios["precio_base"]
-        if metros and metros > precios.get("m2_referencia", 0):
-            m2_extra = metros - precios["m2_referencia"]
-            precio += m2_extra * precios.get("precio_m2_adicional", 0)
-
-        return precio
-
-    except KeyError:
-        return 0.0
-
-
-def get_todas_categorias() -> list:
-    """Retorna lista de todas las categorias disponibles."""
-    return list(PRICING_DATA.keys())
-
-
-def get_partidas_categoria(categoria: str) -> list:
-    """Retorna lista de partidas de una categoria."""
-    return list(PRICING_DATA.get(categoria, {}).keys())
-
-
-def get_todos_paquetes() -> list:
-    """Retorna lista de todos los paquetes disponibles."""
-    return list(PACKAGES_DATA.keys())
+print("Pricing data rewritten via python.")

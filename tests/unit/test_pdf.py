@@ -190,8 +190,8 @@ class TestPDFContent:
         # Agregar varias partidas (solo las que existen en pricing_data)
         partidas = [
             (WorkCategory.ALBANILERIA, "alicatado_paredes", 25.0),
-            (WorkCategory.FONTANERIA, "plato_ducha", 1.0),
-            (WorkCategory.ELECTRICIDAD, "punto_luz", 10.0),
+            (WorkCategory.FONTANERIA, "instalacion_inodoro", 1.0),
+            (WorkCategory.ELECTRICIDAD, "instalacion_puntos_luz", 10.0),
         ]
         
         for cat, partida, cantidad in partidas:

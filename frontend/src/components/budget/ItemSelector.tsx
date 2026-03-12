@@ -25,6 +25,7 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
   const [selectedPartida, setSelectedPartida] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [notas, setNotas] = useState('');
+  const [asistenciaAlba, setAsistenciaAlba] = useState(false);
 
   const currentCat = categorias.find(c => c.id === selectedCat);
   const partidasNormalizadas = currentCat ? normalizePartidas(currentCat.partidas) : [];
@@ -41,10 +42,14 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
     if (notas.trim()) {
       partida.notas = notas.trim();
     }
+    if (asistenciaAlba) {
+      partida.notas = partida.notas ? `[Requiere asistencia albañileria] ${partida.notas}` : '[Requiere asistencia albañileria]';
+    }
     onAdd(partida);
     setSelectedPartida('');
     setCantidad(1);
     setNotas('');
+    setAsistenciaAlba(false);
   };
 
   return (
@@ -114,6 +119,21 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
             rows={2}
           />
         </div>
+
+        {/* Asistencia Albañileria (Solo Electricidad) */}
+        {selectedCat === 'electricidad' && (
+          <div className={styles.field} style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="checkbox"
+              id="asistenciaAlba"
+              checked={asistenciaAlba}
+              onChange={e => setAsistenciaAlba(e.target.checked)}
+            />
+            <label htmlFor="asistenciaAlba" style={{ margin: 0, cursor: 'pointer', fontWeight: 'normal' }}>
+              Necesito asistencia de albañilería para estas rozas / puntos
+            </label>
+          </div>
+        )}
 
         {/* Boton */}
         <div className={styles.fieldBtn}>
