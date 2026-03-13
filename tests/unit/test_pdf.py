@@ -220,7 +220,7 @@ class TestPDFContent:
         
         # Agregar múltiples paquetes
         service.agregar_paquete(presupuesto, "bano_completo", metros=200.0)
-        service.agregar_paquete(presupuesto, "cocina_completa", metros=200.0)
+        service.agregar_paquete(presupuesto, "reforma_integral_aseo", metros=200.0)
         service.agregar_paquete(presupuesto, "reforma_integral_vivienda", metros=200.0)
         
         # Agregar partidas individuales

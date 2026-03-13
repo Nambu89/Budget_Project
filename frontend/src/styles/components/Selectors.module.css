@@ -125,8 +125,9 @@
 }
 
 .unitLabel {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
   white-space: nowrap;
   min-width: 2em;
 }

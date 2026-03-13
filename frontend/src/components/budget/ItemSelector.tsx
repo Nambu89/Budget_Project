@@ -23,7 +23,7 @@ interface Props {
 export default function ItemSelector({ categorias, onAdd }: Props) {
   const [selectedCat, setSelectedCat] = useState('');
   const [selectedPartida, setSelectedPartida] = useState('');
-  const [cantidad, setCantidad] = useState(1);
+  const [cantidad, setCantidad] = useState<number | ''>('');
   const [notas, setNotas] = useState('');
   const [asistenciaAlba, setAsistenciaAlba] = useState(false);
 
@@ -33,21 +33,24 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
   const unidadActual = selectedPartidaInfo?.unidad || '';
 
   const handleAdd = () => {
-    if (!selectedCat || !selectedPartida || cantidad <= 0) return;
+    const cantidadNum = typeof cantidad === 'number' ? cantidad : 0;
+    if (!selectedCat || !selectedPartida || cantidadNum <= 0) return;
     const partida: PartidaRequest = {
       categoria: selectedCat,
       partida: selectedPartida,
-      cantidad,
+      cantidad: cantidadNum,
     };
     if (notas.trim()) {
       partida.notas = notas.trim();
     }
     if (asistenciaAlba) {
-      partida.notas = partida.notas ? `[Requiere asistencia de alba\u00f1iler\u00eda] ${partida.notas}` : '[Requiere asistencia de alba\u00f1iler\u00eda]';
+      partida.notas = partida.notas
+        ? `[Requiere asistencia de albañilería] ${partida.notas}`
+        : '[Requiere asistencia de albañilería]';
     }
     onAdd(partida);
     setSelectedPartida('');
-    setCantidad(1);
+    setCantidad('');
     setNotas('');
     setAsistenciaAlba(false);
   };
@@ -55,15 +58,15 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
   return (
     <GlassCard>
       <div className={styles.itemGrid}>
-        {/* Categor\u00eda */}
+        {/* Categoría */}
         <div className={styles.field}>
-          <label htmlFor="cat-select">Categor\u00eda</label>
+          <label htmlFor="cat-select">Categoría</label>
           <select
             id="cat-select"
             value={selectedCat}
             onChange={e => { setSelectedCat(e.target.value); setSelectedPartida(''); }}
           >
-            <option value="">Seleccionar categor\u00eda...</option>
+            <option value="">Seleccionar categoría...</option>
             {categorias.filter(c => c.id !== 'paquete').map(cat => (
               <option key={cat.id} value={cat.id}>
                 {CATEGORY_ICONS[cat.id] || ''} {cat.nombre}
@@ -92,24 +95,27 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
 
         {/* Cantidad con unidad */}
         <div className={styles.field}>
-          <label htmlFor="cantidad">
-            Cantidad{unidadActual ? ` (${unidadActual})` : ''}
-          </label>
+          <label htmlFor="cantidad">Cantidad</label>
           <div className={styles.inputWithUnit}>
             <input
               id="cantidad"
               type="number"
               min={1}
+              placeholder={unidadActual ? 'Ej: 10' : 'Ej: 1'}
               value={cantidad}
-              onChange={e => setCantidad(Number(e.target.value) || 1)}
+              onChange={e => {
+                const val = e.target.value;
+                setCantidad(val === '' ? '' : Number(val));
+              }}
+              onFocus={e => e.target.select()}
             />
             {unidadActual && <span className={styles.unitLabel}>{unidadActual}</span>}
           </div>
         </div>
 
-        {/* Descripci\u00f3n / Notas */}
+        {/* Descripción / Notas */}
         <div className={styles.field}>
-          <label htmlFor="notas">Descripci\u00f3n / Notas (opcional)</label>
+          <label htmlFor="notas">Descripción / Notas (opcional)</label>
           <textarea
             id="notas"
             className={styles.notasTextarea}
@@ -120,7 +126,7 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
           />
         </div>
 
-        {/* Asistencia alba\u00f1iler\u00eda (Solo Electricidad) */}
+        {/* Asistencia albañilería (Solo Electricidad) */}
         {selectedCat === 'electricidad' && (
           <div className={styles.field} style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <input
@@ -130,18 +136,18 @@ export default function ItemSelector({ categorias, onAdd }: Props) {
               onChange={e => setAsistenciaAlba(e.target.checked)}
             />
             <label htmlFor="asistenciaAlba" style={{ margin: 0, cursor: 'pointer', fontWeight: 'normal' }}>
-              Necesito asistencia de alba\u00f1iler\u00eda para estas rozas / puntos
+              Necesito asistencia de albañilería para estas rozas / puntos
             </label>
           </div>
         )}
 
-        {/* Bot\u00f3n */}
+        {/* Botón */}
         <div className={styles.fieldBtn}>
           <SparkButton
             onClick={handleAdd}
-            disabled={!selectedPartida || cantidad <= 0}
+            disabled={!selectedPartida || (typeof cantidad === 'number' ? cantidad <= 0 : true)}
           >
-            <Plus size={16} /> A\u00f1adir partida
+            <Plus size={16} /> Añadir partida
           </SparkButton>
         </div>
       </div>

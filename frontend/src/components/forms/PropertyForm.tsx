@@ -4,7 +4,7 @@ import GlassCard from '../ui/GlassCard';
 import styles from '../../styles/components/PropertyForm.module.css';
 
 const FURNITURE_OPTIONS = [
-  { value: 'vacio', label: 'Vacío', hint: 'Sin incremento adicional' },
+  { value: 'vacio', label: 'Vacío', hint: 'Sin incremento adicional' },
   { value: 'parcial', label: 'Parcialmente amueblado', hint: '+10% por retirada parcial de mobiliario' },
   { value: 'amueblado', label: 'Totalmente amueblado', hint: '+20% por retirada completa de mobiliario' },
 ] as const;
@@ -18,6 +18,10 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
   const currentFurniture = FURNITURE_OPTIONS.find(
     opt => opt.value === (proyecto.estado_mobiliario || 'vacio')
   );
+
+  const handleNumberChange = (field: keyof ProyectoRequest, value: string, fallback: number = 0) => {
+    onChange({ [field]: value === '' ? fallback : Number(value) } as Partial<ProyectoRequest>);
+  };
 
   return (
     <div className={styles.grid}>
@@ -37,41 +41,56 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
 
       {/* Metros cuadrados */}
       <GlassCard>
-        <label htmlFor="metros">Superficie (m\u00b2)</label>
-        <input
-          id="metros"
-          type="number"
-          min={1}
-          max={10000}
-          value={proyecto.metros_cuadrados}
-          onChange={e => onChange({ metros_cuadrados: Number(e.target.value) || 0 })}
-        />
+        <label htmlFor="metros">Superficie</label>
+        <div className={styles.inputWithUnit}>
+          <input
+            id="metros"
+            type="number"
+            min={1}
+            max={10000}
+            placeholder="Ej: 80"
+            value={proyecto.metros_cuadrados || ''}
+            onChange={e => handleNumberChange('metros_cuadrados', e.target.value)}
+            onFocus={e => e.target.select()}
+          />
+          <span className={styles.unitLabel}>m²</span>
+        </div>
       </GlassCard>
 
-      {/* Habitaciones y Baños (Solo aplica a viviendas generalmente, pero dejémoslo común o con lógica) */}
+      {/* Habitaciones y Baños */}
       {(proyecto.tipo_inmueble === PropertyType.PISO || proyecto.tipo_inmueble === PropertyType.VIVIENDA) && (
         <>
           <GlassCard>
-            <label htmlFor="habitaciones">N\u00famero de habitaciones</label>
-            <input
-              id="habitaciones"
-              type="number"
-              min={0}
-              max={20}
-              value={proyecto.habitaciones || 0}
-              onChange={e => onChange({ habitaciones: Number(e.target.value) || 0 })}
-            />
+            <label htmlFor="habitaciones">Habitaciones</label>
+            <div className={styles.inputWithUnit}>
+              <input
+                id="habitaciones"
+                type="number"
+                min={0}
+                max={20}
+                placeholder="Ej: 3"
+                value={proyecto.habitaciones || ''}
+                onChange={e => handleNumberChange('habitaciones', e.target.value)}
+                onFocus={e => e.target.select()}
+              />
+              <span className={styles.unitLabel}>ud</span>
+            </div>
           </GlassCard>
           <GlassCard>
-            <label htmlFor="banos">N\u00famero de ba\u00f1os</label>
-            <input
-              id="banos"
-              type="number"
-              min={0}
-              max={10}
-              value={proyecto.banos || 0}
-              onChange={e => onChange({ banos: Number(e.target.value) || 0 })}
-            />
+            <label htmlFor="banos">Baños</label>
+            <div className={styles.inputWithUnit}>
+              <input
+                id="banos"
+                type="number"
+                min={0}
+                max={10}
+                placeholder="Ej: 2"
+                value={proyecto.banos || ''}
+                onChange={e => handleNumberChange('banos', e.target.value)}
+                onFocus={e => e.target.select()}
+              />
+              <span className={styles.unitLabel}>ud</span>
+            </div>
           </GlassCard>
         </>
       )}
@@ -79,15 +98,20 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
       {/* Vivienda independiente: Plantas */}
       {proyecto.tipo_inmueble === PropertyType.VIVIENDA && (
         <GlassCard>
-          <label htmlFor="plantas">N\u00famero de plantas</label>
-          <input
-            id="plantas"
-            type="number"
-            min={1}
-            max={10}
-            value={proyecto.plantas || 1}
-            onChange={e => onChange({ plantas: Number(e.target.value) || 1 })}
-          />
+          <label htmlFor="plantas">Plantas</label>
+          <div className={styles.inputWithUnit}>
+            <input
+              id="plantas"
+              type="number"
+              min={1}
+              max={10}
+              placeholder="Ej: 2"
+              value={proyecto.plantas || ''}
+              onChange={e => handleNumberChange('plantas', e.target.value, 1)}
+              onFocus={e => e.target.select()}
+            />
+            <span className={styles.unitLabel}>ud</span>
+          </div>
         </GlassCard>
       )}
 
@@ -95,26 +119,36 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
       {(proyecto.tipo_inmueble === PropertyType.LOCAL || proyecto.tipo_inmueble === PropertyType.OFICINA) && (
         <>
           <GlassCard>
-            <label htmlFor="salas">N\u00famero de salas</label>
-            <input
-              id="salas"
-              type="number"
-              min={0}
-              max={50}
-              value={proyecto.salas || 0}
-              onChange={e => onChange({ salas: Number(e.target.value) || 0 })}
-            />
+            <label htmlFor="salas">Salas</label>
+            <div className={styles.inputWithUnit}>
+              <input
+                id="salas"
+                type="number"
+                min={0}
+                max={50}
+                placeholder="Ej: 3"
+                value={proyecto.salas || ''}
+                onChange={e => handleNumberChange('salas', e.target.value)}
+                onFocus={e => e.target.select()}
+              />
+              <span className={styles.unitLabel}>ud</span>
+            </div>
           </GlassCard>
           <GlassCard>
-            <label htmlFor="aseos">N\u00famero de aseos</label>
-            <input
-              id="aseos"
-              type="number"
-              min={0}
-              max={20}
-              value={proyecto.aseos || 0}
-              onChange={e => onChange({ aseos: Number(e.target.value) || 0 })}
-            />
+            <label htmlFor="aseos">Aseos</label>
+            <div className={styles.inputWithUnit}>
+              <input
+                id="aseos"
+                type="number"
+                min={0}
+                max={20}
+                placeholder="Ej: 1"
+                value={proyecto.aseos || ''}
+                onChange={e => handleNumberChange('aseos', e.target.value)}
+                onFocus={e => e.target.select()}
+              />
+              <span className={styles.unitLabel}>ud</span>
+            </div>
           </GlassCard>
         </>
       )}

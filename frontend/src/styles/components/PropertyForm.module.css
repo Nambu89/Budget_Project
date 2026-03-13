@@ -16,6 +16,26 @@
   margin-top: var(--space-xs);
 }
 
+.inputWithUnit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.inputWithUnit input {
+  flex: 1;
+  margin-top: 0;
+}
+
+.unitLabel {
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  white-space: nowrap;
+  min-width: 2em;
+}
+
 .hint {
   font-size: 0.8rem;
   color: var(--color-text-muted);
