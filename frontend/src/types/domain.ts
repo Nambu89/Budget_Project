@@ -38,23 +38,20 @@ export const PropertyState = {
   NUEVO: 'nuevo',
   NORMAL: 'normal',
   ANTIGUO: 'antiguo',
-  RUINA: 'ruina',
 } as const;
 export type PropertyState = (typeof PropertyState)[keyof typeof PropertyState];
 
 export const PROPERTY_STATE_LABELS: Record<PropertyState, string> = {
   nuevo: 'Nuevo / Buen estado',
   normal: 'Normal / Uso habitual',
-  antiguo: 'Antiguo / Necesita mejoras',
-  ruina: 'Ruinoso / Reforma integral',
+  antiguo: 'Antiguo / Necesita reforma integral',
 };
 
 /** Factores multiplicadores — mirror de src/domain/models/project.py */
 export const ESTADO_FACTORS: Record<string, number> = {
-  nuevo: 0.95,
+  nuevo: 1.0,
   normal: 1.0,
-  antiguo: 1.1,
-  ruina: 1.25,
+  antiguo: 1.07,
 };
 
 export const MOBILIARIO_FACTORS: Record<string, number> = {

@@ -146,10 +146,9 @@ class Project(BaseModel):
 			float: Factor multiplicador (1.0 - 1.3)
 		"""
 		factores = {
-			"nuevo": 0.95,      # Menos trabajo
-			"normal": 1.0,     # Base
-			"antiguo": 1.1,    # Algo más de trabajo
-			"ruina": 1.25,     # Mucho más trabajo
+			"nuevo": 1.0,       # Sin incremento
+			"normal": 1.0,      # Sin incremento
+			"antiguo": 1.07,    # +7% más trabajo
 		}
 		return factores.get(self.estado_actual, 1.0)
 
