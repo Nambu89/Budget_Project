@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useWizard } from '../../hooks/useWizard';
 import { useCatalogos } from '../../hooks/useCatalogos';
+import { ESTADO_FACTORS, MOBILIARIO_FACTORS } from '../../types/domain';
 import SplitText from '../reactbits/SplitText';
 import PackageSelector from '../budget/PackageSelector';
 import ItemSelector from '../budget/ItemSelector';
@@ -13,12 +14,26 @@ export default function Step2WorkSelector() {
   const { paquetes, categorias, isLoading, error } = useCatalogos();
   const [activeTab, setActiveTab] = useState<'paquetes' | 'partidas'>('paquetes');
 
-  if (isLoading) return <LoadingSpinner text="Cargando catalogo..." />;
+  const factorEstado = ESTADO_FACTORS[state.proyecto.estado_actual] ?? 1.0;
+  const factorMobiliario = MOBILIARIO_FACTORS[state.proyecto.estado_mobiliario || 'vacio'] ?? 1.0;
+  const factorTotal = factorEstado * factorMobiliario;
+
+  const avisos: string[] = [];
+  if (factorEstado !== 1.0) {
+    const pct = Math.round((factorEstado - 1) * 100);
+    avisos.push(pct > 0 ? `+${pct}% por estado del inmueble` : `${pct}% por buen estado del inmueble`);
+  }
+  if (factorMobiliario !== 1.0) {
+    const pct = Math.round((factorMobiliario - 1) * 100);
+    avisos.push(`+${pct}% por retirada de mobiliario`);
+  }
+
+  if (isLoading) return <LoadingSpinner text="Cargando catálogo..." />;
 
   if (error) {
     return (
       <section className={styles.step}>
-        <div className={styles.errorBox}>Error cargando catalogo: {error}</div>
+        <div className={styles.errorBox}>Error cargando catálogo: {error}</div>
       </section>
     );
   }
@@ -33,6 +48,12 @@ export default function Step2WorkSelector() {
       <p className={styles.stepDesc}>
         Elige paquetes completos o partidas individuales para tu reforma. Los precios son sin IVA.
       </p>
+
+      {avisos.length > 0 && (
+        <div className={styles.factorBanner}>
+          {avisos.map((a, i) => <span key={i}>{a}</span>)}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className={styles.tabs}>
@@ -57,6 +78,7 @@ export default function Step2WorkSelector() {
           selected={state.paquetes}
           calidad={state.proyecto.calidad_general}
           tipoInmueble={state.proyecto.tipo_inmueble}
+          factor={factorTotal}
           onAdd={p => dispatch({ type: 'ADD_PAQUETE', paquete: p })}
           onRemove={id => dispatch({ type: 'REMOVE_PAQUETE', id })}
         />

@@ -77,7 +77,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
             </div>
           </GlassCard>
           <GlassCard>
-            <label htmlFor="banos">Baños</label>
+            <label htmlFor="banos">Fontanerías</label>
             <div className={styles.inputWithUnit}>
               <input
                 id="banos"

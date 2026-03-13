@@ -113,18 +113,17 @@ class Budget(BaseModel):
     @property
     def base_imponible(self) -> float:
         """
-        Base imponible (subtotal - descuento) * factor_mobiliario.
+        Base imponible (subtotal - descuento) * factor_mobiliario * factor_estado.
 
-        El factor_mobiliario se aplica ANTES del redondeo e IVA:
-        - vacio: x1.0 (sin recargo)
-        - parcial: x1.10 (+10%)
-        - amueblado: x1.20 (+20%)
+        Factores aplicados ANTES del redondeo e IVA:
+        - Mobiliario: vacio x1.0 / parcial x1.10 / amueblado x1.20
+        - Estado: nuevo x0.95 / normal x1.0 / antiguo x1.10 / ruina x1.25
 
         Returns:
             float: Base imponible SIN redondeo
         """
         base = self.subtotal - self.importe_descuento
-        factor = self.proyecto.factor_mobiliario
+        factor = self.proyecto.factor_mobiliario * self.proyecto.factor_estado
         return round(base * factor, 2)
     
     @computed_field

@@ -85,11 +85,11 @@ PRICING_DATA: Dict[str, Dict[str, Any]] = {
     "fontaneria": {
         "ejecucion_completa_bano": {
             "basico": 800.0, "estandar": 1200.0, "premium": 2000.0,
-            "unidad": "ud", "descripcion": "Ejecución completa baño (especificar nº lavabos, sanitarios, duchas/bañeras)"
+            "unidad": "m2", "descripcion": "Ejecución completa baño (especificar nº lavabos, sanitarios, duchas/bañeras)"
         },
         "ejecucion_completa_cocina": {
             "basico": 600.0, "estandar": 900.0, "premium": 1500.0,
-            "unidad": "ud", "descripcion": "Ejecución completa cocina (especificar nº fregadero y electrodomésticos con agua)"
+            "unidad": "m2", "descripcion": "Ejecución completa cocina (especificar nº fregadero y electrodomésticos con agua)"
         },
         "instalacion_desague": {
             "basico": 120.0, "estandar": 180.0, "premium": 280.0,

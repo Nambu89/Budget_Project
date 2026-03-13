@@ -23,15 +23,15 @@ export const QualityLevel = {
 export type QualityLevel = (typeof QualityLevel)[keyof typeof QualityLevel];
 
 export const QUALITY_LABELS: Record<QualityLevel, string> = {
-  basico: 'B\u00e1sico',
-  estandar: 'Est\u00e1ndar',
+  basico: 'Básico',
+  estandar: 'Estándar',
   premium: 'Premium',
 };
 
 export const QUALITY_DESCRIPTIONS: Record<QualityLevel, string> = {
-  basico: 'Materiales econ\u00f3micos de buena relaci\u00f3n calidad-precio. Ideal para inversiones o alquiler.',
+  basico: 'Materiales económicos de buena relación calidad-precio. Ideal para inversiones o alquiler.',
   estandar: 'Materiales de calidad media-alta. Equilibrio perfecto entre precio y durabilidad.',
-  premium: 'Materiales de alta gama y acabados de lujo. M\u00e1xima calidad y dise\u00f1o.',
+  premium: 'Materiales de alta gama y acabados de lujo. Máxima calidad y diseño.',
 };
 
 export const PropertyState = {
@@ -49,6 +49,20 @@ export const PROPERTY_STATE_LABELS: Record<PropertyState, string> = {
   ruina: 'Ruinoso / Reforma integral',
 };
 
+/** Factores multiplicadores — mirror de src/domain/models/project.py */
+export const ESTADO_FACTORS: Record<string, number> = {
+  nuevo: 0.95,
+  normal: 1.0,
+  antiguo: 1.1,
+  ruina: 1.25,
+};
+
+export const MOBILIARIO_FACTORS: Record<string, number> = {
+  vacio: 1.0,
+  parcial: 1.10,
+  amueblado: 1.20,
+};
+
 export const WorkCategory = {
   ALBANILERIA: 'albanileria',
   FONTANERIA: 'fontaneria',
@@ -59,10 +73,10 @@ export const WorkCategory = {
 export type WorkCategory = (typeof WorkCategory)[keyof typeof WorkCategory];
 
 export const CATEGORY_LABELS: Record<string, string> = {
-  albanileria: 'Alba\u00f1iler\u00eda',
-  fontaneria: 'Ba\u00f1o',
+  albanileria: 'Albañilería',
+  fontaneria: 'Fontanería',
   electricidad: 'Electricidad',
-  carpinteria: 'Carpinter\u00eda',
+  carpinteria: 'Carpintería',
   paquete: 'Paquete Completo',
 };
 

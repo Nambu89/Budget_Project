@@ -12,11 +12,12 @@ interface Props {
   selected: PaqueteRequest[];
   calidad: string;
   tipoInmueble: string;
+  factor: number;
   onAdd: (paquete: PaqueteRequest) => void;
   onRemove: (id: string) => void;
 }
 
-export default function PackageSelector({ paquetes, selected, calidad, tipoInmueble, onAdd, onRemove }: Props) {
+export default function PackageSelector({ paquetes, selected, calidad, tipoInmueble, factor, onAdd, onRemove }: Props) {
   const [metrosInput, setMetrosInput] = useState<Record<string, number>>({});
 
   const isSelected = (id: string) => selected.some(p => p.id === id);
@@ -72,7 +73,7 @@ export default function PackageSelector({ paquetes, selected, calidad, tipoInmue
                   {QUALITY_LABELS[calidad as QualityLevel] || calidad}
                 </span>
                 <span className={styles.price}>
-                  {precioBase > 0 ? formatCurrency(precioBase) : 'Consultar'}
+                  {precioBase > 0 ? formatCurrency(precioBase * factor) : 'Consultar'}
                 </span>
                 {!active && (
                   <input
