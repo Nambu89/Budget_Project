@@ -44,6 +44,7 @@ export interface CalcularPresupuestoRequest {
 
 export interface ClienteRequest {
   nombre: string;
+  dni: string;
   email: string;
   telefono: string;
   direccion_obra?: string;

@@ -21,7 +21,13 @@ class Customer(BaseModel):
 		max_length=100,
 		description="Nombre completo del cliente"
 	)
-	
+
+	dni: str = Field(
+		default="",
+		max_length=20,
+		description="DNI / NIF del cliente"
+	)
+
 	email: EmailStr = Field(
 		...,
 		description="Correo electrónico de contacto"
@@ -127,6 +133,7 @@ class Customer(BaseModel):
 		"""
 		return {
 			"nombre": self.nombre,
+			"dni": self.dni or "",
 			"email": self.email,
 			"telefono": self.telefono_formateado,
 			"direccion": self.direccion_obra or "No especificada",

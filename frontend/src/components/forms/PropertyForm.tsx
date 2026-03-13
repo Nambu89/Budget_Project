@@ -37,7 +37,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
 
       {/* Metros cuadrados */}
       <GlassCard>
-        <label htmlFor="metros">Superficie (m2)</label>
+        <label htmlFor="metros">Superficie (m\u00b2)</label>
         <input
           id="metros"
           type="number"
@@ -52,7 +52,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
       {(proyecto.tipo_inmueble === PropertyType.PISO || proyecto.tipo_inmueble === PropertyType.VIVIENDA) && (
         <>
           <GlassCard>
-            <label htmlFor="habitaciones">Número de habitaciones</label>
+            <label htmlFor="habitaciones">N\u00famero de habitaciones</label>
             <input
               id="habitaciones"
               type="number"
@@ -63,7 +63,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
             />
           </GlassCard>
           <GlassCard>
-            <label htmlFor="banos">Número de baños</label>
+            <label htmlFor="banos">N\u00famero de ba\u00f1os</label>
             <input
               id="banos"
               type="number"
@@ -79,7 +79,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
       {/* Vivienda independiente: Plantas */}
       {proyecto.tipo_inmueble === PropertyType.VIVIENDA && (
         <GlassCard>
-          <label htmlFor="plantas">Número de plantas</label>
+          <label htmlFor="plantas">N\u00famero de plantas</label>
           <input
             id="plantas"
             type="number"
@@ -95,7 +95,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
       {(proyecto.tipo_inmueble === PropertyType.LOCAL || proyecto.tipo_inmueble === PropertyType.OFICINA) && (
         <>
           <GlassCard>
-            <label htmlFor="salas">Número de salas</label>
+            <label htmlFor="salas">N\u00famero de salas</label>
             <input
               id="salas"
               type="number"
@@ -106,7 +106,7 @@ export default function PropertyForm({ proyecto, onChange }: Props) {
             />
           </GlassCard>
           <GlassCard>
-            <label htmlFor="aseos">Número de aseos</label>
+            <label htmlFor="aseos">N\u00famero de aseos</label>
             <input
               id="aseos"
               type="number"

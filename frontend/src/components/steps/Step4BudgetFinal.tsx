@@ -1,22 +1,23 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { CheckCircle, Download, Mail, RefreshCw, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Download, Mail, MessageCircle, RefreshCw, Loader2 } from 'lucide-react';
 import { useWizard } from '../../hooks/useWizard';
-import { useAuth } from '../../hooks/useAuth';
-import { descargarPDF, guardarPresupuesto } from '../../api/presupuesto';
+import { calcularPresupuesto, descargarPDF } from '../../api/presupuesto';
 import { enviarPresupuesto } from '../../api/email';
 import SplitText from '../reactbits/SplitText';
-import AnimatedContent from '../reactbits/AnimatedContent';
+import BudgetBreakdown from '../budget/BudgetBreakdown';
 import EconomicSummary from '../budget/EconomicSummary';
 import GlassCard from '../ui/GlassCard';
 import SparkButton from '../ui/SparkButton';
 import Modal from '../ui/Modal';
+import LoadingSpinner from '../ui/LoadingSpinner';
 import styles from '../../styles/components/Steps.module.css';
 import completedStyles from '../../styles/components/Completed.module.css';
 import type { GenerarPDFRequest } from '../../types/api';
 
-export default function Step5Completed() {
+const WHATSAPP_PHONE = '34636155847';
+
+export default function Step4BudgetFinal() {
   const { state, dispatch } = useWizard();
-  const { user, isAuthenticated } = useAuth();
 
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -24,23 +25,32 @@ export default function Step5Completed() {
   const [emailTo, setEmailTo] = useState(state.cliente.email || '');
   const [emailMsg, setEmailMsg] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const savedRef = useRef(false);
 
-  // Auto-guardar presupuesto si el usuario esta autenticado
+  // Calcular presupuesto al montar
   useEffect(() => {
-    if (!isAuthenticated || !user || savedRef.current) return;
-    if (!state.presupuesto) return;
+    if (state.presupuesto || state.isCalculating) return;
 
-    savedRef.current = true;
-    guardarPresupuesto({
-      user_id: user.id,
-      cliente: state.cliente,
-      proyecto: state.proyecto,
-      trabajos: { paquetes: state.paquetes, partidas: state.partidas },
-    }).catch(() => {
-      // Silencioso — el guardado es secundario
-    });
-  }, [isAuthenticated, user, state.presupuesto, state.cliente, state.proyecto, state.paquetes, state.partidas]);
+    const calculate = async () => {
+      dispatch({ type: 'SET_CALCULATING', value: true });
+      try {
+        const res = await calcularPresupuesto({
+          proyecto: state.proyecto,
+          trabajos: {
+            paquetes: state.paquetes,
+            partidas: state.partidas,
+          },
+        });
+        dispatch({ type: 'SET_PRESUPUESTO', presupuesto: res });
+      } catch (err) {
+        dispatch({
+          type: 'SET_ERROR',
+          error: err instanceof Error ? err.message : 'Error calculando presupuesto',
+        });
+      }
+    };
+
+    calculate();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buildPdfRequest = useCallback((): GenerarPDFRequest => ({
     cliente: state.cliente,
@@ -75,10 +85,7 @@ export default function Step5Completed() {
     setIsSendingEmail(true);
     setFeedback(null);
     try {
-      // Generar PDF primero
       const pdfBlob = await descargarPDF(buildPdfRequest());
-
-      // Enviar email con PDF adjunto
       const datosPresupuesto = {
         numero: state.presupuesto?.numero,
         total: state.presupuesto?.total,
@@ -96,29 +103,47 @@ export default function Step5Completed() {
     }
   };
 
+  const handleSendWhatsApp = () => {
+    const total = state.presupuesto?.total?.toFixed(2) || '0';
+    const numero = state.presupuesto?.numero || '';
+    const nombre = state.cliente.nombre || 'Cliente';
+    const texto = encodeURIComponent(
+      `Hola, soy ${nombre}. He generado el presupuesto ${numero} con un total de ${total}\u20ac (IVA incluido). Me gustar\u00eda recibir m\u00e1s informaci\u00f3n.`
+    );
+    window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${texto}`, '_blank');
+  };
+
   const handleNewBudget = () => {
     dispatch({ type: 'RESET' });
   };
 
+  if (state.isCalculating) {
+    return <LoadingSpinner text="Calculando tu presupuesto..." />;
+  }
+
+  if (state.error) {
+    return (
+      <section className={styles.step}>
+        <div className={styles.errorBox}>{state.error}</div>
+      </section>
+    );
+  }
+
+  if (!state.presupuesto) return null;
+
   return (
     <section className={styles.step}>
-      <AnimatedContent direction="up" duration={600}>
-        <div className={completedStyles.hero}>
-          <CheckCircle size={56} className={completedStyles.checkIcon} />
-          <SplitText
-            text="Presupuesto completado"
-            className={styles.stepTitle}
-            delay={40}
-          />
-          <p className={styles.stepDesc}>
-            Tu presupuesto ha sido generado correctamente.
-          </p>
-        </div>
-      </AnimatedContent>
+      <SplitText
+        text="Tu presupuesto"
+        className={styles.stepTitle}
+        delay={30}
+      />
+      <p className={styles.stepDesc}>
+        Aqu\u00ed tienes el desglose completo de tu presupuesto de reforma.
+      </p>
 
-      {state.presupuesto && (
-        <EconomicSummary presupuesto={state.presupuesto} />
-      )}
+      <BudgetBreakdown partidas={state.presupuesto.partidas} />
+      <EconomicSummary presupuesto={state.presupuesto} />
 
       {feedback && (
         <div className={`${completedStyles.feedback} ${completedStyles[feedback.type]}`}>
@@ -136,6 +161,9 @@ export default function Step5Completed() {
           </SparkButton>
           <SparkButton variant="secondary" onClick={() => setShowEmailModal(true)} disabled={isSendingEmail}>
             <Mail size={18} /> Enviar por email
+          </SparkButton>
+          <SparkButton variant="secondary" onClick={handleSendWhatsApp}>
+            <MessageCircle size={18} /> Enviar por WhatsApp
           </SparkButton>
           <SparkButton variant="ghost" onClick={handleNewBudget}>
             <RefreshCw size={18} /> Nuevo presupuesto

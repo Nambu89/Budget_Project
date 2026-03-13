@@ -5,7 +5,7 @@ Catalogos Routes - Endpoints para obtener catálogos de paquetes y categorías.
 from fastapi import APIRouter, HTTPException
 from loguru import logger
 
-from ..schemas.response import PaquetesResponse, CategoriasResponse, PaqueteInfo, CategoriaInfo
+from ..schemas.response import PaquetesResponse, CategoriasResponse, PaqueteInfo, CategoriaInfo, PartidaCatalogoInfo
 from ....config.pricing_data import get_todos_paquetes, get_todas_categorias, PACKAGES_DATA, PRICING_DATA
 from ....domain.enums.work_category import WorkCategory
 
@@ -77,11 +77,20 @@ async def obtener_categorias(pais: str = "ES"):
                 nombre = cat_id.replace("_", " ").title()
                 icono = ""
 
+            partidas_info = [
+                PartidaCatalogoInfo(
+                    nombre=partida_id,
+                    unidad=partida_data.get("unidad", "ud"),
+                    descripcion=partida_data.get("descripcion", partida_id.replace("_", " ").title()),
+                )
+                for partida_id, partida_data in datos.items()
+            ]
+
             categoria_info = CategoriaInfo(
                 id=cat_id,
                 nombre=nombre,
                 icono=icono,
-                partidas=list(datos.keys())
+                partidas=partidas_info,
             )
             categorias.append(categoria_info)
         

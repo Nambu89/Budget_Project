@@ -216,6 +216,7 @@ async def generar_pdf(request: GenerarPDFRequest):
         # Asignar cliente al presupuesto
         presupuesto.cliente = Customer(
             nombre=request.cliente.nombre,
+            dni=request.cliente.dni or "",
             email=request.cliente.email,
             telefono=request.cliente.telefono,
             direccion_obra=request.cliente.direccion_obra,
@@ -281,6 +282,7 @@ async def guardar_presupuesto(
         # Asignar cliente
         presupuesto.cliente = Customer(
             nombre=request.cliente.nombre,
+            dni=request.cliente.dni or "",
             email=request.cliente.email,
             telefono=request.cliente.telefono,
             direccion_obra=request.cliente.direccion_obra,

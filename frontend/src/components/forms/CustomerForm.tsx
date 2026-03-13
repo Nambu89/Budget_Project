@@ -16,7 +16,29 @@ export default function CustomerForm({ cliente, onChange }: Props) {
           id="nombre"
           value={cliente.nombre}
           onChange={e => onChange({ nombre: e.target.value })}
-          placeholder="Ej: Juan Perez"
+          placeholder="Ej: Juan P\u00e9rez"
+          style={{ width: '100%', marginTop: 4 }}
+        />
+      </GlassCard>
+
+      <GlassCard>
+        <label htmlFor="dni">DNI / NIF *</label>
+        <input
+          id="dni"
+          value={cliente.dni}
+          onChange={e => onChange({ dni: e.target.value })}
+          placeholder="12345678A"
+          style={{ width: '100%', marginTop: 4 }}
+        />
+      </GlassCard>
+
+      <GlassCard>
+        <label htmlFor="telefono">Tel\u00e9fono *</label>
+        <input
+          id="telefono"
+          value={cliente.telefono}
+          onChange={e => onChange({ telefono: e.target.value })}
+          placeholder="600 123 456"
           style={{ width: '100%', marginTop: 4 }}
         />
       </GlassCard>
@@ -29,28 +51,6 @@ export default function CustomerForm({ cliente, onChange }: Props) {
           value={cliente.email}
           onChange={e => onChange({ email: e.target.value })}
           placeholder="juan@ejemplo.com"
-          style={{ width: '100%', marginTop: 4 }}
-        />
-      </GlassCard>
-
-      <GlassCard>
-        <label htmlFor="telefono">Telefono *</label>
-        <input
-          id="telefono"
-          value={cliente.telefono}
-          onChange={e => onChange({ telefono: e.target.value })}
-          placeholder="600 123 456"
-          style={{ width: '100%', marginTop: 4 }}
-        />
-      </GlassCard>
-
-      <GlassCard>
-        <label htmlFor="direccion">Direccion de la obra (opcional)</label>
-        <input
-          id="direccion"
-          value={cliente.direccion_obra || ''}
-          onChange={e => onChange({ direccion_obra: e.target.value })}
-          placeholder="Calle, numero, ciudad"
           style={{ width: '100%', marginTop: 4 }}
         />
       </GlassCard>

@@ -14,7 +14,7 @@ export default function Step1PropertyInfo() {
         delay={30}
       />
       <p className={styles.stepDesc}>
-        Indica las caracteristicas basicas de tu inmueble para personalizar el presupuesto.
+        Indica las caracter\u00edsticas b\u00e1sicas de tu inmueble para personalizar el presupuesto.
       </p>
       <PropertyForm
         proyecto={state.proyecto}

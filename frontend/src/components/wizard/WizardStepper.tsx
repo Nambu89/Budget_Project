@@ -5,9 +5,8 @@ import styles from '../../styles/components/WizardStepper.module.css';
 const STEPS = [
   { label: 'Tipo' },
   { label: 'Trabajos' },
-  { label: 'Presupuesto' },
   { label: 'Datos' },
-  { label: 'Final' },
+  { label: 'Presupuesto' },
 ];
 
 interface Props {

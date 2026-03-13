@@ -21,10 +21,8 @@ class WorkCategory(str, Enum):
 	ALBANILERIA = "albanileria"
 	FONTANERIA = "fontaneria"
 	ELECTRICIDAD = "electricidad"
-	COCINA = "cocina"
 	CARPINTERIA = "carpinteria"
-	CLIMATIZACION = "climatizacion"
-	PAQUETE = "paquete"  # NUEVO: Para paquetes completos
+	PAQUETE = "paquete"
 	
 	@property
 	def display_name(self) -> str:
@@ -37,7 +35,7 @@ class WorkCategory(str, Enum):
 			self.PAQUETE: "Paquete Completo",
 		}
 		return nombres.get(self, self.value)
-	
+
 	@property
 	def descripcion(self) -> str:
 		"""Descripción de la categoría."""
@@ -45,38 +43,32 @@ class WorkCategory(str, Enum):
 			self.ALBANILERIA: "Suelos, paredes, alicatados, pintura y demoliciones",
 			self.FONTANERIA: "Sanitarios, griferías e instalaciones de agua",
 			self.ELECTRICIDAD: "Instalación eléctrica, puntos de luz y cuadros",
-			self.COCINA: "Mobiliario, encimeras y electrodomésticos",
 			self.CARPINTERIA: "Puertas, ventanas y armarios",
-			self.CLIMATIZACION: "Calefacción, aire acondicionado y sistemas térmicos",
-			self.PAQUETE: "Conjunto completo de trabajos (baño, cocina, reforma integral)",  # NUEVO
+			self.PAQUETE: "Conjunto completo de trabajos (baño, cocina, reforma integral)",
 		}
 		return descripciones.get(self, "")
-	
+
 	@property
 	def icono(self) -> str:
 		"""Icono emoji para la UI."""
 		iconos = {
-			self.ALBANILERIA: "🧱",
-			self.FONTANERIA: "🚿",
-			self.ELECTRICIDAD: "⚡",
-			self.COCINA: "🍳",
-			self.CARPINTERIA: "🚪",
-			self.CLIMATIZACION: "🌡️",
-			self.PAQUETE: "📦",  # NUEVO
+			self.ALBANILERIA: "",
+			self.FONTANERIA: "",
+			self.ELECTRICIDAD: "",
+			self.CARPINTERIA: "",
+			self.PAQUETE: "",
 		}
-		return iconos.get(self, "🔧")
-	
+		return iconos.get(self, "")
+
 	@property
 	def color(self) -> str:
 		"""Color asociado para la UI (hex)."""
 		colores = {
-			self.ALBANILERIA: "#dc3545",    # Rojo ladrillo
-			self.FONTANERIA: "#0dcaf0",     # Azul agua
-			self.ELECTRICIDAD: "#ffc107",   # Amarillo
-			self.COCINA: "#198754",         # Verde
-			self.CARPINTERIA: "#795548",    # Marrón madera
-			self.CLIMATIZACION: "#ff6b35",  # Naranja cálido
-			self.PAQUETE: "#6f42c1",        # NUEVO: Púrpura
+			self.ALBANILERIA: "#dc3545",
+			self.FONTANERIA: "#0dcaf0",
+			self.ELECTRICIDAD: "#ffc107",
+			self.CARPINTERIA: "#795548",
+			self.PAQUETE: "#6f42c1",
 		}
 		return colores.get(self, "#000000")
 	

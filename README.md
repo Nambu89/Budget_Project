@@ -1,242 +1,181 @@
-# 🏗️ Budget Calculator - Calculadora de Presupuestos de Reformas
+# Budget Calculator - Calculadora de Presupuestos de Reformas
 
-Sistema inteligente de generación de presupuestos para reformas y obras en España, desarrollado con **CrewAI** y **Azure AI Foundry**.
+Sistema de generacion de presupuestos para reformas y obras en Espana, con frontend moderno en React y backend en FastAPI.
 
-## 📋 Descripción
+## Descripcion
 
-Esta aplicación permite generar presupuestos profesionales para reformas de viviendas, locales y oficinas. Utiliza un sistema multi-agente basado en CrewAI que:
+Aplicacion web que permite generar presupuestos profesionales para reformas de viviendas, pisos, locales y oficinas. Flujo en 4 pasos:
 
-1. **Valida** los datos del proyecto
-2. **Calcula** precios aplicando reglas de negocio españolas
-3. **Genera** documentos PDF profesionales
+1. **Tipo de inmueble** - Seleccion del inmueble y sus caracteristicas
+2. **Trabajos** - Seleccion de paquetes y partidas individuales
+3. **Datos de contacto** - Nombre, DNI, email y telefono
+4. **Presupuesto** - Desglose completo + descarga PDF + envio por email/WhatsApp
 
-### Características principales
+### Caracteristicas principales
 
-- ✅ Presupuestos interactivos para viviendas, pisos, locales y oficinas (soporta nº de plantas, habitaciones, salas, aseos)
-- ✅ Tres niveles de calidad: Básico, Estándar y Premium
-- ✅ Paquetes predefinidos inteligentes filtrados por tipo de inmueble
-- ✅ Partidas individuales personalizables (ej. checkbox de asistencia de albañilería)
-- ✅ Cálculo automático de IVA (21% general en FASE 1)
-- ✅ Markup del 15% en partidas individuales
-- ✅ Generación de PDF profesional transparente (ocultando redondeos internos)
-- ✅ Interfaces separadas: APIs potentes en Backend y transición hacia React moderno en Frontend
+- Presupuestos para viviendas, pisos, locales y oficinas
+- Tres niveles de calidad: Basico, Estandar y Premium
+- Paquetes predefinidos (bano completo, reforma integral vivienda/local/aseo)
+- Partidas individuales por categoria (albanileria, fontaneria, electricidad, pintura, carpinteria)
+- Unidades visibles en cada partida (m2, ml, ud, punto)
+- Campo de notas y asistencia de albanileria en electricidad
+- IVA 21% general
+- Markup 15% en partidas individuales (no en paquetes)
+- Redondeo al alza 5% (interno, no visible en PDF)
+- Generacion de PDF profesional con datos del cliente y DNI
+- Envio por email con PDF adjunto
+- Envio por WhatsApp con resumen del presupuesto
+- Sin necesidad de registro
 
-## 🛠️ Tecnologías
+## Tecnologias
 
+### Backend
 - **Python 3.10+**
-- **CrewAI** - Orquestación de agentes IA
-- **Azure AI Foundry** - Modelos de lenguaje (GPT-4, GPT-5-mini)
-- **Streamlit** - Interfaz de usuario web
-- **ReportLab** - Generación de PDFs
-- **Pydantic** - Validación de datos
-- **Pytest** - Testing
+- **FastAPI** - API REST
+- **Pydantic v2** - Validacion de datos
+- **ReportLab** - Generacion de PDFs
+- **SQLAlchemy 2.0** - Base de datos (SQLite dev / PostgreSQL prod)
+- **Loguru** - Logging
+- **PyJWT** - Autenticacion JWT (para endpoints protegidos)
+- **Pytest** - Testing (79 tests)
 
-## 📁 Estructura del Proyecto
+### Frontend
+- **React 19** - UI
+- **Vite 7** - Build tool
+- **TypeScript** - Tipado estatico
+- **CSS Modules** - Estilos (design tokens, sin Tailwind)
+- **React Bits** - Animaciones (Aurora, SplitText, GradientText, ShinyText)
+- **Lucide React** - Iconos
+
+## Estructura del Proyecto
 
 ```
-budget_calculator/
-├── src/
-│   ├── application/
-│   │   ├── agents/              # Agentes CrewAI
-│   │   │   ├── data_collector_agent.py
-│   │   │   ├── calculator_agent.py
-│   │   │   └── document_agent.py
-│   │   ├── crews/               # Orquestación
-│   │   │   └── budget_crew.py
-│   │   └── services/            # Lógica de negocio
-│   │       ├── budget_service.py
-│   │       └── pricing_service.py
-│   ├── config/
-│   │   ├── settings.py          # Configuración
-│   │   └── pricing_data.py      # Base de datos de precios
+Budget_Project/
+├── src/                          # Backend Python (DDD)
 │   ├── domain/
-│   │   ├── enums/               # Enumeraciones
-│   │   └── models/              # Modelos de datos
+│   │   ├── enums/                # PropertyType, QualityLevel, WorkCategory
+│   │   └── models/               # Budget, Project, Customer, BudgetItem
+│   ├── application/
+│   │   ├── agents/               # Agentes IA (DataCollector, Calculator, Document)
+│   │   ├── crews/                # BudgetCrew (orquestador)
+│   │   └── services/             # BudgetService, PricingService, EmailService
 │   ├── infrastructure/
-│   │   ├── llm/                 # Clientes LLM
-│   │   │   ├── azure_client.py
-│   │   │   ├── openai_client.py
-│   │   │   └── llm_factory.py
-│   │   └── pdf/                 # Generador de PDF
-│   │       └── pdf_generator.py
-│   └── presentation/
-│       ├── app.py               # Aplicación Streamlit
-│       ├── pages/               # Páginas de la app
-│       └── components/          # Componentes UI
+│   │   ├── api/                  # FastAPI routes + schemas
+│   │   ├── pdf/                  # Generador PDF (ReportLab)
+│   │   ├── database/             # SQLAlchemy
+│   │   └── llm/                  # Clientes Azure/OpenAI
+│   └── config/
+│       ├── settings.py           # Configuracion (Pydantic)
+│       └── pricing_data.py       # Base de datos de precios
+├── frontend/                     # React 19 + Vite
+│   └── src/
+│       ├── components/           # Steps, forms, budget, wizard, layout, UI
+│       ├── context/              # WizardContext (useReducer)
+│       ├── api/                  # Fetch wrappers
+│       ├── types/                # TypeScript types
+│       └── styles/               # CSS Modules + tokens
 ├── tests/
-│   ├── unit/                    # Tests unitarios
-│   └── integration/             # Tests de integración
-├── .env.example                 # Ejemplo de configuración
-├── requirements.txt             # Dependencias
-├── run_tests.py                 # Script de testing
+│   ├── unit/                     # Tests unitarios
+│   └── integration/              # Tests de integracion
 └── README.md
 ```
 
-## 🚀 Instalación
+## Instalacion
 
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/tu-usuario/budget_calculator.git
-cd budget_calculator
-```
-
-### 2. Crear entorno virtual
+### Backend
 
 ```bash
+# Clonar y entrar al proyecto
+git clone <repo-url>
+cd Budget_Project
+
+# Crear entorno virtual
 python -m venv venv
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/Mac
 
-# Windows
-venv\Scripts\activate
-
-# Linux/Mac
-source venv/bin/activate
-```
-
-### 3. Instalar dependencias
-
-```bash
+# Instalar dependencias
 pip install -r requirements.txt
-```
 
-### 4. Configurar variables de entorno
-
-Copia el archivo de ejemplo y configura tus credenciales:
-
-```bash
+# Configurar variables de entorno
 cp .env.example .env
+# Editar .env con tus credenciales
 ```
 
-Edita `.env` con tus credenciales de Azure AI Foundry:
-
-```env
-# Proveedor LLM
-LLM_PROVIDER=azure
-
-# Azure AI Foundry
-AZURE_OPENAI_ENDPOINT=https://tu-recurso.cognitiveservices.azure.com/
-AZURE_OPENAI_API_KEY=tu-api-key-aqui
-AZURE_OPENAI_API_VERSION=2025-04-01-preview
-AZURE_OPENAI_DEPLOYMENT_NAME=gpt-5-mini
-```
-
-## 💻 Uso
-
-### Ejecutar la aplicación web
+### Frontend
 
 ```bash
-streamlit run src/presentation/app.py
+cd frontend
+npm install
 ```
 
-La aplicación estará disponible en `http://localhost:8501`
+## Uso
 
-### Uso programático
-
-```python
-from src.application.crews import BudgetCrew
-
-# Crear crew
-crew = BudgetCrew()
-
-# Datos del formulario
-datos = {
-    "tipo_inmueble": "piso",
-    "metros_cuadrados": 80.0,
-    "calidad": "estandar",
-    "es_vivienda_habitual": True,
-    "habitaciones": 3,
-    "banos": 2,
-    "paquetes": ["bano_completo"],
-}
-
-# Datos del cliente
-cliente = {
-    "nombre": "Juan García",
-    "email": "juan@email.com",
-    "telefono": "666 123 456",
-    "direccion_obra": "Calle Mayor 1, Madrid",
-}
-
-# Procesar presupuesto
-resultado = crew.procesar_presupuesto(
-    datos_formulario=datos,
-    datos_cliente=cliente,
-    generar_pdf=True,
-)
-
-if resultado["exito"]:
-    print(f"Total: {resultado['presupuesto'].total}€")
-    
-    # Guardar PDF
-    with open("presupuesto.pdf", "wb") as f:
-        f.write(resultado["pdf_bytes"])
-```
-
-## 🧪 Testing
-
-### Ejecutar todos los tests
+### Desarrollo
 
 ```bash
-python run_tests.py
+# Backend (puerto 8000)
+uvicorn src.infrastructure.api.main:app --reload
+
+# Frontend (puerto 5173, proxy a backend)
+cd frontend
+npm run dev
 ```
 
-### Ejecutar tests específicos
+### Produccion
 
 ```bash
-# Tests unitarios
-pytest tests/unit/ -v
+# Build frontend
+cd frontend
+npm run build
 
-# Tests de integración
-pytest tests/integration/ -v
+# Backend sirve el frontend desde dist/
+```
+
+## Testing
+
+```bash
+# Tests backend
+pytest tests/ -v
 
 # Con cobertura
 pytest --cov=src --cov-report=html
 ```
 
-## 📊 Paquetes Disponibles
+## Paquetes Disponibles
 
-| Paquete | Descripción | Precio Base (Estándar) |
-|---------|-------------|------------------------|
-| `bano_completo` | Reforma integral de baño completo | 5.500€ + 500€/m² adicional |
-| `cocina_completa` | Reforma integral de cocina completa | 10.000€ + 600€/m² adicional |
-| `reforma_integral_vivienda` | Reforma completa vivienda | 950€/m² |
-| `reforma_integral_local` | Reforma local/oficina | 700€/m² |
-| `reforma_integral_aseo` | Reforma integral de aseo básico | 3.000€ + 300€/m² adicional |
+| Paquete | Descripcion |
+|---------|-------------|
+| `bano_completo` | Reforma integral de bano completo |
+| `reforma_integral_vivienda` | Reforma completa de vivienda |
+| `reforma_integral_local` | Reforma de local/oficina |
+| `reforma_integral_aseo` | Reforma integral de aseo basico |
 
-## 💰 Reglas de Negocio
+## Categorias de Partidas
 
+| Categoria | Ejemplos |
+|-----------|----------|
+| Albanileria | Demolicion, tabiques, alicatado, solado, recrecido |
+| Fontaneria | Puntos de agua, desagues, griferia, sanitarios |
+| Electricidad | Puntos de luz, enchufes, cuadro electrico, tomas |
+| Pintura | Pintura plastica, esmalte, gotele, lacado |
+| Carpinteria | Suelos, puertas, armarios, rodapie, ventanas |
+
+## Reglas de Negocio
+
+- **IVA**: 21% general (todos los inmuebles)
 - **Markup**: 15% sobre partidas individuales (NO sobre paquetes)
-- **Redondeo al alza**: 5% sobre el total
-- **IVA Reducido**: 10% para vivienda habitual
-- **IVA General**: 21% para resto de inmuebles
-- **Validez**: 30 días desde emisión
+- **Redondeo al alza**: 5% sobre el total (interno, no visible al cliente)
+- **Validez**: 30 dias desde emision
 
-## 🔧 Configuración Avanzada
+## Licencia
 
-### Variables de entorno disponibles
+Proyecto privado. Desarrollado para ISI Obras y Servicios.
 
-| Variable | Descripción | Default |
-|----------|-------------|---------|
-| `LLM_PROVIDER` | Proveedor LLM (azure/openai) | `azure` |
-| `AZURE_OPENAI_ENDPOINT` | Endpoint de Azure | - |
-| `AZURE_OPENAI_API_KEY` | API Key de Azure | - |
-| `AZURE_OPENAI_DEPLOYMENT_NAME` | Nombre del deployment | `gpt-5-mini` |
-| `IVA_GENERAL` | IVA general (%) | `21` |
-| `IVA_REDUCIDO` | IVA reducido (%) | `10` |
-| `MARKUP_PARTIDAS_INDIVIDUALES` | Markup partidas (%) | `15` |
-| `REDONDEO_ALZA` | Redondeo al alza (%) | `5` |
-| `VALIDEZ_PRESUPUESTO_DIAS` | Días de validez | `30` |
-
-## 📄 Licencia
-
-Este proyecto es privado y confidencial. Desarrollado para Easy Obras y Servicios.
-
-## 👥 Contacto
+## Contacto
 
 - **Email**: fernando.prada@proton.me
 
 ---
 
-Fernando Prada - AI Engineer - Senior Consultor
-
-Desarrollado usando CrewAI
+Fernando Prada - AI Engineer

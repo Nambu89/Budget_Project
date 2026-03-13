@@ -117,8 +117,9 @@ class CalcularPresupuestoRequest(BaseModel):
 
 class ClienteRequest(BaseModel):
     """Datos del cliente para generar PDF."""
-    
+
     nombre: str = Field(..., description="Nombre completo")
+    dni: str = Field(default="", description="DNI / NIF del cliente")
     email: str = Field(..., description="Email")
     telefono: str = Field(..., description="Teléfono")
     direccion_obra: Optional[str] = Field(

@@ -25,6 +25,7 @@ const initialProyecto: ProyectoRequest = {
 
 const initialCliente: ClienteRequest = {
   nombre: '',
+  dni: '',
   email: '',
   telefono: '',
   direccion_obra: '',
@@ -63,7 +64,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case 'SET_STEP':
       return { ...state, currentStep: action.step };
     case 'NEXT_STEP':
-      return { ...state, currentStep: Math.min(state.currentStep + 1, 5) };
+      return { ...state, currentStep: Math.min(state.currentStep + 1, 4) };
     case 'PREV_STEP':
       return { ...state, currentStep: Math.max(state.currentStep - 1, 1) };
     case 'SET_PROYECTO':

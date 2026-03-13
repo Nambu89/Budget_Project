@@ -185,6 +185,10 @@ PRICING_DATA: Dict[str, Dict[str, Any]] = {
             "basico": 350.0, "estandar": 550.0, "premium": 900.0,
             "unidad": "m", "descripcion": "Instalacion de armario a medida (ancho x alto) en m"
         },
+        "instalacion_ventana": {
+            "basico": 250.0, "estandar": 250.0, "premium": 250.0,
+            "unidad": "ud", "descripcion": "Instalacion de ventana (ud/s)"
+        },
     },
 }
 

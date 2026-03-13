@@ -23,15 +23,15 @@ export const QualityLevel = {
 export type QualityLevel = (typeof QualityLevel)[keyof typeof QualityLevel];
 
 export const QUALITY_LABELS: Record<QualityLevel, string> = {
-  basico: 'Basico',
-  estandar: 'Estandar',
+  basico: 'B\u00e1sico',
+  estandar: 'Est\u00e1ndar',
   premium: 'Premium',
 };
 
 export const QUALITY_DESCRIPTIONS: Record<QualityLevel, string> = {
-  basico: 'Materiales economicos de buena relacion calidad-precio. Ideal para inversiones o alquiler.',
+  basico: 'Materiales econ\u00f3micos de buena relaci\u00f3n calidad-precio. Ideal para inversiones o alquiler.',
   estandar: 'Materiales de calidad media-alta. Equilibrio perfecto entre precio y durabilidad.',
-  premium: 'Materiales de alta gama y acabados de lujo. Maxima calidad y diseno.',
+  premium: 'Materiales de alta gama y acabados de lujo. M\u00e1xima calidad y dise\u00f1o.',
 };
 
 export const PropertyState = {
@@ -53,20 +53,16 @@ export const WorkCategory = {
   ALBANILERIA: 'albanileria',
   FONTANERIA: 'fontaneria',
   ELECTRICIDAD: 'electricidad',
-  COCINA: 'cocina',
   CARPINTERIA: 'carpinteria',
-  CLIMATIZACION: 'climatizacion',
   PAQUETE: 'paquete',
 } as const;
 export type WorkCategory = (typeof WorkCategory)[keyof typeof WorkCategory];
 
 export const CATEGORY_LABELS: Record<string, string> = {
-  albanileria: 'Albanileria',
-  fontaneria: 'Fontaneria',
+  albanileria: 'Alba\u00f1iler\u00eda',
+  fontaneria: 'Ba\u00f1o',
   electricidad: 'Electricidad',
-  cocina: 'Cocina',
-  carpinteria: 'Carpinteria',
-  climatizacion: 'Climatizacion',
+  carpinteria: 'Carpinter\u00eda',
   paquete: 'Paquete Completo',
 };
 
@@ -74,8 +70,6 @@ export const CATEGORY_ICONS: Record<string, string> = {
   albanileria: '',
   fontaneria: '',
   electricidad: '',
-  cocina: '',
   carpinteria: '',
-  climatizacion: '',
   paquete: '',
 };

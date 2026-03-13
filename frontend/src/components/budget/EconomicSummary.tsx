@@ -10,7 +10,7 @@ interface Props {
 export default function EconomicSummary({ presupuesto }: Props) {
   return (
     <GlassCard className={styles.summary}>
-      <h4 className={styles.summaryTitle}>Resumen economico</h4>
+      <h4 className={styles.summaryTitle}>Resumen econ\u00f3mico</h4>
 
       <div className={styles.summaryRow}>
         <span>Subtotal (sin IVA)</span>
@@ -29,7 +29,7 @@ export default function EconomicSummary({ presupuesto }: Props) {
 
       <div className={styles.meta}>
         <span>Presupuesto: {presupuesto.numero}</span>
-        <span>Validez: {presupuesto.dias_validez} dias</span>
+        <span>Validez: {presupuesto.dias_validez} d\u00edas</span>
         <span>{presupuesto.num_partidas} partidas</span>
       </div>
     </GlassCard>

@@ -31,7 +31,7 @@ export default function Step2WorkSelector() {
         delay={30}
       />
       <p className={styles.stepDesc}>
-        Elige paquetes completos o partidas individuales para tu reforma.
+        Elige paquetes completos o partidas individuales para tu reforma. Los precios son sin IVA.
       </p>
 
       {/* Tabs */}

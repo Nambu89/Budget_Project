@@ -297,9 +297,13 @@ class PDFGenerator:
 		cliente = budget.cliente
 		datos = [
 			["Nombre:", cliente.nombre],
+		]
+		if cliente.dni:
+			datos.append(["DNI / NIF:", cliente.dni])
+		datos.extend([
 			["Email:", cliente.email],
 			["Teléfono:", cliente.telefono_formateado],
-		]
+		])
 		
 		if cliente.direccion_obra:
 			datos.append(["Dirección obra:", cliente.direccion_obra])

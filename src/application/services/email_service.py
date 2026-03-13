@@ -7,6 +7,7 @@ Email Service - Servicio dual para envío de emails.
 
 import base64
 import smtplib
+from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -141,10 +142,9 @@ class EmailService:
 			str: HTML del email
 		"""
 		numero = datos.get('numero', 'N/A')
-		fecha = datos.get('fecha_emision', 'N/A')
+		fecha = datos.get('fecha_emision') or datetime.now().strftime("%d/%m/%Y")
 		total = datos.get('total', '0.00')
-		cliente = datos.get('cliente', {})
-		nombre_cliente = cliente.get('nombre', 'Cliente')
+		nombre_cliente = datos.get('cliente_nombre') or datos.get('cliente', {}).get('nombre', 'Cliente')
 		
 		mensaje_html = ""
 		if mensaje_personalizado:

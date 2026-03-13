@@ -60,13 +60,21 @@ class PaqueteInfo(BaseModel):
     precios: Dict[str, Dict[str, Any]]  # {calidad: {precio_base, m2_referencia}}
 
 
+class PartidaCatalogoInfo(BaseModel):
+    """Información de una partida en el catálogo."""
+
+    nombre: str
+    unidad: str
+    descripcion: str = ""
+
+
 class CategoriaInfo(BaseModel):
     """Información de una categoría de trabajo."""
-    
+
     id: str
     nombre: str
     icono: str
-    partidas: List[str]
+    partidas: List[PartidaCatalogoInfo]
 
 
 class PaquetesResponse(BaseModel):

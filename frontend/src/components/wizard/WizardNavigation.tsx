@@ -20,7 +20,7 @@ export default function WizardNavigation({
   isLoading = false,
 }: Props) {
   const isFirst = currentStep === 1;
-  const isLast = currentStep === 5;
+  const isLast = currentStep === 4;
 
   return (
     <div className={styles.nav}>
