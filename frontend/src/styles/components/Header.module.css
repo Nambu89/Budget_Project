@@ -12,11 +12,36 @@
   gap: var(--space-md);
 }
 
+.logoBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .logo {
   height: 64px;
   width: auto;
   border-radius: var(--radius-md);
   object-fit: contain;
+}
+
+.fiscalData {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.fiscalName {
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.fiscalDetail {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
 }
 
 .titleBlock {

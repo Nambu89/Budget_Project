@@ -17,7 +17,11 @@ export async function calcularPresupuesto(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.detail || errorBody.error || `Error ${response.status}`);
+    const detail = errorBody.detail;
+    const msg = typeof detail === 'string'
+      ? detail
+      : errorBody.error || `Error ${response.status}`;
+    throw new Error(msg);
   }
 
   return response.json();
@@ -40,7 +44,11 @@ export async function descargarPDF(data: GenerarPDFRequest): Promise<Blob> {
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.detail || errorBody.error || `Error ${response.status}`);
+    const detail = errorBody.detail;
+    const msg = typeof detail === 'string'
+      ? detail
+      : errorBody.error || `Error ${response.status}`;
+    throw new Error(msg);
   }
 
   return response.blob();

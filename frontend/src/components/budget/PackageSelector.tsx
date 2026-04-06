@@ -76,15 +76,18 @@ export default function PackageSelector({ paquetes, selected, calidad, tipoInmue
                   {precioBase > 0 ? formatCurrency(precioBase * factor) : 'Consultar'}
                 </span>
                 {!active && (
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="m2 (opc)"
-                    value={metrosInput[paq.id] || ''}
-                    onChange={e => setMetrosInput({ ...metrosInput, [paq.id]: Number(e.target.value) || 0 })}
-                    className={styles.metrosInput}
-                    style={{ width: '80px', marginLeft: '10px', padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '10px' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="m2 (opc)"
+                      value={metrosInput[paq.id] || ''}
+                      onChange={e => setMetrosInput({ ...metrosInput, [paq.id]: Number(e.target.value) || 0 })}
+                      className={styles.metrosInput}
+                      style={{ width: '80px', padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                    <span className={styles.unitLabel}>m²</span>
+                  </div>
                 )}
               </div>
 

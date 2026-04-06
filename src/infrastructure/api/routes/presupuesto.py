@@ -178,7 +178,7 @@ async def calcular_presupuesto(request: CalcularPresupuestoRequest):
         logger.exception(f"Error inesperado calculando presupuesto: {e}")
         raise HTTPException(
             status_code=500,
-            detail={"error": "Error interno del servidor", "detail": str(e)},
+            detail=f"Error interno del servidor: {e}",
         )
 
 

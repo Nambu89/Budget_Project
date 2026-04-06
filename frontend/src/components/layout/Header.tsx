@@ -5,7 +5,14 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <img src="/logo-isi.jpeg" alt="ISI Obras y Servicios" className={styles.logo} />
+        <div className={styles.logoBlock}>
+          <img src="/logo-isi.jpeg" alt="ISI Obras y Servicios" className={styles.logo} />
+          <div className={styles.fiscalData}>
+            <span className={styles.fiscalName}>QUEBRADEROS 360 S.L</span>
+            <span className={styles.fiscalDetail}>CIF: B26686212</span>
+            <span className={styles.fiscalDetail}>Tomás Bretón 7 1ºH, 50005, Zaragoza</span>
+          </div>
+        </div>
         <div className={styles.titleBlock}>
           <h1 className={styles.title}>
             <GradientText>Calculadora de Presupuestos</GradientText>

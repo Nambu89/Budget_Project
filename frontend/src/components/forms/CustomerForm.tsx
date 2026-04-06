@@ -16,7 +16,7 @@ export default function CustomerForm({ cliente, onChange }: Props) {
           id="nombre"
           value={cliente.nombre}
           onChange={e => onChange({ nombre: e.target.value })}
-          placeholder="Ej: Juan P\u00e9rez"
+          placeholder="Ej: Juan Pérez"
           style={{ width: '100%', marginTop: 4 }}
         />
       </GlassCard>
@@ -33,7 +33,7 @@ export default function CustomerForm({ cliente, onChange }: Props) {
       </GlassCard>
 
       <GlassCard>
-        <label htmlFor="telefono">Tel\u00e9fono *</label>
+        <label htmlFor="telefono">Teléfono *</label>
         <input
           id="telefono"
           value={cliente.telefono}

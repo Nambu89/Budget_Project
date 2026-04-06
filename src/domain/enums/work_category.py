@@ -29,7 +29,7 @@ class WorkCategory(str, Enum):
 		"""Nombre para mostrar en la UI."""
 		nombres = {
 			self.ALBANILERIA: "Albañilería",
-			self.FONTANERIA: "Baño",
+			self.FONTANERIA: "Fontanería",
 			self.ELECTRICIDAD: "Electricidad",
 			self.CARPINTERIA: "Carpintería",
 			self.PAQUETE: "Paquete Completo",
