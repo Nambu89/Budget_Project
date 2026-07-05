@@ -25,39 +25,30 @@ const CountUp: React.FC<CountUpProps> = ({
 }) => {
   const [value, setValue] = useState(from);
   const ref = useRef<HTMLSpanElement>(null);
-  const hasAnimated = useRef(false);
 
+  // Anima al montar (sin esperar a entrar al viewport): en pantallas
+  // pequeñas el resumen queda bajo el fold y el total se veía a 0,00 €
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const startTime = performance.now();
+    let rafId = 0;
+    const startTime = performance.now();
 
-          const animate = (currentTime: number) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const current = from + (to - from) * eased;
-            setValue(current);
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = from + (to - from) * eased;
+      setValue(current);
 
-            if (progress < 1) {
-              requestAnimationFrame(animate);
-            } else {
-              setValue(to);
-              onEnd?.();
-            }
-          };
+      if (progress < 1) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        setValue(to);
+        onEnd?.();
+      }
+    };
 
-          requestAnimationFrame(animate);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 }
-    );
-
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [to, from, duration, onEnd]);
 
   const formatNumber = (num: number) => {
