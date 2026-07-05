@@ -112,16 +112,17 @@ class CalculatorAgent:
 		self,
 		datos_proyecto: dict,
 		partidas: list[dict],
-		paquetes: list[str] = None,
+		paquetes: Optional[list] = None,
 	) -> Budget:
 		"""
 		Calcula el presupuesto completo.
-		
+
 		Args:
 			datos_proyecto: Datos validados del proyecto
 			partidas: Lista de partidas a incluir
-			paquetes: Lista de paquetes a incluir
-			
+			paquetes: Lista de paquetes a incluir. Cada elemento puede ser
+				un str (id del paquete) o un dict {id, cantidad, metros}
+
 		Returns:
 			Budget: Presupuesto calculado
 		"""
@@ -144,14 +145,31 @@ class CalculatorAgent:
 			self.budget_service.agregar_partidas_multiples(presupuesto, partidas)
 		
 		# Agregar paquetes (sin markup)
+		# El frontend envía dicts {id, cantidad, metros}; también se admite str (id)
 		if paquetes:
 			for paquete in paquetes:
-				self.budget_service.agregar_paquete(
-					presupuesto=presupuesto,
-					paquete=paquete,
-					calidad=datos_proyecto.get("calidad"),
-					metros=datos_proyecto["metros_cuadrados"],
-				)
+				if isinstance(paquete, dict):
+					paquete_id = paquete.get("id")
+					cantidad = int(paquete.get("cantidad") or 1)
+					# Sin metros explícitos, BudgetService decide el fallback
+					# según el tipo de paquete (m2 del proyecto o m2_referencia)
+					metros_paquete = paquete.get("metros")
+				else:
+					paquete_id = paquete
+					cantidad = 1
+					metros_paquete = None
+
+				if not paquete_id:
+					logger.warning(f"Paquete sin id, ignorado: {paquete}")
+					continue
+
+				for _ in range(max(cantidad, 1)):
+					self.budget_service.agregar_paquete(
+						presupuesto=presupuesto,
+						paquete=paquete_id,
+						calidad=datos_proyecto.get("calidad"),
+						metros=metros_paquete,
+					)
 		
 		logger.info(
 			f"Presupuesto calculado: {presupuesto.num_partidas} partidas, "

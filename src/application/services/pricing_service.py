@@ -197,12 +197,16 @@ class PricingService:
 			es_paquete=True,
 			items_incluidos=items_incluidos,  # ← AÑADIDO: Lista completa de items
 			nombre_paquete=paquete_data.get("nombre", paquete.replace("_", " ").title()),
-			notas=f"Paquete completo de {metros:.0f}m² - Calidad {calidad.display_name}",
+			notas=(
+				f"Paquete completo de {metros:.0f}m² - Calidad {calidad.display_name}"
+				if metros
+				else f"Paquete completo - Calidad {calidad.display_name}"
+			),
 		)
-		
+
 		logger.info(
 			f"Paquete '{paquete}' creado: {precio_total:.2f}€ "
-			f"({calidad.value}, {metros}m²) con {len(items_incluidos)} items incluidos"
+			f"({calidad.value}, {metros or 'm2 de referencia'}) con {len(items_incluidos)} items incluidos"
 		)
 		
 		return [budget_item]

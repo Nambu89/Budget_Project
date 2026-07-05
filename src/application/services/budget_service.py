@@ -10,6 +10,7 @@ from datetime import datetime
 from loguru import logger
 
 from ...config.settings import settings
+from ...config.pricing_data import PACKAGES_DATA
 from ...domain.enums import PropertyType, QualityLevel, WorkCategory
 from ...domain.models import Budget, BudgetItem, Project, Customer
 from ...infrastructure.pdf import generar_pdf_presupuesto
@@ -231,8 +232,17 @@ class BudgetService:
             bool: True si se agregó correctamente
         """
         calidad_usar = calidad or presupuesto.proyecto.calidad_general
-        metros_usar = metros or presupuesto.proyecto.metros_cuadrados
-        
+
+        # Sin metros explícitos: solo los paquetes por m2 (reformas integrales)
+        # usan la superficie del proyecto; los de precio base (baño, cocina...)
+        # se calculan con su m2_referencia para no inflar el precio con los
+        # metros de todo el inmueble
+        metros_usar = metros
+        if not metros_usar:
+            precios_paquete = PACKAGES_DATA.get(paquete, {}).get("precios", {}).get(calidad_usar.value, {})
+            if "precio_m2" in precios_paquete:
+                metros_usar = presupuesto.proyecto.metros_cuadrados
+
         partidas = self.pricing.crear_partidas_paquete(
             paquete=paquete,
             calidad=calidad_usar,
