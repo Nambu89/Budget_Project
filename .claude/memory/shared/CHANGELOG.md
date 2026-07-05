@@ -4,6 +4,13 @@ Historial cronologico de todas las sesiones de trabajo del equipo multiagente.
 
 ---
 
+## [2026-07-05] — Claude (E2E contra produccion real)
+- URL frontend produccion: https://presupuestos.isiobrasyservicios.com (dominio custom, proxy /api al backend)
+- E2E Playwright headed 27/27 PASS contra produccion real (frontend + backend desplegados)
+- Video grabado: `e2e_produccion.webm` en raiz del proyecto (no commitear)
+- Verificado build nuevo desplegado: favicon.png/ico live, label Banos, dropdown Fontaneria, PDF con datos fiscales, WhatsApp, sin errores consola
+- Falsa alarma TOTAL 0,00€: CountUp usa IntersectionObserver (threshold 0.3) — anima al entrar al viewport; tras scroll muestra total correcto (verificado 6.987,75€). Mejora UX opcional: animar on-mount
+
 ## [2026-07-05] — Claude (deploy + E2E Playwright + 2 bugs criticos backend)
 - **Deploy**: 3 commits pusheados a main (6656b8f feedback+favicon, 36e0aa9 WorkCategory, cfb97e5 paquetes dict) — Railway auto-deploy OK
 - **Bug critico 1**: `data_collector_agent.py` referenciaba WorkCategory.COCINA/CLIMATIZACION (eliminados del enum) — AttributeError en CADA calculo. Este era el verdadero "punto 4 no funciona" de Jacobo
