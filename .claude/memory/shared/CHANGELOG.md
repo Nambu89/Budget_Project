@@ -9,7 +9,8 @@ Historial cronologico de todas las sesiones de trabajo del equipo multiagente.
 - E2E Playwright headed 27/27 PASS contra produccion real (frontend + backend desplegados)
 - Video grabado: `e2e_produccion.webm` en raiz del proyecto (no commitear)
 - Verificado build nuevo desplegado: favicon.png/ico live, label Banos, dropdown Fontaneria, PDF con datos fiscales, WhatsApp, sin errores consola
-- Falsa alarma TOTAL 0,00€: CountUp usa IntersectionObserver (threshold 0.3) — anima al entrar al viewport; tras scroll muestra total correcto (verificado 6.987,75€). Mejora UX opcional: animar on-mount
+- Falsa alarma TOTAL 0,00€: CountUp usa IntersectionObserver (threshold 0.3) — anima al entrar al viewport; tras scroll muestra total correcto (verificado 6.987,75€)
+- Fix aplicado (1a2e368): CountUp anima al montar — TOTAL visible sin scroll. Verificado en produccion (6.987,75€ sin scrollear)
 
 ## [2026-07-05] — Claude (deploy + E2E Playwright + 2 bugs criticos backend)
 - **Deploy**: 3 commits pusheados a main (6656b8f feedback+favicon, 36e0aa9 WorkCategory, cfb97e5 paquetes dict) — Railway auto-deploy OK
