@@ -29,7 +29,7 @@ export default function PriceRangeTeaser({ total }: Props) {
       </div>
 
       <p className={styles.teaserCta}>
-        Reg\u00edstrate gratis para ver el precio exacto, descargar el PDF y guardar tu presupuesto.
+        Regístrate gratis para ver el precio exacto, descargar el PDF y guardar tu presupuesto.
       </p>
     </GlassCard>
   );

@@ -108,7 +108,7 @@ export default function Step4BudgetFinal() {
     const numero = state.presupuesto?.numero || '';
     const nombre = state.cliente.nombre || 'Cliente';
     const texto = encodeURIComponent(
-      `Hola, soy ${nombre}. He generado el presupuesto ${numero} con un total de ${total}\u20ac (IVA incluido). Me gustar\u00eda recibir m\u00e1s informaci\u00f3n.`
+      `Hola, soy ${nombre}. He generado el presupuesto ${numero} con un total de ${total}€ (IVA incluido). Me gustaría recibir más información.`
     );
     window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${texto}`, '_blank');
   };
@@ -139,7 +139,7 @@ export default function Step4BudgetFinal() {
         delay={30}
       />
       <p className={styles.stepDesc}>
-        Aqu\u00ed tienes el desglose completo de tu presupuesto de reforma.
+        Aquí tienes el desglose completo de tu presupuesto de reforma.
       </p>
 
       <BudgetBreakdown partidas={state.presupuesto.partidas} />

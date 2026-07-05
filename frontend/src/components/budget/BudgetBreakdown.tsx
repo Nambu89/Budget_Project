@@ -26,7 +26,7 @@ export default function BudgetBreakdown({ partidas }: Props) {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Descripci\u00f3n</th>
+                <th>Descripción</th>
                 <th>Cant.</th>
                 <th>Ud.</th>
                 <th>P. Unit.</th>

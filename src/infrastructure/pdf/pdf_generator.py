@@ -207,27 +207,51 @@ class PDFGenerator:
 		return pdf_bytes
 	
 	def _crear_cabecera(
-		self, 
-		budget: Budget, 
+		self,
+		budget: Budget,
 		logo_path: Optional[str]
 	) -> list:
-		"""Crea la cabecera del documento."""
+		"""Crea la cabecera del documento con logo y datos fiscales."""
 		elementos = []
-		
+
+		# Datos fiscales de la empresa (junto al logo)
+		datos_fiscales = Paragraph(
+			"<b>QUEBRADEROS 360 S.L</b><br/>"
+			"CIF: B26686212<br/>"
+			"Tomás Bretón 7 1ºH, 50005, Zaragoza",
+			self.styles['TextoDerecha']
+		)
+
 		# Logo de empresa (usar por defecto si no se proporciona otro)
 		logo_a_usar = logo_path
 		if not logo_a_usar or not Path(logo_a_usar).exists():
 			# Usar logo por defecto de la empresa
 			logo_a_usar = "Logo/Logo ISI.jpeg"
-		
+
+		logo = None
 		if logo_a_usar and Path(logo_a_usar).exists():
 			try:
 				logo = Image(logo_a_usar, width=4*cm, height=2*cm)
-				logo.hAlign = 'CENTER'
-				elementos.append(logo)
-				elementos.append(Spacer(1, 10))
 			except Exception as e:
 				logger.warning(f"No se pudo cargar el logo: {e}")
+
+		if logo:
+			tabla_cabecera = Table(
+				[[logo, datos_fiscales]],
+				colWidths=[8*cm, 9*cm],
+			)
+			tabla_cabecera.setStyle(TableStyle([
+				('ALIGN', (0, 0), (0, 0), 'LEFT'),
+				('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+				('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+				('LEFTPADDING', (0, 0), (-1, -1), 0),
+				('RIGHTPADDING', (0, 0), (-1, -1), 0),
+			]))
+			elementos.append(tabla_cabecera)
+		else:
+			elementos.append(datos_fiscales)
+
+		elementos.append(Spacer(1, 10))
 		
 		# Título
 		elementos.append(Paragraph(

@@ -1,6 +1,6 @@
 # Memoria Compartida — Budget_Project
 
-> Ultima actualizacion: 2026-03-04 | Por: Backend Dev (JWT real + tests)
+> Ultima actualizacion: 2026-07-05 | Por: Claude (feedback Jacobo 13/03 aplicado)
 
 ## Estado Actual del Proyecto
 
@@ -39,10 +39,19 @@
   - Agent tests con skipif (requieren LLM API key)
 - [x] **Streamlit eliminado** — archivos de presentation borrados
 
+## Completado 2026-07-05 (feedback Jacobo 13/03)
+
+- [x] Paso 1: "Fontanerias" revertido a "Banos" (PropertyForm.tsx)
+- [x] 9 escapes unicode literales eliminados de JSX (Step4, EconomicSummary, PriceRangeTeaser, BudgetBreakdown)
+- [x] Fix [object Object] en errores API (client.ts)
+- [x] Fix PDF adjunto corrupto en email (routes/email.py: b64decode explicito)
+- [x] Datos fiscales QUEBRADEROS 360 S.L en cabecera PDF junto a logo (pdf_generator.py)
+- [x] Test display_name actualizado (35 passed)
+
 ## En Progreso
 
 - [ ] Testing E2E del frontend contra FastAPI
-- [ ] Conectar descarga PDF y envio email (Step 5 botones)
+- [ ] Redeploy Railway con estos fixes (capturas de Jacobo eran de version vieja)
 - [ ] Deploy frontend en Railway (contenedor separado)
 
 ## Backlog
@@ -55,9 +64,9 @@
 
 ## Problemas Conocidos
 
-- `requirements.txt` referencia `agent-framework==1.0.0b251120` (beta)
+- Entorno LOCAL tiene agent-framework 1.9.0 pero el proyecto pinnea 1.0.0b260123 (1.9.0 no exporta ChatAgent) — tests que importan src.application fallan en local; deploy OK con el pin. No downgradear global sin revisar otros proyectos.
 - TypeScript `erasableSyntaxOnly` activado por defecto en Vite 7
-- Step 5 botones "Descargar PDF" y "Enviar email" aun no conectados a API
+- Email presupuestos: funciona via Resend como SMTP relay (confirmado por Fernando 2026-07-05); codigo usa smtplib en email_service.py
 
 ## Decisiones Arquitectonicas
 

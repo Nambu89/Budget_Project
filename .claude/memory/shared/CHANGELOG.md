@@ -4,6 +4,22 @@ Historial cronologico de todas las sesiones de trabajo del equipo multiagente.
 
 ---
 
+## [2026-07-05] — Claude (favicon multi-formato)
+- `frontend/public/` — favicon.png (64px), apple-touch-icon.png (180px), favicon.ico (16/32/48) generados desde `Logo/Favicon.jpeg`; eliminado favicon.jpeg (JPEG no soportado como favicon en Safari)
+- `frontend/index.html` — links icon actualizados (ico + png + apple-touch-icon)
+- Nota: email de presupuestos confirmado funcionando via Resend (SMTP relay); el fix b64decode sigue aplicando
+
+## [2026-07-05] — Claude (feedback Jacobo 13/03: fixes restantes)
+- **Paso 1 revertido**: label "Fontanerías" -> "Baños" (cambio mal aplicado; el rename correcto era el desplegable de partidas, ya hecho en 8d0c3ae)
+  - `frontend/src/components/forms/PropertyForm.tsx`
+- **Unicode escapado eliminado** (9 escapes literales `\uXXXX` en JSX que se renderizaban tal cual):
+  - `frontend/src/components/steps/Step4BudgetFinal.tsx`, `budget/EconomicSummary.tsx`, `budget/PriceRangeTeaser.tsx`, `budget/BudgetBreakdown.tsx`
+- **Fix `[object Object]`**: `frontend/src/api/client.ts` — detail no-string ya no se pasa como message
+- **Fix email con PDF corrupto**: `src/infrastructure/api/routes/email.py` — pdf_bytes ahora str base64 + b64decode explícito (Pydantic `bytes` encodeaba el base64 como utf-8, adjunto ilegible)
+- **Datos fiscales en PDF**: `src/infrastructure/pdf/pdf_generator.py` — cabecera con tabla logo (izq) + QUEBRADEROS 360 S.L / CIF B26686212 / Tomás Bretón 7 1ºH, 50005 Zaragoza (der). Verificado renderizando PDF real.
+- **Test actualizado**: `tests/unit/test_models.py` — display_name FONTANERIA "Baño" -> "Fontanería" (35 passed)
+- **Verificado**: build frontend OK (tsc + vite). Suite completa backend bloqueada en local: agent-framework instalado es 1.9.0, pin del proyecto 1.0.0b260123 (sin ChatAgent en 1.9.0) — solo afecta entorno local, deploy usa el pin.
+
 ## [2026-03-04] — Backend Dev (JWT real + 50 tests arreglados + limpieza)
 - **JWT real implementado** (reemplaza fake tokens):
   - `requirements.txt` — anadido PyJWT>=2.8.0

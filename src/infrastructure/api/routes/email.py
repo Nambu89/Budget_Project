@@ -2,6 +2,9 @@
 Endpoint para envío de presupuestos por email.
 """
 
+import base64
+import binascii
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from loguru import logger
@@ -14,7 +17,7 @@ router = APIRouter()
 class EnviarEmailRequest(BaseModel):
     """Request para enviar presupuesto por email."""
     email_destinatario: EmailStr
-    pdf_bytes: bytes
+    pdf_bytes: str  # PDF codificado en base64
     datos_presupuesto: dict
     mensaje_personalizado: str | None = None
 
@@ -37,11 +40,20 @@ async def enviar_presupuesto_email(request: EnviarEmailRequest):
         EnviarEmailResponse: Resultado del envío
     """
     try:
+        pdf_decodificado = base64.b64decode(request.pdf_bytes, validate=True)
+    except (binascii.Error, ValueError) as e:
+        logger.error(f"PDF adjunto con base64 inválido: {e}")
+        raise HTTPException(
+            status_code=422,
+            detail="El PDF adjunto no está codificado correctamente en base64"
+        )
+
+    try:
         email_service = get_email_service()
-        
+
         success = email_service.enviar_presupuesto(
             email_destinatario=request.email_destinatario,
-            pdf_bytes=request.pdf_bytes,
+            pdf_bytes=pdf_decodificado,
             datos_presupuesto=request.datos_presupuesto,
             mensaje_personalizado=request.mensaje_personalizado
         )
