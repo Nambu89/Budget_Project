@@ -4,6 +4,16 @@ Historial cronologico de todas las sesiones de trabajo del equipo multiagente.
 
 ---
 
+## [2026-07-05] — Claude (deploy + E2E Playwright + 2 bugs criticos backend)
+- **Deploy**: 3 commits pusheados a main (6656b8f feedback+favicon, 36e0aa9 WorkCategory, cfb97e5 paquetes dict) — Railway auto-deploy OK
+- **Bug critico 1**: `data_collector_agent.py` referenciaba WorkCategory.COCINA/CLIMATIZACION (eliminados del enum) — AttributeError en CADA calculo. Este era el verdadero "punto 4 no funciona" de Jacobo
+- **Bug critico 2**: `calculator_agent.py` esperaba paquetes list[str] pero el frontend envia dicts {id, cantidad, metros} — 'unhashable type: dict'
+- **Bug precio**: paquete sin metros usaba m2 de TODO el inmueble (bano en piso 80m2 = 43.000€). Ahora: paquetes precio_base usan m2_referencia (bano 5.500€), solo reformas integrales usan m2 proyecto (`budget_service.py`, `pricing_service.py`)
+- **E2E Playwright 27/27 PASS**: frontend local (codigo nuevo, vite proxy) + backend PRODUCCION. Flujo completo usuario: 4 pasos, dropdown Fontaneria, m2 negrita, PDF descargado con datos fiscales QUEBRADEROS, WhatsApp wa.me OK, modal email OK, sin errores consola
+- Backend produccion verificado: https://budgetproject-production.up.railway.app (calculo OK, PDF OK, email 422 con base64 invalido)
+- URL del frontend desplegado NO localizada (Railway CLI sin login) — pendiente verificar con Fernando
+- Nota: mojibake aparente en curl era encoding cp1252 de la consola Windows, API correcta
+
 ## [2026-07-05] — Claude (favicon multi-formato)
 - `frontend/public/` — favicon.png (64px), apple-touch-icon.png (180px), favicon.ico (16/32/48) generados desde `Logo/Favicon.jpeg`; eliminado favicon.jpeg (JPEG no soportado como favicon en Safari)
 - `frontend/index.html` — links icon actualizados (ico + png + apple-touch-icon)
