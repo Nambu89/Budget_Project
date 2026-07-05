@@ -183,9 +183,6 @@ class DataCollectorAgent:
 			"eléctrico": WorkCategory.ELECTRICIDAD,
 			"carpinteria": WorkCategory.CARPINTERIA,
 			"carpintería": WorkCategory.CARPINTERIA,
-			"cocina": WorkCategory.COCINA,
-			"climatizacion": WorkCategory.CLIMATIZACION,
-			"climatización": WorkCategory.CLIMATIZACION,
 		}
 		
 		if categoria_lower in mapeo:
