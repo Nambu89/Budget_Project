@@ -4,6 +4,15 @@ Historial cronologico de todas las sesiones de trabajo del equipo multiagente.
 
 ---
 
+## [2026-07-06] — Claude (limpieza para entrega a Jacobo)
+- **12-Factor Agents aplicado** (Factor 2 own your prompts): prompts centralizados en `src/application/agents/prompts.py`; los 3 agentes importan de ahi. calculator_agent 346 -> 214 lineas
+- **Mapeos de validacion** de DataCollector a constantes de modulo (MAPEO_TIPO_INMUEBLE, MAPEO_CALIDAD, MAPEO_CATEGORIA)
+- **Bug latente arreglado**: `Project` no tiene campo `num_habitaciones` (es `habitaciones`) — crear_presupuesto lo descartaba silenciosamente (Pydantic extra=ignore) y calcular_estimaciones_inteligentes crasheaba
+- **Codigo muerto eliminado**: PriceRangeTeaser.tsx, endpoints auth/guardar sin uso en frontend config, extract_pdf.py, rewrite_pricing.py, carpetas vacias auth/pages
+- **Docs**: README raiz actualizado (agentes IA + tabla, deploy Railway real con URLs, nota pin agent-framework), frontend/README.md reescrito (era template Vite), .env.example creado, .gitignore ampliado
+- Verificado: 79 passed 44 skipped, build OK, E2E produccion tras redeploy
+- Commit 4954fa9
+
 ## [2026-07-05] — Claude (E2E contra produccion real)
 - URL frontend produccion: https://presupuestos.isiobrasyservicios.com (dominio custom, proxy /api al backend)
 - E2E Playwright headed 27/27 PASS contra produccion real (frontend + backend desplegados)
