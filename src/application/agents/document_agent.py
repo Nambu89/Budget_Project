@@ -17,6 +17,7 @@ from ...domain.models import Budget, Customer
 from ...infrastructure.pdf import generar_pdf_presupuesto
 from ...infrastructure.llm import get_chat_client
 from ..services import BudgetService, get_budget_service
+from .prompts import DOCUMENT_INSTRUCTIONS
 
 
 # System prompt del agente
@@ -67,12 +68,7 @@ class DocumentAgent:
 		self.agent = ChatAgent(
 			name="Especialista en Documentación",
 			chat_client=chat_client,
-			instructions="""
-			Soy especialista en documentación comercial con experiencia
-			en el sector de la construcción. Me aseguro de que cada
-			presupuesto sea claro, profesional y cumpla con todos
-			los requisitos legales.
-			""",
+			instructions=DOCUMENT_INSTRUCTIONS,
 		)
 		
 		logger.info("✓ DocumentAgent inicializado (Microsoft Agent Framework)")

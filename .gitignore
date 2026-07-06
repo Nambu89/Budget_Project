@@ -151,3 +151,10 @@ secrets/
 *.pem
 *.key
 *.secret
+# ============================================
+# Artefactos de pruebas y logs descargados
+# ============================================
+*.webm
+logs.*.json
+test-results/
+playwright-report/

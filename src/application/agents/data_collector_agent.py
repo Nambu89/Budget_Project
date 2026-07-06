@@ -14,6 +14,7 @@ from loguru import logger
 from ...config.settings import settings
 from ...infrastructure.llm import get_chat_client
 from src.domain.enums import PropertyType, QualityLevel, WorkCategory
+from .prompts import DATA_COLLECTOR_INSTRUCTIONS
 
 
 # System prompt del agente
@@ -39,6 +40,54 @@ Responde siempre en español y de forma profesional pero cercana.
 """
 
 
+
+# ============================================
+# Mapeos de sinónimos aceptados en la entrada
+# ============================================
+
+MAPEO_TIPO_INMUEBLE: dict[str, PropertyType] = {
+	"piso": PropertyType.PISO,
+	"vivienda": PropertyType.VIVIENDA,
+	"vivienda independiente": PropertyType.VIVIENDA,
+	"casa": PropertyType.VIVIENDA,
+	"chalet": PropertyType.VIVIENDA,
+	"adosado": PropertyType.VIVIENDA,
+	"oficina": PropertyType.OFICINA,
+	"despacho": PropertyType.OFICINA,
+	"local": PropertyType.LOCAL,
+	"local comercial": PropertyType.LOCAL,
+	"comercio": PropertyType.LOCAL,
+}
+
+MAPEO_CALIDAD: dict[str, QualityLevel] = {
+	"basico": QualityLevel.BASICO,
+	"básico": QualityLevel.BASICO,
+	"economico": QualityLevel.BASICO,
+	"económico": QualityLevel.BASICO,
+	"estandar": QualityLevel.ESTANDAR,
+	"estándar": QualityLevel.ESTANDAR,
+	"normal": QualityLevel.ESTANDAR,
+	"medio": QualityLevel.ESTANDAR,
+	"premium": QualityLevel.PREMIUM,
+	"alta": QualityLevel.PREMIUM,
+	"lujo": QualityLevel.PREMIUM,
+	"alto": QualityLevel.PREMIUM,
+}
+
+MAPEO_CATEGORIA: dict[str, WorkCategory] = {
+	"albanileria": WorkCategory.ALBANILERIA,
+	"albañileria": WorkCategory.ALBANILERIA,
+	"albañilería": WorkCategory.ALBANILERIA,
+	"fontaneria": WorkCategory.FONTANERIA,
+	"fontanería": WorkCategory.FONTANERIA,
+	"electricidad": WorkCategory.ELECTRICIDAD,
+	"electrico": WorkCategory.ELECTRICIDAD,
+	"eléctrico": WorkCategory.ELECTRICIDAD,
+	"carpinteria": WorkCategory.CARPINTERIA,
+	"carpintería": WorkCategory.CARPINTERIA,
+}
+
+
 class DataCollectorAgent:
 	"""
 	Agente para recolección y validación de datos.
@@ -60,12 +109,7 @@ class DataCollectorAgent:
 		self.agent = ChatAgent(
 			name="Especialista en Recolección de Datos",
 			chat_client=chat_client,
-			instructions="""
-			Soy un experto en reformas con años de experiencia ayudando
-			a clientes a definir sus proyectos. Mi trabajo es asegurarme
-			de que toda la información esté completa y sea coherente
-			antes de calcular el presupuesto.
-			"""
+			instructions=DATA_COLLECTOR_INSTRUCTIONS,
 		)
 		
 		logger.info("✓ DataCollectorAgent inicializado (Microsoft Agent Framework)")
@@ -82,19 +126,7 @@ class DataCollectorAgent:
 		"""
 		tipo_lower = tipo.lower().strip()
 		
-		mapeo = {
-			"piso": PropertyType.PISO,
-			"vivienda": PropertyType.VIVIENDA,
-			"vivienda independiente": PropertyType.VIVIENDA,
-			"casa": PropertyType.VIVIENDA,
-			"chalet": PropertyType.VIVIENDA,
-			"adosado": PropertyType.VIVIENDA,
-			"oficina": PropertyType.OFICINA,
-			"despacho": PropertyType.OFICINA,
-			"local": PropertyType.LOCAL,
-			"local comercial": PropertyType.LOCAL,
-			"comercio": PropertyType.LOCAL,
-		}
+		mapeo = MAPEO_TIPO_INMUEBLE
 		
 		if tipo_lower in mapeo:
 			return True, mapeo[tipo_lower], f"Tipo de inmueble válido: {mapeo[tipo_lower].value}"
@@ -140,20 +172,7 @@ class DataCollectorAgent:
 		"""
 		calidad_lower = calidad.lower().strip()
 		
-		mapeo = {
-			"basico": QualityLevel.BASICO,
-			"básico": QualityLevel.BASICO,
-			"economico": QualityLevel.BASICO,
-			"económico": QualityLevel.BASICO,
-			"estandar": QualityLevel.ESTANDAR,
-			"estándar": QualityLevel.ESTANDAR,
-			"normal": QualityLevel.ESTANDAR,
-			"medio": QualityLevel.ESTANDAR,
-			"premium": QualityLevel.PREMIUM,
-			"alta": QualityLevel.PREMIUM,
-			"lujo": QualityLevel.PREMIUM,
-			"alto": QualityLevel.PREMIUM,
-		}
+		mapeo = MAPEO_CALIDAD
 		
 		if calidad_lower in mapeo:
 			return True, mapeo[calidad_lower], f"Calidad válida: {mapeo[calidad_lower].value}"
@@ -172,18 +191,7 @@ class DataCollectorAgent:
 		"""
 		categoria_lower = categoria.lower().strip()
 		
-		mapeo = {
-			"albanileria": WorkCategory.ALBANILERIA,
-			"albañileria": WorkCategory.ALBANILERIA,
-			"albañilería": WorkCategory.ALBANILERIA,
-			"fontaneria": WorkCategory.FONTANERIA,
-			"fontanería": WorkCategory.FONTANERIA,
-			"electricidad": WorkCategory.ELECTRICIDAD,
-			"electrico": WorkCategory.ELECTRICIDAD,
-			"eléctrico": WorkCategory.ELECTRICIDAD,
-			"carpinteria": WorkCategory.CARPINTERIA,
-			"carpintería": WorkCategory.CARPINTERIA,
-		}
+		mapeo = MAPEO_CATEGORIA
 		
 		if categoria_lower in mapeo:
 			return True, mapeo[categoria_lower], f"Categoría válida: {mapeo[categoria_lower].value}"

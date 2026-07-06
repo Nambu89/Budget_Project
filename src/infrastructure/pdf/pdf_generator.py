@@ -1,11 +1,9 @@
 """
 Generador de PDF para presupuestos.
 
-Genera documentos PDF profesionales con el presupuesto
-completo, incluyendo logo opcional, partidas y disclaimers.
-
-ACTUALIZADO:
-- Línea 515: "Redondeo al alza (5%)" → "Redondeo (5%)"
+Genera documentos PDF profesionales con el presupuesto completo:
+cabecera con logo y datos fiscales, datos del proyecto y cliente,
+desglose de partidas, totales y disclaimers legales.
 """
 
 import io

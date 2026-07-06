@@ -72,7 +72,7 @@ class BudgetService:
         proyecto = Project(
             tipo_inmueble=tipo_inmueble,
             metros_cuadrados=metros_cuadrados,
-            num_habitaciones=num_habitaciones,  # NUEVO
+            habitaciones=num_habitaciones,
             calidad_general=calidad,
             estado_actual=estado_actual,
             ubicacion=ubicacion,

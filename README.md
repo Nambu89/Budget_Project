@@ -32,12 +32,28 @@ Aplicacion web que permite generar presupuestos profesionales para reformas de v
 ### Backend
 - **Python 3.10+**
 - **FastAPI** - API REST
+- **Microsoft Agent Framework** - Agentes IA (`agent-framework==1.0.0b260123`, ver nota en Testing)
 - **Pydantic v2** - Validacion de datos
 - **ReportLab** - Generacion de PDFs
 - **SQLAlchemy 2.0** - Base de datos (SQLite dev / PostgreSQL prod)
 - **Loguru** - Logging
 - **PyJWT** - Autenticacion JWT (para endpoints protegidos)
 - **Pytest** - Testing (79 tests)
+
+### Agentes IA
+
+El calculo se orquesta con 3 agentes coordinados por `BudgetCrew` (flujo secuencial
+determinista — el LLM solo interviene donde aporta, siguiendo la filosofia de
+[12-Factor Agents](https://github.com/humanlayer/12-factor-agents)):
+
+| Agente | Responsabilidad | ¿Usa LLM? |
+|--------|-----------------|-----------|
+| `DataCollectorAgent` | Validar y normalizar datos de entrada | No (reglas) |
+| `CalculatorAgent` | Calcular precios, markup, IVA, redondeo | Solo para estimaciones de mediciones (opcional, con fallback heuristico) |
+| `DocumentAgent` | PDF y mensajes para el cliente | No (plantillas) |
+
+Todos los prompts viven centralizados en `src/application/agents/prompts.py`
+(Factor 2: *own your prompts*).
 
 ### Frontend
 - **React 19** - UI
@@ -57,6 +73,7 @@ Budget_Project/
 │   │   └── models/               # Budget, Project, Customer, BudgetItem
 │   ├── application/
 │   │   ├── agents/               # Agentes IA (DataCollector, Calculator, Document)
+│   │   │   └── prompts.py        # Prompts centralizados (12-Factor Agents)
 │   │   ├── crews/                # BudgetCrew (orquestador)
 │   │   └── services/             # BudgetService, PricingService, EmailService
 │   ├── infrastructure/
@@ -122,14 +139,19 @@ cd frontend
 npm run dev
 ```
 
-### Produccion
+### Produccion (Railway)
+
+Dos servicios desplegados desde este mismo repo (auto-deploy al hacer push a `main`):
+
+| Servicio | URL | Como se construye |
+|----------|-----|-------------------|
+| Backend (FastAPI) | https://budgetproject-production.up.railway.app | `Dockerfile` en la raiz (`python main.py`) |
+| Frontend (React) | https://presupuestos.isiobrasyservicios.com | Root dir `frontend/`, build Vite; sirve `dist/` y proxya `/api` al backend |
 
 ```bash
-# Build frontend
+# Build local del frontend
 cd frontend
-npm run build
-
-# Backend sirve el frontend desde dist/
+npm run build   # tsc + vite build -> dist/
 ```
 
 ## Testing
@@ -141,6 +163,10 @@ pytest tests/ -v
 # Con cobertura
 pytest --cov=src --cov-report=html
 ```
+
+> **Nota**: el proyecto pinnea `agent-framework==1.0.0b260123`. Versiones
+> posteriores (1.x estable) renombraron `ChatAgent` y rompen el import. Usa
+> siempre un entorno virtual con las versiones de `requirements.txt`.
 
 ## Paquetes Disponibles
 
@@ -155,11 +181,13 @@ pytest --cov=src --cov-report=html
 
 | Categoria | Ejemplos |
 |-----------|----------|
-| Albanileria | Demolicion, tabiques, alicatado, solado, recrecido |
-| Fontaneria | Puntos de agua, desagues, griferia, sanitarios |
+| Albanileria | Demolicion, tabiques, alicatado, solado, pintura, falsos techos |
+| Fontaneria | Ejecucion bano/cocina, desagues, griferia, sanitarios, mamparas |
 | Electricidad | Puntos de luz, enchufes, cuadro electrico, tomas |
-| Pintura | Pintura plastica, esmalte, gotele, lacado |
 | Carpinteria | Suelos, puertas, armarios, rodapie, ventanas |
+
+(La fuente de precios es `src/config/pricing_data.py`; el desplegable del
+frontend se genera desde `GET /api/v1/catalogos/categorias`.)
 
 ## Reglas de Negocio
 
